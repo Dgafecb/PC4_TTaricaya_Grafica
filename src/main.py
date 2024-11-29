@@ -49,7 +49,7 @@ dialogue_box = DialogueBox(
 # Narrativa inicial del juego
 story = [
     "Bienvenido a la Reserva Nacional Pacaya-Samiria.",
-    "Eres un guardián encargado de proteger las taricayas.",
+    "Eres un guardian encargado de proteger las taricayas.",
     "Debes evitar a los depredadores y asegurar la supervivencia."
 ]
 
