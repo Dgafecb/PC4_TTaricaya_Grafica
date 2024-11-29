@@ -45,7 +45,13 @@ map_data = [
     [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],         # Piso normal
     [12, 0, 1, 12, 12, 12, 0, 1, 12, 12],   # Elementos adicionales
 ]
-
+# Instancia del narrador
+narrador_assets_path = "../assets/images/narrator_assets/Amazon.png"
+narrador_sprite = pygame.image.load(narrador_assets_path).convert_alpha()
+narrador_sprite = pygame.transform.scale(narrador_sprite,(200,200))
+# Posicion del narrador
+narrador_sprite_x = 50 + 700 // 2 - narrador_sprite.get_width() // 2  # Basado en las dimensiones del cuadro de diálogo
+narrador_sprite_y = 450 - narrador_sprite.get_height() - 10  # 10 píxeles encima del cuadro
 # Instancia del jugador
 player_assets_path = "../assets/images/player_assets"
 player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path)
@@ -69,6 +75,7 @@ story = [
 
 
 def main():
+    
     running = True
     in_story = True  # Variable para controlar si estamos en la narrativa inicial
     current_story_index = 0  # Variable local para manejar el índice de la narrativa
@@ -106,7 +113,9 @@ def main():
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
         dialogue_box.draw(screen)
-
+        # Dibujar el narrador encima del cuadro de diálogo
+        if in_story:
+            screen.blit(narrador_sprite, (narrador_sprite_x, narrador_sprite_y))
         pygame.display.flip()
 
     pygame.quit()
