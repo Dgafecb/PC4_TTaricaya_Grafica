@@ -114,12 +114,19 @@ def main():
                 # Interacción con las tortugas cuando no estamos en la narrativa
                 if not in_story and event.key == pygame.K_a:
                     if following_turtle:
-                        following_turtle.is_following_player = False
+                        following_turtle.is_following_player = False                        
                         following_turtle = None
                     else:
                         following_turtle = check_collision(player, turtles)
                         if following_turtle:
                             following_turtle.is_following_player = True
+                if not in_story and event.key == pygame.K_s:
+                    if following_turtle:
+                        following_turtle.attack()
+                        following_turtle.stop_following()
+                        following_turtle = None
+                
+
 
         if not in_story:
             keys = pygame.key.get_pressed()

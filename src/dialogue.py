@@ -63,25 +63,80 @@ class DialogueBox:
                 3  # Grosor del borde
             )
 
-            # Dibuja las letras del texto principal
-            x, y = self.position[0] + 20, self.position[1] + 20
-            for char in self.visible_text:
-                if char != " ":
+            # Calcular espacio disponible para el texto (considerando las instrucciones)
+            instructions_height = 30  # Altura para las instrucciones
+            available_height = self.box_height - instructions_height  # Espacio para el texto
+            max_line_width = self.box_width - 40  # Ancho máximo para una línea de texto
+
+            # Variables para el dibujo de texto
+            x, y = self.position[0] + 20, self.position[1] + 20  # Posición inicial
+            line_width = 0  # Ancho de la línea actual
+
+            words = self.visible_text.split(" ")  # Dividir el texto en palabras
+            for word in words:
+                word_width = 0
+                # Calcular el ancho de la palabra
+                for char in word:
                     try:
-                        # Carga la imagen correspondiente al carácter
+                        # Cargar la imagen correspondiente al carácter
                         char_image = pygame.image.load(f"{self.letters_path}/{ord(char)}.png")
                         char_image = pygame.transform.scale(char_image, (self.letter_width, self.letter_height))
-                        screen.blit(char_image, (x, y))
+                        word_width += char_image.get_width()  # Sumar el ancho de cada carácter
                     except FileNotFoundError:
                         print(f"Advertencia: Imagen no encontrada para '{char}'")
-                x += self.letter_width  # Espacio entre letras
 
-                # Salto de línea si el texto excede el ancho del cuadro
-                if x > self.position[0] + self.box_width - 20:
-                    x = self.position[0] + 20
-                    y += self.letter_height + 5
+                # Verificar si la palabra cabe en la línea
+                if line_width + word_width <= max_line_width:
+                    # Si cabe, agregar la palabra a la línea actual
+                    for char in word:
+                        try:
+                            # Cargar la imagen correspondiente al carácter
+                            char_image = pygame.image.load(f"{self.letters_path}/{ord(char)}.png")
+                            char_image = pygame.transform.scale(char_image, (self.letter_width, self.letter_height))
+
+                            # Dibuja el carácter en la pantalla
+                            screen.blit(char_image, (x, y))
+
+                            # Actualiza la posición en X y el ancho de la línea
+                            x += self.letter_width
+                            line_width += self.letter_width
+                        except FileNotFoundError:
+                            print(f"Advertencia: Imagen no encontrada para '{char}'")
+
+                    # Agregar un espacio entre las palabras
+                    x += self.letter_width  # Ajuste de espacio entre palabras
+                    line_width += self.letter_width  # Ajuste del ancho de la línea
+                else:
+                    # Si no cabe, pasa a la siguiente línea
+                    x = self.position[0] + 20  # Reiniciar la posición X
+                    y += self.letter_height + 5  # Saltar a la siguiente línea
+                    line_width = 0  # Reiniciar el ancho de la línea
+
+                    # Asegurarnos de que la palabra cabe en la nueva línea
+                    if y + self.letter_height + instructions_height > self.position[1] + self.box_height:
+                        break  # Si no cabe más texto, no dibujar nada más
+
+                    # Dibuja la palabra en la nueva línea
+                    for char in word:
+                        try:
+                            # Cargar la imagen correspondiente al carácter
+                            char_image = pygame.image.load(f"{self.letters_path}/{ord(char)}.png")
+                            char_image = pygame.transform.scale(char_image, (self.letter_width, self.letter_height))
+
+                            # Dibuja el carácter en la pantalla
+                            screen.blit(char_image, (x, y))
+
+                            # Actualiza la posición en X y el ancho de la línea
+                            x += self.letter_width
+                            line_width += self.letter_width
+                        except FileNotFoundError:
+                            print(f"Advertencia: Imagen no encontrada para '{char}'")
+
+                    # Después de escribir la palabra, agregamos un espacio
+                    x += self.letter_width  # Para dejar un espacio después de la palabra
+                    line_width += self.letter_width  # Ajustar el ancho de la línea después del espacio
 
             # Dibuja las instrucciones debajo del texto
             instructions = "Presiona: (ESPACIO) para terminar   (Q) para continuar"
             instructions_surface = self.font.render(instructions, True, (255, 255, 255))  # Texto blanco
-            screen.blit(instructions_surface, (self.position[0] + 20, self.position[1] + self.box_height - 30))
+            screen.blit(instructions_surface, (self.position[0] + 20, self.position[1] + self.box_height - instructions_height))

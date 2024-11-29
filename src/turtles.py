@@ -48,6 +48,8 @@ class Turtle(pygame.sprite.Sprite):
         if self.is_attacking:
             self.current_animation = self.animaciones["attack"]
             self.attack_steps += 1
+            # Avanza brutalmente hacia adelante durante el ataque
+            self.x += self.velocidad * 10
             if self.attack_steps >= len(self.current_animation):
                 # Después de completar la animación de ataque, vuelve a caminar
                 self.is_attacking = False
@@ -55,6 +57,7 @@ class Turtle(pygame.sprite.Sprite):
                 self.current_animation = self.animaciones["walk"]
         else:
             self.current_animation = self.animaciones[self.direccion]
+
 
         self.current_sprite += 1
         if self.current_sprite >= len(self.current_animation):
@@ -92,9 +95,8 @@ class Turtle(pygame.sprite.Sprite):
         screen.blit(self.image, (self.x, self.y))
 
     def attack(self):
-        """Inicia el ataque de la tortuga."""
-        if not self.is_following_player:
-            self.is_attacking = True  # Comienza la animación de ataque
+        """Inicia el ataque de la tortuga."""        
+        self.is_attacking = True  # Comienza la animación de ataque
 
     def stop_following(self):
         """Deja de seguir al jugador y vuelve a caminar."""
