@@ -98,7 +98,7 @@ def main():
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
         dialogue_box.draw(screen)
-        # Dibujar el sprite encima del cuadro de diálogo
+        # Dibujar el narrador encima del cuadro de diálogo
         if in_story:
             screen.blit(narrador_sprite, (narrador_sprite_x, narrador_sprite_y))
         pygame.display.flip()
