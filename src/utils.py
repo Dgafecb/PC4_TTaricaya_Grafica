@@ -1,4 +1,5 @@
 import pygame
+import json
 
 def load_image(path, scale=None):
     image = pygame.image.load(path).convert_alpha()
@@ -33,5 +34,9 @@ def draw_map(screen, map_data, tiles, tile_width, tile_height):
                 screen.blit(tiles[tile_index], (x, y))
 
 
+def load_story_from_json(filename):
+    with open(filename, "r") as file:
+        data = json.load(file)
+    return data["story"]  # Devuelve la lista de textos
 
 
