@@ -7,6 +7,9 @@ from pytmx import load_pygame
 from utils import load_story_from_json
 from turtles import Turtle
 import random
+from crab import Crab  # Importa la clase Crab
+from utils import  draw_score
+import time
 
 #MUSICA
 # Inicializa el mixer de Pygame
@@ -63,13 +66,29 @@ dialogue_box = DialogueBox(
 
 story = load_story_from_json('../history.json')
 
-# Lista de tortugas
+
+# Tortugas: generadas aleatoriamente
 turtles = pygame.sprite.Group()
 
-# Generar tortugas aleatorias
-for _ in range(5):
-    turtle = Turtle(random.randint(-50, -10), random.randint(100, HEIGHT - 100), "../assets/images/turtle_assets")
-    turtles.add(turtle)
+# Función para crear tortugas aleatorias
+def generate_random_turtle(n):
+    for _ in range(n):
+        x = random.randint(-50, -10)
+        y = random.randint(100, HEIGHT - 100)
+        turtle = Turtle(x, y, "../assets/images/turtle_assets")
+        turtles.add(turtle)
+
+# Añadir las tortugas al grupo al inicio
+generate_random_turtle(12)  # Iniciar con una tortuga
+
+
+# Lista de cangrejos
+crabs = pygame.sprite.Group()
+for _ in range(4):  # Por ejemplo, 3 cangrejos
+    crab_asset_path = "../assets/images/crab_assets"
+    crab = Crab(crab_asset_path, turtles)
+    crabs.add(crab)
+              
 
 # Agrega una variable para saber si el jugador está siguiendo una tortuga
 following_turtle = None
@@ -82,8 +101,16 @@ def check_collision(player, turtles):
             return turtle
     return None
 
+# Variables globales para el puntaje y tiempo
+score = 0
+start_time = None
+time_left = 60  # 60 segundos para completar la misión
+
+
+
+
 def main():
-    global following_turtle  # Usamos la variable global para modificarla dentro del ciclo principal
+    global following_turtle, score, time_left # Usamos la variable global para modificarla dentro del ciclo principal
 
     # Reproducir música (en loop infinito)
     pygame.mixer.music.play(loops=-1, start=0.0)  # loops=-1 para repetir la música infinitamente
@@ -92,6 +119,14 @@ def main():
     in_story = True  # Variable para controlar si estamos en la narrativa inicial
     current_story_index = 0  # Variable local para manejar el índice de la narrativa
     dialogue_box.set_text(story[current_story_index])  # Establecer el primer texto
+
+    # Variables para controlar el tiempo y la aparición de tortugas
+    last_turtle_spawn_time = 0  # Tiempo de la última aparición de tortuga
+    turtle_spawn_interval = 3000  # Intervalo en milisegundos (3 segundos)
+    max_turtles = 20  # Máximo número de tortugas en pantalla
+
+    start_time = None  # Inicia el cronómetro después de la historia
+    game_duration = 60  # Duración del juego en segundos
 
     while running:
         clock.tick(FPS)
@@ -107,14 +142,16 @@ def main():
                         else:
                             in_story = False  # Termina la narrativa
                             dialogue_box.hide()
+                            start_time = time.time()  # Inicia el cronómetro después de la historia
                     elif event.key == pygame.K_SPACE:  # Salta la narrativa
                         dialogue_box.hide()
                         in_story = False
+                        start_time = time.time()  # Inicia el cronómetro después de la historia
 
                 # Interacción con las tortugas cuando no estamos en la narrativa
                 if not in_story and event.key == pygame.K_a:
                     if following_turtle:
-                        following_turtle.is_following_player = False                        
+                        following_turtle.is_following_player = False
                         following_turtle = None
                     else:
                         following_turtle = check_collision(player, turtles)
@@ -125,8 +162,16 @@ def main():
                         following_turtle.attack()
                         following_turtle.stop_following()
                         following_turtle = None
-                
 
+        # Lógica para generar tortugas a intervalos regulares
+        current_time = pygame.time.get_ticks()  # Obtiene el tiempo transcurrido desde que se inició el juego
+
+        # Aparecer nuevas tortugas a intervalos regulares
+        if current_time - last_turtle_spawn_time > turtle_spawn_interval and len(turtles) < max_turtles:
+            # Crear una nueva tortuga en una posición aleatoria
+            new_turtle = Turtle(random.randint(-50, -10), random.randint(100, HEIGHT - 100), "../assets/images/turtle_assets")
+            turtles.add(new_turtle)
+            last_turtle_spawn_time = current_time  # Actualizar el tiempo de la última tortuga creada
 
         if not in_story:
             keys = pygame.key.get_pressed()
@@ -138,6 +183,19 @@ def main():
             for turtle in turtles:
                 turtle.move(player)
                 turtle.update()
+            
+            # Lógica de movimiento de los cangrejos
+            for crab in crabs:
+                crab.find_closest_turtle()
+            
+                # Atacamos cuando hay una tortuga objetivo y colisionemos con ella
+                if crab.target_turtle and crab.rect.colliderect(crab.target_turtle.rect):
+                    print("Colisión con tortuga")
+                    crab.attack()
+                else:
+                    crab.stop_attack()
+                crab.move()
+                crab.update()
 
         # Dibujar todo
         screen.fill((0, 0, 0))
@@ -148,11 +206,26 @@ def main():
         # Dibujar tortugas
         for turtle in turtles:
             turtle.draw(screen)
+        
+        # Dibujar cangrejos
+        for crab in crabs:
+            crab.draw(screen)
 
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
         dialogue_box.draw(screen)
         # Dibujar el narrador encima del cuadro de diálogo
+
+        # Dibujar el score y el tiempo
+        if start_time:
+            time_left = max(0, game_duration - int(time.time() - start_time))
+
+        score = Turtle.score
+        draw_score(screen, score, time_left)
+
+        if start_time and time_left <= 0:
+            running = False  # Terminar el juego después de 60 segundos
+
         if in_story:
             screen.blit(narrador_sprite, (narrador_sprite_x, narrador_sprite_y))
         pygame.display.flip()

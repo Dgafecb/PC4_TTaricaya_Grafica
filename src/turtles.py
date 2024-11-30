@@ -1,33 +1,39 @@
 import random
 import pygame
 from settings import WIDTH, HEIGHT
+import time
 
 class Turtle(pygame.sprite.Sprite):
+    score = 0
     def __init__(self, x, y, asset_path):
         super().__init__()
         self.x = x
         self.y = y
-        self.velocidad = 1  # Velocidad de la tortuga
-        self.direccion = "walk"  # Estado inicial: camina hacia la derecha
+        self.velocidad = 1
+        self.direccion = "walk"
         self.asset_path = asset_path
 
-        # Cargar las animaciones
+        self.attack_counter = 0
+        self.is_attacked = False
+
         self.animaciones = {
-            "idle": self.cargar_sprites("Idle.png", 4),  # 4 frames para Idle
-            "walk": self.cargar_sprites("Walk.png", 6),  # 6 frames para caminar
-            "attack": self.cargar_sprites("Attack.png", 6),  # 6 frames para atacar
-            "hurt": self.cargar_sprites("Hurt.png", 2),  # 2 frames para herido
-            "death": self.cargar_sprites("Death.png", 6)  # 6 frames para muerte
+            "idle": self.cargar_sprites("Idle.png", 4),
+            "walk": self.cargar_sprites("Walk.png", 6),
+            "attack": self.cargar_sprites("Attack.png", 6),
+            "hurt": self.cargar_sprites("Hurt.png", 2),  # Animación de herido (2 frames)
+            "death": self.cargar_sprites("Death.png", 6)
         }
         self.current_sprite = 0
-        self.current_animation = self.animaciones["walk"]  # Inicialmente camina
+        self.current_animation = self.animaciones["walk"]
         self.image = self.current_animation[self.current_sprite]
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
-        # Estado de la tortuga
-        self.is_following_player = False  # Si la tortuga sigue al jugador
-        self.is_attacking = False  # Si la tortuga está atacando
-        self.attack_steps = 0  # Para controlar cuántos pasos da la tortuga durante el ataque
+        self.is_following_player = False
+        self.is_attacking = False
+        self.animation_steps = 0
+        self.health = 3
+        self.is_dead = False
+        self.last_appearance_time = time.time()
 
     def cargar_sprites(self, file_name, frames):
         """Carga los sprites desde una hoja de sprites."""
@@ -45,64 +51,110 @@ class Turtle(pygame.sprite.Sprite):
 
     def update(self):
         """Actualiza la animación según la dirección."""
-        if self.is_attacking:
+        # Control de animación para 'death' (si está muerta)
+        if self.is_dead:
+            self.current_animation = self.animaciones["death"]
+            self.animation_steps = self.update_sprite(self.animation_steps, self.current_animation)
+            self.image = self.current_animation[self.animation_steps]
+            self.rect = self.image.get_rect(center=(self.x, self.y))
+            self.kill()
+        
+        # Control de animación para 'attack'
+        elif self.is_attacking:
             self.current_animation = self.animaciones["attack"]
-            self.attack_steps += 1
-            # Avanza brutalmente hacia adelante durante el ataque
             self.x += self.velocidad * 10
-            if self.attack_steps >= len(self.current_animation):
-                # Después de completar la animación de ataque, vuelve a caminar
+            self.animation_steps = self.update_sprite(self.animation_steps, self.current_animation)
+
+            if self.animation_steps == 0:  # Cuando la animación de ataque termina
                 self.is_attacking = False
-                self.attack_steps = 0
                 self.current_animation = self.animaciones["walk"]
+
+        # Control de animación para 'hurt'
+        elif self.is_attacked:
+            self.current_animation = self.animaciones["hurt"]
+            self.animation_steps = self.update_sprite(self.animation_steps, self.current_animation)
+            
+            if self.animation_steps == 0:  # Cuando la animación de 'hurt' termina
+                self.is_attacked = False  # Resetear el estado de ataque
+                if self.health > 0:  # Solo vuelve a caminar si no está muerta
+                    self.current_animation = self.animaciones["walk"]
+
+        # Control de animación cuando sigue al jugador o está en modo "walk"
+        elif self.is_following_player:
+            self.current_animation = self.animaciones["walk"]
+            self.animation_steps = self.update_sprite(self.animation_steps, self.current_animation)
+
         else:
             self.current_animation = self.animaciones[self.direccion]
+            self.animation_steps = self.update_sprite(self.animation_steps, self.current_animation)
 
-
-        self.current_sprite += 1
-        if self.current_sprite >= len(self.current_animation):
-            self.current_sprite = 0
-
-        self.image = self.current_animation[self.current_sprite]
+        # Actualizamos la imagen de la tortuga
+        self.image = self.current_animation[self.animation_steps]
         self.rect = self.image.get_rect(center=(self.x, self.y))
+
+    def update_sprite(self, animation_steps, current_animation):
+        """Actualizar el índice del sprite de la animación, reiniciando si es necesario."""
+        animation_steps += 1
+        if animation_steps >= len(current_animation):
+            animation_steps = 0
+        return animation_steps
 
     def move(self, player):
         """Mueve la tortuga."""
         if self.is_following_player:
-            # La tortuga sigue al jugador
             if player.x > self.x:
                 self.x += self.velocidad
-                self.direccion = "walk"  # Asegura que la tortuga se mueva hacia la derecha
+                self.direccion = "walk"
             elif player.x < self.x:
                 self.x -= self.velocidad
-                self.direccion = "walk"  # Asegura que la tortuga se mueva hacia la izquierda
+                self.direccion = "walk"
 
-            # Opcional: puedes agregar lógica para que la tortuga también siga al jugador verticalmente si es necesario
             if player.y > self.y:
                 self.y += self.velocidad
             elif player.y < self.y:
                 self.y -= self.velocidad
-        elif not self.is_attacking:
-            # La tortuga se mueve normalmente en su dirección predeterminada
+
+        elif not self.is_attacking and not self.is_dead:
             if self.direccion == "walk":
                 self.x += self.velocidad
-                if self.x > WIDTH:  # Si la tortuga sale de la pantalla por la derecha, se vuelve a generar al azar.
+                if self.x > WIDTH:
                     self.x = random.randint(-50, -10)
                     self.y = random.randint(100, HEIGHT - 100)
+
+            if self.x > WIDTH - 278:
+                # Aumentar el puntaje si la tortuga llega al final
+                Turtle.score += 1
+                self.kill()
 
     def draw(self, screen):
         """Dibuja la tortuga en la pantalla."""
         screen.blit(self.image, (self.x, self.y))
 
     def attack(self):
-        """Inicia el ataque de la tortuga."""        
-        self.is_attacking = True  # Comienza la animación de ataque
+        """Inicia el ataque de la tortuga.""" 
+        self.animation_steps = 0       
+        self.is_attacking = True
 
     def stop_following(self):
-        """Deja de seguir al jugador y vuelve a caminar."""
+        """Deja de seguir al jugador y vuelve a caminar.""" 
+        self.animation_steps = 0 
         self.is_following_player = False
         self.direccion = "walk"
 
     def start_following(self):
-        """Comienza a seguir al jugador."""
+        """Comienza a seguir al jugador.""" 
+        self.animation_steps = 0
         self.is_following_player = True
+
+    def hurt(self):
+        """Cuando la tortuga recibe daño."""   
+        self.attack_counter += 1  
+        self.is_attacked = True  
+        if self.attack_counter >= 3:
+            self.is_dead = True
+            # Si la tortuga muere, restamos 1 al puntaje
+            Turtle.score -= 1
+        else:
+            
+            self.attack_steps = 0  
+            self.health -= 1  # Reducir la vida de la tortuga
