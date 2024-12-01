@@ -11,6 +11,7 @@ from crab import Crab  # Importa la clase Crab
 from utils import  draw_score
 import time
 from power import Power  # Importa la clase Power
+from utils import  draw_powerup_info
 
 #MUSICA
 # Inicializa el mixer de Pygame
@@ -51,9 +52,7 @@ narrador_sprite = pygame.transform.scale(narrador_sprite,(200,200))
 narrador_sprite_x = 50 + 700 // 2 - narrador_sprite.get_width() // 2  # Basado en las dimensiones del cuadro de diálogo
 narrador_sprite_y = 450 - narrador_sprite.get_height() - 10  # 10 píxeles encima del cuadro
 
-# Instancia del jugador
-player_assets_path = "../assets/images/player_assets"
-player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx")
+
 
 # Crear el cuadro de diálogo dinámico
 dialogue_box = DialogueBox(
@@ -86,8 +85,8 @@ def generate_random_turtle(n):
 def generate_random_powerup(n):
     for _ in range(n):
         # Generar una posición aleatoria en el rango que no esté en el mar (a la izquierda)
-        x = random.randint(200, WIDTH-200)  # Evita las zonas del mar
-        y = random.randint(200, HEIGHT-200)
+        x = random.randint(100, WIDTH-500)  # Evita las zonas del mar
+        y = random.randint(100, HEIGHT-200)
         
         powerup = Power(x, y, "../assets/images/power_upps")
         powerups.add(powerup)
@@ -96,8 +95,7 @@ def generate_random_powerup(n):
 # Añadir las tortugas al grupo al inicio
 generate_random_turtle(12)  # Iniciar con una tortuga
 
-# Añadir los power-ups al grupo al inicio
-generate_random_powerup(3)  # Iniciar con 3 power-ups
+
 
 
 # Lista de cangrejos
@@ -124,7 +122,6 @@ def check_collision_power(player, powerups):
     """Verifica si el jugador está colisionando con algún power-up."""
     for powerup in powerups:
         if player.rect.colliderect(powerup.rect):
-            powerup.apply_ability(player)
             return powerup
     return None
 
@@ -135,7 +132,9 @@ score = 0
 start_time = None
 time_left = 60  # 60 segundos para completar la misión
 
-
+# Instancia del jugador
+player_assets_path = "../assets/images/player_assets"
+player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", turtles, crabs)
 
 def main():
     global following_turtle, score, time_left, start_time  # Usamos la variable global para modificarla dentro del ciclo principal
@@ -158,13 +157,15 @@ def main():
     game_duration = 60  # Duración del juego en segundos
     x_, y_ = 0, 0  # Inicializar las variables x_ y y_
 
-    #Intervalo de los power-ups
-    power_interval = 3000  # Tiempo de la última aparición de power-up
-    last_powerup_spawn_time = 0  # Intervalo en milisegundos (3 segundos)
+    # Intervalo de los power-ups
+    power_interval = 2000  # Tiempo de la última aparición de power-up
+    last_powerup_spawn_time = 0  # Intervalo en milisegundos (2 segundos)
 
-    # Variable para controlar el intervalo de activación de la habilidad de atraer tortugas
-    last_attract_time = 0  # Inicializamos la variable que controla el tiempo de activación de la habilidad
-    attract_interval = 5000  # Intervalo en milisegundos (5 segundos) para la habilidad de atraer tortugas
+    # Variables para los poderes
+    powerup_active = None  # Power-up activo (puede ser 'speed', 'attract', etc.)
+    powerup_start_time = 0  # Tiempo de inicio del power-up
+    powerup_duration = 5000  # Duración de 5 segundos para cada power-up
+    powerup_cooldowns = {'speed': 0, 'invisible_turtle_follower': 0, 'turtle_speed': 0}  # Cooldowns de los poderes
 
     while running:
         clock.tick(FPS)
@@ -195,18 +196,66 @@ def main():
                                 turtle.is_following_player = True  # Comienza a seguir al jugador
                             else:
                                 turtle.stop_following()  # Deja de seguir al jugador
+                                turtle.is_visible = True
 
+                # Atacar cuando apreta la tecla s
                 if not in_story and event.key == pygame.K_s:
-                    following_turtles = check_collision(player, turtles)
-                    if following_turtles:
-                        for turtle in following_turtles:
-                            turtle.attack()  # Las tortugas atacan
-                            turtle.is_following_player = False  # Dejan de seguir al jugador
-                    following_turtle = None  # Reseteamos la variable
+                    for turtle in turtles:
+                        if player.rect.colliderect(turtle.rect) & turtle.is_following_player:
+                            turtle.attack()
+                            turtle.is_following_player = False
 
-        # Lógica para generar tortugas a intervalos regulares
-        current_time = pygame.time.get_ticks()  # Obtiene el tiempo transcurrido desde que se inició el juego
+      
+        # Generamos power-ups aleatorios despues de la historia y una sola vez
+        # Manejo de los power-ups y cooldowns
+        current_time = pygame.time.get_ticks()
+        
+        # Revisar si el jugador ha recogido un power-up solo si no hay un power-up activo
+        if not powerup_active and not in_story:
+            powerup = check_collision_power(player, powerups)
+            if powerup:
+                # Activar el poder correspondiente si no está en cooldown
+                if powerup.type == 'speed' and powerup_cooldowns['speed'] == 0:
+                    print("Activando velocidad")
+                    player.velocidad = 10
+                    powerup_active = 'speed'
+                    powerup_start_time = current_time
+                    powerup_cooldowns['speed'] = 5000
+                elif powerup.type == 'invisible_turtle_follower' and powerup_cooldowns['invisible_turtle_follower'] == 0:
+                    print("Activando invisibilidad de tortugas")
+                    player.can_put_invisible = True
+                    powerup_active = 'invisible_turtle_follower'
+                    powerup_start_time = current_time
+                    powerup_cooldowns['invisible_turtle_follower'] = 5000
+                elif powerup.type == 'turtle_speed' and powerup_cooldowns['turtle_speed'] == 0:
+                    print("Activando velocidad de tortugas")
+                    player.can_speed_turtle_up = True
+                    powerup_active = 'turtle_speed'
+                    powerup_start_time = current_time
+                    powerup_cooldowns['turtle_speed'] = 5000
+                
+                powerup.apply_ability(player)
 
+
+        # Mostrar el tiempo del power-up activo
+        if powerup_active:
+            time_left = max(0, powerup_duration - (current_time - powerup_start_time))  # Asegurarse de que el tiempo no sea negativo
+
+            if time_left <= 0:  # Desactivar poder cuando haya pasado el tiempo
+                powerup_active = None
+                player.velocidad = 5  # Restablecer velocidad a su valor original
+                player.can_put_invisible= False
+                player.can_speed_turtle_up = False
+
+                # Restablecer el cooldown del poder
+              
+                powerup_cooldowns['speed'] = 0
+                powerup_cooldowns['invisible_turtle_follower'] = 0
+                powerup_cooldowns['turtle_speed'] = 0
+                    
+
+
+        # Lógica para power-ups 
         if current_time - last_powerup_spawn_time > power_interval and len(powerups) < 3:
             # Crear un nuevo power-up en una posición aleatoria
             new_powerup = Power(random.randint(100, WIDTH-200), random.randint(100, HEIGHT), "../assets/images/power_upps")
@@ -237,36 +286,20 @@ def main():
             
                 # Atacamos cuando hay una tortuga objetivo y colisionemos con ella
                 if crab.target_turtle and crab.rect.colliderect(crab.target_turtle.rect):
-                    print("Colisión con tortuga")
+                    #print("Colisión con tortuga")
                     crab.attack()
                 else:
                     crab.stop_attack()
                 crab.move()
                 crab.update()
 
-            
-            # Verificar colisiones con el power app
-            powerup = check_collision_power(player, powerups)
-            if powerup:
-                print("Colisión con power-up")
-                powerup.apply_ability(player)
-                # Eliminar el power-up si fue recogido
-                powerups.remove(powerup)
-            
-            # Si el jugador puede atraer tortugas, atraerlas pero solo una vez por intervalo
-            if player.can_get_turtles and current_time - last_attract_time > attract_interval:
-                player.attract_turtles(turtles)
-                player.can_get_turtles = False
-                last_attract_time = current_time  # Actualizar el tiempo de la última vez que se activó la habilidad
-            
-            if player.can_speed_turtle_up:
-                player.speed_up_turtles(turtles)
-            
         # Dibujar todo
         screen.fill((0, 0, 0))
 
         draw_map_from_tmx(screen, tmx_map)
-        player.draw(screen)
+        # Dibujamos el tiempo restante del powerup
+        draw_powerup_info(screen, powerup_active, time_left)  # Información del poder activo
+        
 
         # Dibujar tortugas
         for turtle in turtles:
@@ -275,22 +308,25 @@ def main():
         # Dibujar cangrejos
         for crab in crabs:
             crab.draw(screen)
-        
+   
         # Dibujar power-ups
         for powerup in powerups:
             powerup.update()
             powerup.draw(screen)
-
+            
+        player.draw(screen)
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
         dialogue_box.draw(screen)
-    
+
         # Dibujar el score y el tiempo
         if start_time:
             time_left = max(0, game_duration - int(time.time() - start_time))
 
         score = Turtle.score
         draw_score(screen, score, time_left)
+        
+        
 
         if start_time and time_left <= 0:
             running = False  # Terminar el juego después de 60 segundos
@@ -298,8 +334,6 @@ def main():
         if in_story:
             screen.blit(narrador_sprite, (narrador_sprite_x, narrador_sprite_y))
         pygame.display.flip()
-
-    pygame.quit()
 
 if __name__ == "__main__":
     main()

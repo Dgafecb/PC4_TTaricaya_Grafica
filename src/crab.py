@@ -62,11 +62,11 @@ class Crab(pygame.sprite.Sprite):
          
 
         if self.is_attacking and self.attack_cooldown == 0:
-            print("Attacking")
+            #print("Attacking")
             self.current_animation = self.animaciones["attack"]
             self.attack_steps += 1
             if self.attack_steps >= len(self.current_animation):
-                print("Attack done")
+                #print("Attack done")
                 # Llama al método hurt de la tortuga atacada
                 if self.target_turtle:
                     self.target_turtle.hurt()
@@ -140,8 +140,8 @@ class Crab(pygame.sprite.Sprite):
 
         for turtle in self.turtles_group:
             distance = pygame.math.Vector2(self.x - turtle.x, self.y - turtle.y).length()
-
-            if distance < min_distance and distance < 100:
+            # Verificar si la tortuga es la más cercana y está a menos de 100 píxeles y sea visible
+            if distance < min_distance and distance < 100 and turtle.is_visible:
                 min_distance = distance
                 closest_turtle = turtle
 

@@ -1,5 +1,6 @@
 import pygame
 import json
+from settings import WIDTH, HEIGHT
 
 def load_image(path, scale=None):
     image = pygame.image.load(path).convert_alpha()
@@ -76,3 +77,58 @@ def load_sprite(image_path, width=None, height=None):
         sprite = pygame.transform.scale(sprite, (width, height))
     
     return sprite
+
+
+
+# Función para dibujar la información del poder activo
+def draw_powerup_info(screen, powerup_active, elapsed_time):
+    font = pygame.font.Font(None, 36)  # Mantener el tamaño de la fuente original
+    
+    # Colores para diferentes estados del poder
+    white = (255, 255, 255)
+    green = (0, 255, 0)
+    red = (255, 0, 0)
+    black = (0, 0, 0)
+
+    # Determinar el texto y el color según el poder activo
+    if powerup_active:
+        # Determinar el texto basado en el poder activo
+        if powerup_active == 'speed':
+            powerup_text = "Speed Boost"
+            color = green
+        elif powerup_active == 'invisible_turtle_follower':
+            powerup_text = "Invisible Turtle Follower"
+            color = green
+        elif powerup_active == 'turtle_speed':
+            powerup_text = "Turtle Speed Up"
+            color = green
+        else:
+            powerup_text = "Unknown Power"
+            color = red
+        
+        # Calcular el tiempo restante (en segundos)
+        time_remaining = max(0, 5 - (elapsed_time / 1000))  # 5 segundos de duración (ajusta según lo que necesites)
+        time_text = f"Time Left: {int(time_remaining)}s"  # Convertir a un número entero para la visualización
+        
+        # Renderizar el texto del poder activo y el tiempo restante
+        powerup_render = font.render(powerup_text, True, white)
+        time_render = font.render(time_text, True, white)
+        
+        # Calcular el ancho del texto para ajustar el fondo
+        powerup_width = powerup_render.get_width() + 20  # Añadir margen para el texto
+        time_width = time_render.get_width() + 20
+        box_width = max(powerup_width, time_width)  # Tomar el mayor de los dos anchos para el cuadro
+        
+        # Dibujar fondo para el texto (ajustar el tamaño del cuadro según el texto)
+        pygame.draw.rect(screen, black, (WIDTH - box_width - 10, 10, box_width + 20, 120))  # Cuadro de fondo ajustado
+        pygame.draw.rect(screen, (255, 255, 255), (WIDTH - box_width - 10, 10, box_width + 20, 120), 4)  # Borde del cuadro
+        
+        # Dibujar los textos en la pantalla
+        screen.blit(powerup_render, (WIDTH - box_width, 20))  # Dibujar el nombre del poder
+        screen.blit(time_render, (WIDTH - box_width, 60))  # Dibujar el tiempo restante
+        
+    else:
+        # Si no hay power-up activo, no mostrar nada
+        return
+
+

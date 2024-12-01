@@ -3,7 +3,7 @@ import pytmx
 import random 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, asset_path, map_file):
+    def __init__(self, x, y, asset_path, map_file, turtles_group, crap_group):
         super().__init__()
         self.x = x
         self.y = y
@@ -15,9 +15,12 @@ class Player(pygame.sprite.Sprite):
         self.has_power = False
         # Tiempo de duración del power-up
         self.power_duration = 0
+        
+        self.turtles_group = turtles_group
+        self.crap_group = crap_group
 
         
-        self.can_get_turtles = False
+        self.can_put_invisible = False
         self.can_speed_turtle_up = False
 
         # Cargar las animaciones
@@ -47,6 +50,21 @@ class Player(pygame.sprite.Sprite):
 
     def move(self, keys):
         """Mueve al jugador y cambia la animación según la dirección."""
+        if self.can_put_invisible:
+            self.invisibility_turtle()
+        else:
+            # Restablecer la visibilidad de las tortugas
+            for turtle in self.turtles_group:
+                if turtle.is_following_player:
+                    turtle.is_visible = True
+
+        if self.can_speed_turtle_up:
+            self.speed_up_turtles()
+        else:
+            # Restablecer la velocidad de las tortugas
+            for turtle in self.turtles_group:
+                if turtle.is_following_player:
+                    turtle.velocidad = 1
         
 
         if keys[pygame.K_DOWN]:
@@ -117,16 +135,15 @@ class Player(pygame.sprite.Sprite):
 
     # Creamos habilidades ocultas para el jugador
 
-    # Atraer tortugas a todas las tortugas cercanas en un radio
-    def attract_turtles(self, turtles_group):
-        for turtle in turtles_group:
-            # Si la tortuga esta cerca del jugador
-            if self.rect.colliderect(turtle.rect):
-                turtle.is_following_player = True
+    # Las tortugas se vuelven invisibles si lo estan siguiendo
+    def invisibility_turtle(self):
+        for turtle in self.turtles_group:
+            if turtle.is_following_player:
+                turtle.is_visible = False
     
     # Aumentar la velocidad de las tortugas que lo siguen
-    def speed_up_turtles(self, turtles_group):
-        for turtle in turtles_group:
+    def speed_up_turtles(self):
+        for turtle in self.turtles_group:
             if turtle.is_following_player:
                 turtle.velocidad = 3
     

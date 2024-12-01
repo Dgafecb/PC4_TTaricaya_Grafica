@@ -35,6 +35,8 @@ class Turtle(pygame.sprite.Sprite):
         self.is_dead = False
         self.last_appearance_time = time.time()
 
+        self.is_visible=True
+
     def cargar_sprites(self, file_name, frames):
         """Carga los sprites desde una hoja de sprites."""
         sprites = []
@@ -63,7 +65,7 @@ class Turtle(pygame.sprite.Sprite):
        # Control de animación para 'attack'
         elif self.is_attacking:
             self.current_animation = self.animaciones["attack"]
-            self.x += self.velocidad * 10
+            self.x += self.velocidad * 4  # Aumentar la velocidad de ataque
             self.animation_steps = self.update_sprite(self.animation_steps, self.current_animation)
 
             if self.animation_steps == 0:  # Cuando la animación de ataque termina
