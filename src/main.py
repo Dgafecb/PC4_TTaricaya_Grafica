@@ -131,6 +131,7 @@ def check_collision_power(player, powerups):
 
 # Variables globales para el puntaje y tiempo
 score = 0
+start_time = None
 start_time_dia = None
 start_time_noche =None
 time_left = 60  # 60 segundos para completar la misión
@@ -143,7 +144,7 @@ ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa
 # estado actual del juego
 estado_actual = ESTADOS["narrativa_inicio"]# 0 
 def main():
-    global following_turtle, score, time_left, start_time_dia,estado_actual, start_time_noche  # Usamos la variable global para modificarla dentro del ciclo principal
+    global following_turtle, score, time_left, start_time,start_time_dia,estado_actual, start_time_noche  # Usamos la variable global para modificarla dentro del ciclo principal
    
     
     # Reproducir música (en loop infinito)
@@ -160,6 +161,7 @@ def main():
     turtle_spawn_interval = 3000  # Intervalo en milisegundos (3 segundos)
     
     max_turtles = 25  # Máximo número de tortugas en pantalla
+    start_time = None
     start_time_noche = None # Inicia el cronometro despues de la narrativa de noche
     start_time_dia = None  # Inicia el cronómetro después de la historia
     game_duration = 10  # Duración del juego en segundos
@@ -176,6 +178,7 @@ def main():
     powerup_start_time = 0  # Tiempo de inicio del power-up
     powerup_duration = 5000  # Duración de 5 segundos para cada power-up
     powerup_cooldowns = {'speed': 0, 'invisible_turtle_follower': 0, 'turtle_speed': 0}  # Cooldowns de los poderes
+    time_left_powerup = 0  # Tiempo restante del power-up activo
 
     while running:
         clock.tick(FPS)
@@ -258,6 +261,7 @@ def main():
                             turtle.is_following_player = False
             if event.type == pygame.KEYDOWN: #SOLO
                 if event.key ==pygame.K_n:   # PARA
+                    start_time = time.time()  # Inicia el cronómetro después de la historia
                     estado_actual = 4        # PRUEBAS
                     start_time_dia = time.time()  # Inicia el cronómetro del dia luego que termine 
             if event.type == pygame.KEYDOWN: #SOLO
@@ -300,9 +304,9 @@ def main():
 
         # Mostrar el tiempo del power-up activo
         if powerup_active:
-            time_left = max(0, powerup_duration - (current_time - powerup_start_time))  # Asegurarse de que el tiempo no sea negativo
+            time_left_powerup = max(0, powerup_duration - (current_time - powerup_start_time))  # Asegurarse de que el tiempo no sea negativo
 
-            if time_left <= 0:  # Desactivar poder cuando haya pasado el tiempo
+            if time_left_powerup <= 0:  # Desactivar poder cuando haya pasado el tiempo
                 powerup_active = None
                 player.velocidad = 5  # Restablecer velocidad a su valor original
                 player.can_put_invisible= False
@@ -362,7 +366,7 @@ def main():
         elif estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_noche"],ESTADOS["juego_noche"]]:
             screen.blit(mapa_noche,(0,0)) # Dibujamos el mapa de noche
         # Dibujamos el tiempo restante del powerup
-        draw_powerup_info(screen, powerup_active, time_left)  # Información del poder activo
+       
         
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
             # Dibujar tortugas
@@ -396,14 +400,16 @@ def main():
         score = Turtle.score
         draw_score(screen, score, time_left)
         # Dibujamos el tiempo restante del powerup
-        draw_powerup_info(screen, powerup_active, time_left)  # Información del poder activo
-        # Verifico si termino el tiempo del juego dia
+        draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
+        
         if start_time_noche and time_left <=0:
             estado_actual = ESTADOS["narrativa_dia"]
             dialogue_box.set_text(story_dia[current_story_index_dia])
-        if start_time_dia and time_left <= 0:
-            running = False  # Terminar el juego después de 60 segundos
+            if start_time_dia:
+                running= False
+                # MOSTRAR PUNTAJE FINAL AQUI
 
+        
         #if in_story:
         if estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_dia"],ESTADOS["narrativa_noche"]]:
             screen.blit(narrador_sprite, (narrador_sprite_x, narrador_sprite_y))

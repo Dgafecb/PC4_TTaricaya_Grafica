@@ -84,7 +84,7 @@ def load_sprite(image_path, width=None, height=None):
     return sprite
 
 
-def draw_powerup_info(screen, powerup_active, elapsed_time):
+def draw_powerup_info(screen, powerup_active, time_left_powerup):
     font = pygame.font.Font(None, 24)  # Tamaño de fuente para el tiempo
     small_font = pygame.font.Font(None, 20)  # Fuente más pequeña para la descripción corta
     
@@ -106,10 +106,10 @@ def draw_powerup_info(screen, powerup_active, elapsed_time):
         powerup_text = powerup_info["desc"]
         powerup_image_path = powerup_info["image"]
         powerup_image = pygame.image.load(powerup_image_path).convert_alpha()
-        
-        # Calcular el tiempo restante
-        time_remaining = max(0, 5 - (elapsed_time / 1000))  # 5 segundos de duración
-        time_text = f"Time Left: {int(time_remaining)}s"
+        time_left_powerup /= 1000  # Convertir a segundos
+        # redodear superiormente
+        time_left_powerup = round(time_left_powerup + 0.5)
+        time_text = f"Time Left: {int(time_left_powerup)}s"
         
         # Renderizar los textos
         powerup_render = small_font.render(powerup_text, True, white)
