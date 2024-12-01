@@ -41,7 +41,9 @@ clock = pygame.time.Clock()
 
 # Cargar un mapa con Tiled
 tmx_map_dia = load_pygame("../MapaDia.tmx")
-#tmx_map_noche = load_pygame("../MapaNoche.tmx") # Cargamos el mapa de noche
+mapa_noche = pygame.image.load("../MapaNoche.png").convert_alpha()
+# Escala la imagen al tamaño de la pantalla
+mapa_noche = pygame.transform.scale(mapa_noche, screen.get_size())
 
 # Instancia del narrador
 narrador_assets_path = "../assets/images/narrator_assets/Amazon.png"
@@ -214,7 +216,9 @@ def main():
                         if player.rect.colliderect(turtle.rect) & turtle.is_following_player:
                             turtle.attack()
                             turtle.is_following_player = False
-
+            if event.type == pygame.KEYDOWN: #SOLO
+                if event.key ==pygame.K_n:   # PARA
+                    estado_actual = 4        # PRUEBAS
       
         # Generamos power-ups aleatorios despues de la historia y una sola vez
         # Manejo de los power-ups y cooldowns
@@ -307,26 +311,28 @@ def main():
 
         # Dibujar todo
         screen.fill((0, 0, 0))
-
-        draw_map_from_tmx(screen, tmx_map_dia)
+        if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
+            draw_map_from_tmx(screen, tmx_map_dia) #Dibujamos el mapa de dia
+        elif estado_actual in [ESTADOS["narrativa_noche"],ESTADOS["juego_noche"]]:
+            screen.blit(mapa_noche,(0,0)) # Dibujamos el mapa de noche
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left)  # Información del poder activo
         
-
-        # Dibujar tortugas
-        for turtle in turtles:
-            turtle.draw(screen)
-        
-        # Dibujar cangrejos
-        for crab in crabs:
-            crab.draw(screen)
-   
-        # Dibujar power-ups
-        for powerup in powerups:
-            powerup.update()
-            powerup.draw(screen)
+        if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
+            # Dibujar tortugas
+            for turtle in turtles:
+                turtle.draw(screen)
             
-        player.draw(screen)
+            # Dibujar cangrejos
+            for crab in crabs:
+                crab.draw(screen)
+    
+            # Dibujar power-ups
+            for powerup in powerups:
+                powerup.update()
+                powerup.draw(screen)
+                
+            player.draw(screen)
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
         dialogue_box.draw(screen)
