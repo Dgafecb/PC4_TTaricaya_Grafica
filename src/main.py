@@ -174,6 +174,7 @@ def main():
     powerup_start_time = 0  # Tiempo de inicio del power-up
     powerup_duration = 5000  # Duración de 5 segundos para cada power-up
     powerup_cooldowns = {'speed': 0, 'invisible_turtle_follower': 0, 'turtle_speed': 0}  # Cooldowns de los poderes
+    time_left_powerup = 0  # Tiempo restante del power-up activo
 
     while running:
         clock.tick(FPS)
@@ -190,13 +191,12 @@ def main():
                             #in_story = False  # Refactorizo el fin de la narrativa inicial
                             estado_actual = ESTADOS["narrativa_noche"] #Para que pueda iniciar la narrativa del juego de noche
                             dialogue_box.hide()
-                            start_time = time.time()  # Inicia el cronómetro después de la historia
+                            
                     elif event.key == pygame.K_SPACE:  # Salta la narrativa
                         dialogue_box.hide()
                         #in_story = False
                         estado_actual = ESTADOS["narrativa_noche"] #Para que pueda iniciar la narrativa del juego de noche
-                        start_time = time.time()  # Inicia el cronómetro después de la historia
-
+                        
                 # Interacción con las tortugas cuando no estamos en la narrativa
                 #if not in_story and event.key == pygame.K_a:
                 if estado_actual in [ESTADOS["juego_dia"]] and event.key == pygame.K_a: # R2
@@ -218,6 +218,7 @@ def main():
                             turtle.is_following_player = False
             if event.type == pygame.KEYDOWN: #SOLO
                 if event.key ==pygame.K_n:   # PARA
+                    start_time = time.time()  # Inicia el cronómetro después de la historia
                     estado_actual = 4        # PRUEBAS
       
         # Generamos power-ups aleatorios despues de la historia y una sola vez
@@ -254,9 +255,9 @@ def main():
 
         # Mostrar el tiempo del power-up activo
         if powerup_active:
-            time_left = max(0, powerup_duration - (current_time - powerup_start_time))  # Asegurarse de que el tiempo no sea negativo
+            time_left_powerup = max(0, powerup_duration - (current_time - powerup_start_time))  # Asegurarse de que el tiempo no sea negativo
 
-            if time_left <= 0:  # Desactivar poder cuando haya pasado el tiempo
+            if time_left_powerup <= 0:  # Desactivar poder cuando haya pasado el tiempo
                 powerup_active = None
                 player.velocidad = 5  # Restablecer velocidad a su valor original
                 player.can_put_invisible= False
@@ -316,7 +317,7 @@ def main():
         elif estado_actual in [ESTADOS["narrativa_noche"],ESTADOS["juego_noche"]]:
             screen.blit(mapa_noche,(0,0)) # Dibujamos el mapa de noche
         # Dibujamos el tiempo restante del powerup
-        draw_powerup_info(screen, powerup_active, time_left)  # Información del poder activo
+       
         
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
             # Dibujar tortugas
@@ -340,11 +341,11 @@ def main():
         # Dibujar el score y el tiempo
         if start_time:
             time_left = max(0, game_duration - int(time.time() - start_time))
-
+        
         score = Turtle.score
         draw_score(screen, score, time_left)
         # Dibujamos el tiempo restante del powerup
-        draw_powerup_info(screen, powerup_active, time_left)  # Información del poder activo
+        draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
         
 
         if start_time and time_left <= 0:
