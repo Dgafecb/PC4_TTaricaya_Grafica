@@ -164,7 +164,7 @@ def main():
     start_time = None
     start_time_noche = None # Inicia el cronometro despues de la narrativa de noche
     start_time_dia = None  # Inicia el cronómetro después de la historia
-    game_duration = 10  # Duración del juego en segundos
+    game_duration = 60  # Duración del juego en segundos
     noche_duration = 60 # Duracion de la noche
     dia_duration = 60 # Duracion del dia
     x_, y_ = 0, 0  # Inicializar las variables x_ y y_
@@ -401,6 +401,9 @@ def main():
         draw_score(screen, score, time_left)
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
+        #if in_story:
+        if estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_dia"],ESTADOS["narrativa_noche"]]:
+            screen.blit(narrador_sprite, (narrador_sprite_x, narrador_sprite_y))
         
         if start_time_noche and time_left <=0:
             estado_actual = ESTADOS["narrativa_dia"]
@@ -408,12 +411,8 @@ def main():
             if start_time_dia:
                 running= False
                 # MOSTRAR PUNTAJE FINAL AQUI
-
-        
-        #if in_story:
-        if estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_dia"],ESTADOS["narrativa_noche"]]:
-            screen.blit(narrador_sprite, (narrador_sprite_x, narrador_sprite_y))
         pygame.display.flip()
+              
 
 if __name__ == "__main__":
     main()
