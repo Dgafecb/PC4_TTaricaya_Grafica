@@ -1,5 +1,6 @@
 import pygame
 import pytmx
+import random 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, asset_path, map_file):
@@ -10,6 +11,14 @@ class Player(pygame.sprite.Sprite):
         self.direccion = "down"
         self.asset_path = asset_path
         self.map = pytmx.load_pygame(map_file)  # Cargar el mapa de Tiled
+        # Atributo que indica si el jugador ha recogido un power-up
+        self.has_power = False
+        # Tiempo de duración del power-up
+        self.power_duration = 0
+
+        
+        self.can_get_turtles = False
+        self.can_speed_turtle_up = False
 
         # Cargar las animaciones
         self.animaciones = {
@@ -22,6 +31,7 @@ class Player(pygame.sprite.Sprite):
         self.current_animation = self.animaciones["down"]
         self.image = self.current_animation[self.current_sprite]
         self.rect = self.image.get_rect(center=(self.x, self.y))
+        self.player_sprites_powers = None
 
     def cargar_sprites(self, file_name, frames):
         """Divide la imagen en múltiples cuadros."""
@@ -37,6 +47,8 @@ class Player(pygame.sprite.Sprite):
 
     def move(self, keys):
         """Mueve al jugador y cambia la animación según la dirección."""
+        
+
         if keys[pygame.K_DOWN]:
             self.y += self.velocidad
             self.direccion = "down"
@@ -53,6 +65,22 @@ class Player(pygame.sprite.Sprite):
             self.direccion = None
 
         self.update_animation()
+
+        # Control del tiempo de duración del power-up
+        if self.has_power:
+            self.power_duration += 1
+            if self.power_duration >= 200:
+                
+                self.has_power = False
+                self.power_duration = 0
+
+                # Restablecer las habilidades del jugador
+                self.can_get_turtles = False
+                self.can_speed_turtle_up = False
+                self.velocidad = 5
+            
+            # Agregar una animacion del personaje con el power-up , efecto de apagado
+            self.apply_power_effect()
         
 
     def update_animation(self):
@@ -67,3 +95,38 @@ class Player(pygame.sprite.Sprite):
 
     def draw(self, pantalla):
         pantalla.blit(self.image, (self.x, self.y))
+    
+    def apply_power_effect(self):
+        """Aplica un efecto visual durante el power-up (cambio de color y vibración)."""
+        # Cambio de color (usando RGB)
+        if self.power_duration % 2 == 0:  # Cambiar cada pocos ciclos
+            r = random.randint(100, 255)
+            g = random.randint(100, 255)
+            b = random.randint(100, 255)
+            self.image.fill((r, g, b), special_flags=pygame.BLEND_RGB_MULT)
+
+        # Efecto de vibración (pequeños desplazamientos aleatorios)
+        if self.power_duration % 5 == 0:
+            self.rect.x += random.randint(-2, 2)  # Desplazamiento horizontal
+            self.rect.y += random.randint(-2, 2)  # Desplazamiento vertical
+
+        # Agregar opacidad (parpadeo)
+        if self.power_duration % 20 == 0:
+            alpha = random.randint(180, 255)
+            self.image.set_alpha(alpha)
+
+    # Creamos habilidades ocultas para el jugador
+
+    # Atraer tortugas a todas las tortugas cercanas en un radio
+    def attract_turtles(self, turtles_group):
+        for turtle in turtles_group:
+            # Si la tortuga esta cerca del jugador
+            if self.rect.colliderect(turtle.rect):
+                turtle.is_following_player = True
+    
+    # Aumentar la velocidad de las tortugas que lo siguen
+    def speed_up_turtles(self, turtles_group):
+        for turtle in turtles_group:
+            if turtle.is_following_player:
+                turtle.velocidad = 3
+    

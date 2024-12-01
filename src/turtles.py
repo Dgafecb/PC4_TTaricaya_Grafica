@@ -20,7 +20,7 @@ class Turtle(pygame.sprite.Sprite):
             "idle": self.cargar_sprites("Idle.png", 4),
             "walk": self.cargar_sprites("Walk.png", 6),
             "attack": self.cargar_sprites("Attack.png", 6),
-            "hurt": self.cargar_sprites("Hurt.png", 2),  # Animación de herido (2 frames)
+            "hurt": self.cargar_sprites("Hurt.png", 8),  # Animación de herido (2 frames)
             "death": self.cargar_sprites("Death.png", 6)
         }
         self.current_sprite = 0
@@ -46,6 +46,9 @@ class Turtle(pygame.sprite.Sprite):
             rect = pygame.Rect(i * sprite_width, 0, sprite_width, sprite_height)
             sprite = sprite_sheet.subsurface(rect)
             sprites.append(sprite)
+            sprites.append(sprite)
+            sprites.append(sprite)
+            sprites.append(sprite)
 
         return sprites
 
@@ -57,9 +60,7 @@ class Turtle(pygame.sprite.Sprite):
             self.animation_steps = self.update_sprite(self.animation_steps, self.current_animation)
             self.image = self.current_animation[self.animation_steps]
             self.rect = self.image.get_rect(center=(self.x, self.y))
-            self.kill()
-        
-        # Control de animación para 'attack'
+       # Control de animación para 'attack'
         elif self.is_attacking:
             self.current_animation = self.animaciones["attack"]
             self.x += self.velocidad * 10
@@ -97,6 +98,8 @@ class Turtle(pygame.sprite.Sprite):
         animation_steps += 1
         if animation_steps >= len(current_animation):
             animation_steps = 0
+            if self.is_dead:
+                self.kill()
         return animation_steps
 
     def move(self, player):

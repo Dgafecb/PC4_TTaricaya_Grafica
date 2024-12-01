@@ -73,11 +73,11 @@ class Crab(pygame.sprite.Sprite):
 
                 self.attack_steps = 0
                 self.attack_count += 1
-                self.attack_cooldown = 120  # Establece el tiempo de cooldown
+                self.attack_cooldown = 90  # Establece el tiempo de cooldown
                 
                 if self.attack_count >= 3:  # Limitar a 3 ataques antes de establecer cooldown
                     self.attack_count = 0
-                    self.attack_cooldown = 180  # Establecer cooldown más largo después de 3 ataques
+                    self.attack_cooldown = 120  # Establecer cooldown más largo después de 3 ataques
                     self.is_attacking = False
                     self.current_animation = self.animaciones["walk"]
         else:

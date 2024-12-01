@@ -58,3 +58,21 @@ def draw_score(screen, score, time_left):
 # Función para iniciar el temporizador (devuelve el tiempo actual en milisegundos)
 def start_timer():
     return pygame.time.get_ticks()
+
+def load_sprite(image_path, width=None, height=None):
+    """
+    Carga un sprite de una imagen y opcionalmente la escala a un tamaño específico.
+    
+    :param image_path: Ruta al archivo de imagen.
+    :param width: Ancho deseado para la imagen (opcional).
+    :param height: Alto deseado para la imagen (opcional).
+    :return: El sprite cargado (y escalado si se especifica).
+    """
+    # Cargar la imagen
+    sprite = pygame.image.load(image_path).convert_alpha()
+    
+    # Si se proporcionan ancho y alto, escalamos la imagen
+    if width and height:
+        sprite = pygame.transform.scale(sprite, (width, height))
+    
+    return sprite

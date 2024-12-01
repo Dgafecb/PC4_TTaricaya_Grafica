@@ -10,6 +10,7 @@ import random
 from crab import Crab  # Importa la clase Crab
 from utils import  draw_score
 import time
+from power import Power  # Importa la clase Power
 
 #MUSICA
 # Inicializa el mixer de Pygame
@@ -70,6 +71,9 @@ story = load_story_from_json('../history.json')
 # Tortugas: generadas aleatoriamente
 turtles = pygame.sprite.Group()
 
+# En el ciclo principal:
+powerups = pygame.sprite.Group()  # Grupo de power-ups
+
 # Función para crear tortugas aleatorias
 def generate_random_turtle(n):
     for _ in range(n):
@@ -78,8 +82,22 @@ def generate_random_turtle(n):
         turtle = Turtle(x, y, "../assets/images/turtle_assets")
         turtles.add(turtle)
 
+# Función para generar power-ups aleatorios en posiciones válidas
+def generate_random_powerup(n):
+    for _ in range(n):
+        # Generar una posición aleatoria en el rango que no esté en el mar (a la izquierda)
+        x = random.randint(200, WIDTH-200)  # Evita las zonas del mar
+        y = random.randint(200, HEIGHT-200)
+        
+        powerup = Power(x, y, "../assets/images/power_upps")
+        powerups.add(powerup)
+
+
 # Añadir las tortugas al grupo al inicio
 generate_random_turtle(12)  # Iniciar con una tortuga
+
+# Añadir los power-ups al grupo al inicio
+generate_random_powerup(3)  # Iniciar con 3 power-ups
 
 
 # Lista de cangrejos
@@ -94,12 +112,23 @@ for _ in range(4):  # Por ejemplo, 3 cangrejos
 following_turtle = None
 
 def check_collision(player, turtles):
-    """Verifica si el jugador está colisionando con alguna tortuga."""
+    """Verifica si el jugador está colisionando con alguna tortuga y retorna todas las que están colisionando."""
+    following_turtles = []  # Lista de tortugas que están colisionando con el jugador
     for turtle in turtles:
-        # Verificamos si el jugador colisiona con la tortuga y a apretado la tecla A
-        if player.rect.colliderect(turtle.rect):
-            return turtle
+        if player.rect.colliderect(turtle.rect):  # Verificamos si el jugador está colisionando con la tortuga
+            following_turtles.append(turtle)
+    return following_turtles
+
+
+def check_collision_power(player, powerups):
+    """Verifica si el jugador está colisionando con algún power-up."""
+    for powerup in powerups:
+        if player.rect.colliderect(powerup.rect):
+            powerup.apply_ability(player)
+            return powerup
     return None
+
+
 
 # Variables globales para el puntaje y tiempo
 score = 0
@@ -108,9 +137,8 @@ time_left = 60  # 60 segundos para completar la misión
 
 
 
-
 def main():
-    global following_turtle, score, time_left # Usamos la variable global para modificarla dentro del ciclo principal
+    global following_turtle, score, time_left, start_time  # Usamos la variable global para modificarla dentro del ciclo principal
 
     # Reproducir música (en loop infinito)
     pygame.mixer.music.play(loops=-1, start=0.0)  # loops=-1 para repetir la música infinitamente
@@ -123,10 +151,20 @@ def main():
     # Variables para controlar el tiempo y la aparición de tortugas
     last_turtle_spawn_time = 0  # Tiempo de la última aparición de tortuga
     turtle_spawn_interval = 3000  # Intervalo en milisegundos (3 segundos)
-    max_turtles = 20  # Máximo número de tortugas en pantalla
+    
+    max_turtles = 25  # Máximo número de tortugas en pantalla
 
     start_time = None  # Inicia el cronómetro después de la historia
     game_duration = 60  # Duración del juego en segundos
+    x_, y_ = 0, 0  # Inicializar las variables x_ y y_
+
+    #Intervalo de los power-ups
+    power_interval = 3000  # Tiempo de la última aparición de power-up
+    last_powerup_spawn_time = 0  # Intervalo en milisegundos (3 segundos)
+
+    # Variable para controlar el intervalo de activación de la habilidad de atraer tortugas
+    last_attract_time = 0  # Inicializamos la variable que controla el tiempo de activación de la habilidad
+    attract_interval = 5000  # Intervalo en milisegundos (5 segundos) para la habilidad de atraer tortugas
 
     while running:
         clock.tick(FPS)
@@ -150,21 +188,30 @@ def main():
 
                 # Interacción con las tortugas cuando no estamos en la narrativa
                 if not in_story and event.key == pygame.K_a:
-                    if following_turtle:
-                        following_turtle.is_following_player = False
-                        following_turtle = None
-                    else:
-                        following_turtle = check_collision(player, turtles)
-                        if following_turtle:
-                            following_turtle.is_following_player = True
+                    following_turtles = check_collision(player, turtles)
+                    if following_turtles:
+                        for turtle in following_turtles:
+                            if not turtle.is_following_player:
+                                turtle.is_following_player = True  # Comienza a seguir al jugador
+                            else:
+                                turtle.stop_following()  # Deja de seguir al jugador
+
                 if not in_story and event.key == pygame.K_s:
-                    if following_turtle:
-                        following_turtle.attack()
-                        following_turtle.stop_following()
-                        following_turtle = None
+                    following_turtles = check_collision(player, turtles)
+                    if following_turtles:
+                        for turtle in following_turtles:
+                            turtle.attack()  # Las tortugas atacan
+                            turtle.is_following_player = False  # Dejan de seguir al jugador
+                    following_turtle = None  # Reseteamos la variable
 
         # Lógica para generar tortugas a intervalos regulares
         current_time = pygame.time.get_ticks()  # Obtiene el tiempo transcurrido desde que se inició el juego
+
+        if current_time - last_powerup_spawn_time > power_interval and len(powerups) < 3:
+            # Crear un nuevo power-up en una posición aleatoria
+            new_powerup = Power(random.randint(100, WIDTH-200), random.randint(100, HEIGHT), "../assets/images/power_upps")
+            powerups.add(new_powerup)
+            last_powerup_spawn_time = current_time  # Actualizar el tiempo del ultimo power-up creado
 
         # Aparecer nuevas tortugas a intervalos regulares
         if current_time - last_turtle_spawn_time > turtle_spawn_interval and len(turtles) < max_turtles:
@@ -197,6 +244,24 @@ def main():
                 crab.move()
                 crab.update()
 
+            
+            # Verificar colisiones con el power app
+            powerup = check_collision_power(player, powerups)
+            if powerup:
+                print("Colisión con power-up")
+                powerup.apply_ability(player)
+                # Eliminar el power-up si fue recogido
+                powerups.remove(powerup)
+            
+            # Si el jugador puede atraer tortugas, atraerlas pero solo una vez por intervalo
+            if player.can_get_turtles and current_time - last_attract_time > attract_interval:
+                player.attract_turtles(turtles)
+                player.can_get_turtles = False
+                last_attract_time = current_time  # Actualizar el tiempo de la última vez que se activó la habilidad
+            
+            if player.can_speed_turtle_up:
+                player.speed_up_turtles(turtles)
+            
         # Dibujar todo
         screen.fill((0, 0, 0))
 
@@ -210,12 +275,16 @@ def main():
         # Dibujar cangrejos
         for crab in crabs:
             crab.draw(screen)
+        
+        # Dibujar power-ups
+        for powerup in powerups:
+            powerup.update()
+            powerup.draw(screen)
 
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
         dialogue_box.draw(screen)
-        # Dibujar el narrador encima del cuadro de diálogo
-
+    
         # Dibujar el score y el tiempo
         if start_time:
             time_left = max(0, game_duration - int(time.time() - start_time))
