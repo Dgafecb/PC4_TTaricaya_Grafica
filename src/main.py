@@ -40,8 +40,8 @@ pygame.display.set_caption("PC4: Guardianes de las Taricayas")
 clock = pygame.time.Clock()
 
 # Cargar un mapa con Tiled
-tmx_map = load_pygame("../MapaDia.tmx")
-
+tmx_map_dia = load_pygame("../MapaDia.tmx")
+#tmx_map_noche = load_pygame("../MapaNoche.tmx") # Cargamos el mapa de noche
 
 # Instancia del narrador
 narrador_assets_path = "../assets/images/narrator_assets/Amazon.png"
@@ -135,10 +135,14 @@ time_left = 60  # 60 segundos para completar la misión
 # Instancia del jugador
 player_assets_path = "../assets/images/player_assets"
 player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", turtles, crabs)
-
+ # estados del juego
+ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4}
+# estado actual del juego
+estado_actual = ESTADOS["narrativa_inicio"]# 0 
 def main():
-    global following_turtle, score, time_left, start_time  # Usamos la variable global para modificarla dentro del ciclo principal
-
+    global following_turtle, score, time_left, start_time,estado_actual  # Usamos la variable global para modificarla dentro del ciclo principal
+   
+    
     # Reproducir música (en loop infinito)
     pygame.mixer.music.play(loops=-1, start=0.0)  # loops=-1 para repetir la música infinitamente
 
@@ -155,6 +159,8 @@ def main():
 
     start_time = None  # Inicia el cronómetro después de la historia
     game_duration = 60  # Duración del juego en segundos
+    noche_duration = 60 # Duracion de la noche
+    dia_duration = 60 # Duracion del dia
     x_, y_ = 0, 0  # Inicializar las variables x_ y y_
 
     # Intervalo de los power-ups
@@ -173,22 +179,25 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if in_story:
+                if estado_actual in [ESTADOS["narrativa_inicio"]]: # Refactorizo historia para verificar que esta en la narrativa inicial
                     if event.key == pygame.K_q:  # Avanza la narrativa con la tecla Q
                         if current_story_index < len(story) - 1:
                             current_story_index += 1
                             dialogue_box.set_text(story[current_story_index])
                         else:
-                            in_story = False  # Termina la narrativa
+                            #in_story = False  # Refactorizo el fin de la narrativa inicial
+                            estado_actual = ESTADOS["narrativa_noche"] #Para que pueda iniciar la narrativa del juego de noche
                             dialogue_box.hide()
                             start_time = time.time()  # Inicia el cronómetro después de la historia
                     elif event.key == pygame.K_SPACE:  # Salta la narrativa
                         dialogue_box.hide()
-                        in_story = False
+                        #in_story = False
+                        estado_actual = ESTADOS["narrativa_noche"] #Para que pueda iniciar la narrativa del juego de noche
                         start_time = time.time()  # Inicia el cronómetro después de la historia
 
                 # Interacción con las tortugas cuando no estamos en la narrativa
-                if not in_story and event.key == pygame.K_a:
+                #if not in_story and event.key == pygame.K_a:
+                if estado_actual in [ESTADOS["juego_dia"]] and event.key == pygame.K_a: # R2
                     following_turtles = check_collision(player, turtles)
                     if following_turtles:
                         for turtle in following_turtles:
@@ -199,7 +208,8 @@ def main():
                                 turtle.is_visible = True
 
                 # Atacar cuando apreta la tecla s
-                if not in_story and event.key == pygame.K_s:
+                #if not in_story and event.key == pygame.K_s:
+                if estado_actual in [ESTADOS["juego_dia"]] and event.key == pygame.K_s: # R3
                     for turtle in turtles:
                         if player.rect.colliderect(turtle.rect) & turtle.is_following_player:
                             turtle.attack()
@@ -211,7 +221,8 @@ def main():
         current_time = pygame.time.get_ticks()
         
         # Revisar si el jugador ha recogido un power-up solo si no hay un power-up activo
-        if not powerup_active and not in_story:
+        #if not powerup_active and not in_story: 
+        if not powerup_active and estado_actual in [ESTADOS["juego_dia"]]: #  R4
             powerup = check_collision_power(player, powerups)
             if powerup:
                 # Activar el poder correspondiente si no está en cooldown
@@ -269,7 +280,8 @@ def main():
             turtles.add(new_turtle)
             last_turtle_spawn_time = current_time  # Actualizar el tiempo de la última tortuga creada
 
-        if not in_story:
+        #if not in_story:
+        if estado_actual in [ESTADOS["juego_dia"]]:
             keys = pygame.key.get_pressed()
 
             # Mover al jugador
@@ -296,7 +308,7 @@ def main():
         # Dibujar todo
         screen.fill((0, 0, 0))
 
-        draw_map_from_tmx(screen, tmx_map)
+        draw_map_from_tmx(screen, tmx_map_dia)
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left)  # Información del poder activo
         
@@ -331,7 +343,8 @@ def main():
         if start_time and time_left <= 0:
             running = False  # Terminar el juego después de 60 segundos
 
-        if in_story:
+        #if in_story:
+        if estado_actual in [ESTADOS["narrativa_inicio"]]:
             screen.blit(narrador_sprite, (narrador_sprite_x, narrador_sprite_y))
         pygame.display.flip()
 
