@@ -58,7 +58,7 @@ narrador_sprite_y = 450 - narrador_sprite.get_height() - 10  # 10 píxeles encim
 
 
 
-# Crear el cuadro de diálogo dinámico
+# Crear el cuadro de diálogo de narrativa inicial
 dialogue_box = DialogueBox(
     letters_path="../assets/images/ui/ascii",
     position=(50, 450),
@@ -67,9 +67,9 @@ dialogue_box = DialogueBox(
     box_height=120,
     letter_size=(16, 16)
 )
-
 story = load_story_from_json('../history.json')
-
+story_noche = load_story_from_json("../history.json", "story_noche")
+story_dia = load_story_from_json("../history.json", "story_dia")
 
 # Tortugas: generadas aleatoriamente
 turtles = pygame.sprite.Group()
@@ -135,6 +135,8 @@ def check_collision_power(player, powerups):
 # Variables globales para el puntaje y tiempo
 score = 0
 start_time = None
+start_time_dia = None
+start_time_noche =None
 time_left = 60  # 60 segundos para completar la misión
 
 # Instancia del jugador
@@ -145,7 +147,7 @@ ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa
 # estado actual del juego
 estado_actual = ESTADOS["narrativa_inicio"]# 0 
 def main():
-    global following_turtle, score, time_left, start_time,estado_actual  # Usamos la variable global para modificarla dentro del ciclo principal
+    global following_turtle, score, time_left, start_time,start_time_dia,estado_actual, start_time_noche  # Usamos la variable global para modificarla dentro del ciclo principal
    
     
     # Reproducir música (en loop infinito)
@@ -155,15 +157,17 @@ def main():
     in_story = True  # Variable para controlar si estamos en la narrativa inicial
     current_story_index = 0  # Variable local para manejar el índice de la narrativa
     dialogue_box.set_text(story[current_story_index])  # Establecer el primer texto
-
+    current_story_index_noche = 0
+    current_story_index_dia = 0
     # Variables para controlar el tiempo y la aparición de tortugas
     last_turtle_spawn_time = 0  # Tiempo de la última aparición de tortuga
     turtle_spawn_interval = 3000  # Intervalo en milisegundos (3 segundos)
     
     max_turtles = 25  # Máximo número de tortugas en pantalla
-
-    start_time = None  # Inicia el cronómetro después de la historia
-    game_duration = 60  # Duración del juego en segundos
+    start_time = None
+    start_time_noche = None # Inicia el cronometro despues de la narrativa de noche
+    start_time_dia = None  # Inicia el cronómetro después de la historia
+    game_duration = 10  # Duración del juego en segundos
     noche_duration = 60 # Duracion de la noche
     dia_duration = 60 # Duracion del dia
     x_, y_ = 0, 0  # Inicializar las variables x_ y y_
@@ -193,15 +197,54 @@ def main():
                         else:
                             #in_story = False  # Refactorizo el fin de la narrativa inicial
                             estado_actual = ESTADOS["narrativa_noche"] #Para que pueda iniciar la narrativa del juego de noche
+                            #dialogue_box.hide()
+                            #inicia el dialogo de noche
+                            dialogue_box.set_text(story_noche[current_story_index_noche])
+                            
+                    elif event.key == pygame.K_SPACE:  # Salta la narrativa
+                        #dialogue_box.hide()
+                        #in_story = False
+                        estado_actual = ESTADOS["narrativa_noche"] #Para que pueda iniciar la narrativa del juego de noche
+                        #inicia el dialogo de noche
+                        dialogue_box.set_text(story_noche[current_story_index_noche])
+                # Avanzar dialogo de narrativa noche
+                elif estado_actual in [ESTADOS["narrativa_noche"]]: 
+                    if event.key == pygame.K_q:  # Avanza la narrativa con la tecla Q
+                        if current_story_index_noche < len(story_noche) - 1:
+                            current_story_index_noche += 1
+                            dialogue_box.set_text(story_noche[current_story_index_noche])
+                        else:
+                            
+                            estado_actual = ESTADOS["juego_noche"] #Para que pueda iniciar el juego de noche
                             dialogue_box.hide()
+                            start_time_noche = time.time()
+                            
+                            
+                    elif event.key == pygame.K_SPACE:  # Salta la narrativa
+                        dialogue_box.hide()
+
+                        estado_actual = ESTADOS["juego_noche"] #Para que pueda iniciar el juego de noche
+                        start_time_noche = time.time()
+                # Avanzar dialogos narrativa de dia
+                elif estado_actual in [ESTADOS["narrativa_dia"]]: 
+                    if event.key == pygame.K_q:  # Avanza la narrativa con la tecla Q
+                        if current_story_index_dia < len(story_dia) - 1:
+                            current_story_index_dia += 1
+                            dialogue_box.set_text(story_dia[current_story_index_dia])
+                        else:
+                            
+                            estado_actual = ESTADOS["juego_dia"] #Para que pueda iniciar el juego de noche
+                            dialogue_box.hide()
+                            start_time_dia = time.time()
+                            
                             
                     elif event.key == pygame.K_SPACE:  # Salta la narrativa
                         dialogue_box.hide()
                         #in_story = False
-                        estado_actual = ESTADOS["narrativa_noche"] #Para que pueda iniciar la narrativa del juego de noche
-                        
+                        estado_actual = ESTADOS["juego_dia"] #Para que pueda iniciar el juego de noche
+                        start_time_dia = time.time()
                 # Interacción con las tortugas cuando no estamos en la narrativa
-                #if not in_story and event.key == pygame.K_a:
+                
                 if estado_actual in [ESTADOS["juego_dia"]] and event.key == pygame.K_a: # R2
                     following_turtles = check_collision(player, turtles)
                     if following_turtles:
@@ -223,6 +266,12 @@ def main():
                 if event.key ==pygame.K_n:   # PARA
                     start_time = time.time()  # Inicia el cronómetro después de la historia
                     estado_actual = 4        # PRUEBAS
+                    start_time_dia = time.time()  # Inicia el cronómetro del dia luego que termine 
+            if event.type == pygame.KEYDOWN: #SOLO
+                if event.key ==pygame.K_m:   # PARA
+                    estado_actual = 3        # PRUEBAS
+                    
+      
       
         # Generamos power-ups aleatorios despues de la historia y una sola vez
         # Manejo de los power-ups y cooldowns
@@ -317,7 +366,7 @@ def main():
         screen.fill((0, 0, 0))
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
             draw_map_from_tmx(screen, tmx_map_dia) #Dibujamos el mapa de dia
-        elif estado_actual in [ESTADOS["narrativa_noche"],ESTADOS["juego_noche"]]:
+        elif estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_noche"],ESTADOS["juego_noche"]]:
             screen.blit(mapa_noche,(0,0)) # Dibujamos el mapa de noche
         # Dibujamos el tiempo restante del powerup
 
@@ -341,22 +390,32 @@ def main():
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
         dialogue_box.draw(screen)
-
-        # Dibujar el score y el tiempo
-        if start_time:
-            time_left = max(0, game_duration - int(time.time() - start_time))
         
+        # Dibujar el score y el tiempo
+        
+        if start_time_noche:
+            time_left = max(0, game_duration - int(time.time() - start_time_noche))
+            if estado_actual == ESTADOS["narrativa_dia"]:
+                time_left = 60
+        if start_time_dia:
+            time_left = max(0, game_duration - int(time.time() - start_time_dia))
+        
+
         score = Turtle.score
         draw_score(screen, score, time_left)
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
         
+        if start_time_noche and time_left <=0:
+            estado_actual = ESTADOS["narrativa_dia"]
+            dialogue_box.set_text(story_dia[current_story_index_dia])
+            if start_time_dia:
+                running= False
+                # MOSTRAR PUNTAJE FINAL AQUI
 
-        if start_time and time_left <= 0:
-            running = False  # Terminar el juego después de 60 segundos
-
+        
         #if in_story:
-        if estado_actual in [ESTADOS["narrativa_inicio"]]:
+        if estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_dia"],ESTADOS["narrativa_noche"]]:
             screen.blit(narrador_sprite, (narrador_sprite_x, narrador_sprite_y))
         pygame.display.flip()
 
