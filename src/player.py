@@ -1,9 +1,8 @@
 import pygame
 import pytmx
-import xml.etree.ElementTree as ET
-from map_reader import load_map, get_tile_value_at_position
+
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, asset_path, map_file, ids_colisionables, layer):
+    def __init__(self, x, y, asset_path, map_file):
         super().__init__()
         self.x = x
         self.y = y
@@ -11,8 +10,7 @@ class Player(pygame.sprite.Sprite):
         self.direccion = "down"
         self.asset_path = asset_path
         self.map = pytmx.load_pygame(map_file)  # Cargar el mapa de Tiled
-        self.ids_colisionables = ids_colisionables  # Lista de IDs colisionables
-        self.layer = layer
+
         # Cargar las animaciones
         self.animaciones = {
             "down": self.cargar_sprites("walk_down.png", 8),
@@ -24,16 +22,6 @@ class Player(pygame.sprite.Sprite):
         self.current_animation = self.animaciones["down"]
         self.image = self.current_animation[self.current_sprite]
         self.rect = self.image.get_rect(center=(self.x, self.y))
-
-    def get_tile(self, row, col):
-        """Obtiene el tile en la posición (row, col) del mapa."""
-        return self.map.get_tile_gid(col // 32, row // 32, 0)  # Dividir por 32 para ajustar a los tiles
-
-    def show_gidCSV(self, row, col):
-        """Muestra el GID de la celda en la posición (row, col) del mapa."""
-        gid = get_tile_value_at_position(self.map, row, col)
-        print(f"GID en ({row}, {col}): {gid}")
-
 
     def cargar_sprites(self, file_name, frames):
         """Divide la imagen en múltiples cuadros."""
@@ -47,41 +35,25 @@ class Player(pygame.sprite.Sprite):
             sprites.append(sprite)
         return sprites
 
-    def es_colisionable(self, x, y):
-        """Verifica si el tile en la posición (x, y) es colisionable."""
-        tile_gid = self.map.get_tile_gid(x, y, 0)  # Capa 0, puedes cambiar el índice si es necesario
-        
-        if tile_gid in self.ids_colisionables:
-            print("BLOQUE COLISIONABLE")  # Imprimir en consola para ver si está funcionando
-            return True
-        return False
-
     def move(self, keys):
         """Mueve al jugador y cambia la animación según la dirección."""
-        nueva_x, nueva_y = self.x, self.y  # Variables para la nueva posición
-
         if keys[pygame.K_DOWN]:
-            nueva_y += self.velocidad
+            self.y += self.velocidad
+            self.direccion = "down"
         elif keys[pygame.K_UP]:
-            nueva_y -= self.velocidad
+            self.y -= self.velocidad
+            self.direccion = "up"
         elif keys[pygame.K_LEFT]:
-            nueva_x -= self.velocidad
+            self.x -= self.velocidad
+            self.direccion = "left"
         elif keys[pygame.K_RIGHT]:
-            nueva_x += self.velocidad
-
-        # Obtener las coordenadas del tile (dividiendo por el tamaño del tile, en este caso 32)
-        tile_x = nueva_x // 32
-        tile_y = nueva_y // 32
-
-        # Mostrar el GID del tile en la nueva posición
-        self.show_gidCSV(tile_y, tile_x)
-
-        # Verificar si la nueva posición es colisionable
-        if not self.es_colisionable(nueva_x // 32, nueva_y // 32):  # Dividir por 32 para ajustar a los tiles
-            self.x = nueva_x
-            self.y = nueva_y
+            self.x += self.velocidad
+            self.direccion = "right"
+        else:
+            self.direccion = None
 
         self.update_animation()
+        
 
     def update_animation(self):
         """Actualiza la animación según la dirección."""
@@ -94,5 +66,4 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(center=(self.x, self.y))
 
     def draw(self, pantalla):
-        """Dibuja al jugador en la pantalla."""
         pantalla.blit(self.image, (self.x, self.y))
