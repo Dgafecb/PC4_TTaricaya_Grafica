@@ -35,10 +35,15 @@ def draw_map(screen, map_data, tiles, tile_width, tile_height):
                 screen.blit(tiles[tile_index], (x, y))
 
 
-def load_story_from_json(filename):
+def load_story_from_json(filename, story_type="story"):
     with open(filename, "r") as file:
         data = json.load(file)
-    return data["story"]  # Devuelve la lista de textos
+    
+    # Verifica si el tipo de historia es válido y lo carga
+    if story_type in data:
+        return data[story_type]
+    else:
+        raise ValueError(f"Tipo de historia '{story_type}' no encontrado en el archivo JSON.")
 
 
 # Función para dibujar el puntaje y el cronómetro
