@@ -79,56 +79,63 @@ def load_sprite(image_path, width=None, height=None):
     return sprite
 
 
-
-# Función para dibujar la información del poder activo
 def draw_powerup_info(screen, powerup_active, elapsed_time):
-    font = pygame.font.Font(None, 36)  # Mantener el tamaño de la fuente original
+    font = pygame.font.Font(None, 24)  # Tamaño de fuente para el tiempo
+    small_font = pygame.font.Font(None, 20)  # Fuente más pequeña para la descripción corta
     
-    # Colores para diferentes estados del poder
+    # Colores
     white = (255, 255, 255)
     green = (0, 255, 0)
-    red = (255, 0, 0)
     black = (0, 0, 0)
-
-    # Determinar el texto y el color según el poder activo
+    
+    # Diccionario de imágenes y descripciones
+    powerup_path = {
+        "speed": {"image": "../assets/images/power_upps/crystal_01.png", "desc": "Boosts speed"},
+        "invisible_turtle_follower": {"image": "../assets/images/power_upps/potion_01.png", "desc": "Invisible follower"},
+        "turtle_speed": {"image": "../assets/images/power_upps/herb_02.png", "desc": "Increases turtle speed"}
+    }
+    
     if powerup_active:
-        # Determinar el texto basado en el poder activo
-        if powerup_active == 'speed':
-            powerup_text = "Speed Boost"
-            color = green
-        elif powerup_active == 'invisible_turtle_follower':
-            powerup_text = "Invisible Turtle Follower"
-            color = green
-        elif powerup_active == 'turtle_speed':
-            powerup_text = "Turtle Speed Up"
-            color = green
-        else:
-            powerup_text = "Unknown Power"
-            color = red
+        # Obtener la descripción y la imagen del powerup
+        powerup_info = powerup_path.get(powerup_active, {"image": None, "desc": "Unknown Power"})
+        powerup_text = powerup_info["desc"]
+        powerup_image_path = powerup_info["image"]
+        powerup_image = pygame.image.load(powerup_image_path).convert_alpha()
         
-        # Calcular el tiempo restante (en segundos)
-        time_remaining = max(0, 5 - (elapsed_time / 1000))  # 5 segundos de duración (ajusta según lo que necesites)
-        time_text = f"Time Left: {int(time_remaining)}s"  # Convertir a un número entero para la visualización
+        # Calcular el tiempo restante
+        time_remaining = max(0, 5 - (elapsed_time / 1000))  # 5 segundos de duración
+        time_text = f"Time Left: {int(time_remaining)}s"
         
-        # Renderizar el texto del poder activo y el tiempo restante
-        powerup_render = font.render(powerup_text, True, white)
+        # Renderizar los textos
+        powerup_render = small_font.render(powerup_text, True, white)
         time_render = font.render(time_text, True, white)
         
-        # Calcular el ancho del texto para ajustar el fondo
-        powerup_width = powerup_render.get_width() + 20  # Añadir margen para el texto
-        time_width = time_render.get_width() + 20
-        box_width = max(powerup_width, time_width)  # Tomar el mayor de los dos anchos para el cuadro
+        # Ajustar tamaño de la imagen
+        powerup_image = pygame.transform.scale(powerup_image, (40, 40))  # Tamaño fijo de la imagen
         
-        # Dibujar fondo para el texto (ajustar el tamaño del cuadro según el texto)
-        pygame.draw.rect(screen, black, (WIDTH - box_width - 10, 10, box_width + 20, 120))  # Cuadro de fondo ajustado
-        pygame.draw.rect(screen, (255, 255, 255), (WIDTH - box_width - 10, 10, box_width + 20, 120), 4)  # Borde del cuadro
+        # Ajuste de tamaño de la caja
+        box_width = 220
+        box_height = 120
         
-        # Dibujar los textos en la pantalla
-        screen.blit(powerup_render, (WIDTH - box_width, 20))  # Dibujar el nombre del poder
-        screen.blit(time_render, (WIDTH - box_width, 60))  # Dibujar el tiempo restante
+        # Dibujar fondo para el cuadro
+        pygame.draw.rect(screen, black, (WIDTH - box_width - 10, 10, box_width, box_height))  # Fondo
+        pygame.draw.rect(screen, (255, 255, 255), (WIDTH - box_width - 10, 10, box_width, box_height), 4)  # Borde
+        
+        # Centrar la imagen y los textos dentro del cuadro
+        image_x = WIDTH - box_width + (box_width - 40) // 2  # Centrar imagen
+        image_y = 20  # Posición vertical de la imagen
+        
+        powerup_text_x = WIDTH - box_width + (box_width - powerup_render.get_width()) // 2  # Centrar texto de descripción
+        powerup_text_y = image_y + 45  # Colocar debajo de la imagen
+        
+        time_text_x = WIDTH - box_width + (box_width - time_render.get_width()) // 2  # Centrar tiempo
+        time_text_y = powerup_text_y + 30  # Colocar debajo de la descripción
+        
+        # Dibujar la imagen, la descripción y el tiempo restante
+        screen.blit(powerup_image, (image_x, image_y))  # Dibujar imagen
+        screen.blit(powerup_render, (powerup_text_x, powerup_text_y))  # Dibujar descripción
+        screen.blit(time_render, (time_text_x, time_text_y))  # Dibujar tiempo restante
         
     else:
         # Si no hay power-up activo, no mostrar nada
         return
-
-

@@ -343,7 +343,8 @@ def main():
 
         score = Turtle.score
         draw_score(screen, score, time_left)
-        
+        # Dibujamos el tiempo restante del powerup
+        draw_powerup_info(screen, powerup_active, time_left)  # Información del poder activo
         
 
         if start_time and time_left <= 0:
