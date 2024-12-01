@@ -12,6 +12,8 @@ from utils import  draw_score
 import time
 from power import Power  # Importa la clase Power
 from utils import  draw_powerup_info
+from zorro import Fox
+from egg import Egg
 
 #MUSICA
 # Inicializa el mixer de Pygame
@@ -92,6 +94,7 @@ def generate_random_powerup(n):
         
         powerup = Power(x, y, "../assets/images/power_upps")
         powerups.add(powerup)
+
 
 
 # Añadir las tortugas al grupo al inicio
@@ -317,8 +320,8 @@ def main():
         elif estado_actual in [ESTADOS["narrativa_noche"],ESTADOS["juego_noche"]]:
             screen.blit(mapa_noche,(0,0)) # Dibujamos el mapa de noche
         # Dibujamos el tiempo restante del powerup
-       
-        
+
+
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
             # Dibujar tortugas
             for turtle in turtles:
@@ -332,7 +335,8 @@ def main():
             for powerup in powerups:
                 powerup.update()
                 powerup.draw(screen)
-                
+            
+
             player.draw(screen)
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
