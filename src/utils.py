@@ -1,4 +1,5 @@
 import pygame
+import json
 
 def load_image(path, scale=None):
     image = pygame.image.load(path).convert_alpha()
@@ -33,5 +34,27 @@ def draw_map(screen, map_data, tiles, tile_width, tile_height):
                 screen.blit(tiles[tile_index], (x, y))
 
 
+def load_story_from_json(filename):
+    with open(filename, "r") as file:
+        data = json.load(file)
+    return data["story"]  # Devuelve la lista de textos
 
 
+# Función para dibujar el puntaje y el cronómetro
+def draw_score(screen, score, time_left):
+    font = pygame.font.Font(None, 36)  # Asegúrate de que la fuente esté correctamente cargada
+    score_text = font.render(f"Score: {score}", True, (255, 255, 255))
+    time_text = font.render(f"Time: {time_left}s", True, (255, 255, 255))
+
+    # Dibujar un cuadro de fondo para el puntaje
+    pygame.draw.rect(screen, (0, 0, 0), (10, 10, 250, 60))  # Fondo con espacio para puntaje y tiempo
+    pygame.draw.rect(screen, (255, 255, 255), (10, 10, 250, 60), 2)  # Borde del cuadro
+
+    # Dibujar el puntaje y el tiempo dentro del cuadro
+    screen.blit(score_text, (20, 20))
+    screen.blit(time_text, (20, 40))
+
+
+# Función para iniciar el temporizador (devuelve el tiempo actual en milisegundos)
+def start_timer():
+    return pygame.time.get_ticks()

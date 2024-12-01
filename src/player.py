@@ -1,13 +1,15 @@
 import pygame
+import pytmx
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, asset_path):
+    def __init__(self, x, y, asset_path, map_file):
         super().__init__()
         self.x = x
         self.y = y
         self.velocidad = 5
         self.direccion = "down"
         self.asset_path = asset_path
+        self.map = pytmx.load_pygame(map_file)  # Cargar el mapa de Tiled
 
         # Cargar las animaciones
         self.animaciones = {
@@ -51,6 +53,7 @@ class Player(pygame.sprite.Sprite):
             self.direccion = None
 
         self.update_animation()
+        
 
     def update_animation(self):
         """Actualiza la animación según la dirección."""
