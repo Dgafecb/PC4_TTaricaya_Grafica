@@ -10,7 +10,8 @@ import random
 from crab import Crab  # Importa la clase Crab
 from utils import  draw_score
 import time
-
+import xml.etree.ElementTree as ET
+from map_reader import load_map, get_tile_value_at_position
 #MUSICA
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
@@ -28,6 +29,18 @@ def draw_map_from_tmx(screen, tmx_data):
                     screen.blit(tile_surface, (x * tmx_data.tilewidth, y * tmx_data.tileheight))
 
 
+# Deteccion de colisiones
+def check_tile_collisions(player, tmx_map):
+    """Verifica si el jugador está colisionando con las zonas de colisión del mapa (objetos definidos en TMX)."""
+    for group in tmx_map.objectgroups:
+        for obj in group:
+            # Si el objeto tiene una forma de rectángulo y es colisionable
+            if obj.shape == 'rectangle':
+                rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
+                if player.rect.colliderect(rect):
+                    return True  # El jugador colisiona con el objeto
+    return False
+
 
 # Inicialización
 pygame.init()
@@ -40,6 +53,7 @@ clock = pygame.time.Clock()
 # Cargar un mapa con Tiled
 tmx_map = load_pygame("../MapaDia.tmx")
 
+layer = tmx_map.get_layer_by_name("Tile Layer 1")
 
 # Instancia del narrador
 narrador_assets_path = "../assets/images/narrator_assets/Amazon.png"
@@ -50,9 +64,12 @@ narrador_sprite = pygame.transform.scale(narrador_sprite,(200,200))
 narrador_sprite_x = 50 + 700 // 2 - narrador_sprite.get_width() // 2  # Basado en las dimensiones del cuadro de diálogo
 narrador_sprite_y = 450 - narrador_sprite.get_height() - 10  # 10 píxeles encima del cuadro
 
+# Ids de los tiles colisionables
+ids_colisionables = [7714]
+
 # Instancia del jugador
 player_assets_path = "../assets/images/player_assets"
-player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx")
+player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", ids_colisionables,layer)
 
 # Crear el cuadro de diálogo dinámico
 dialogue_box = DialogueBox(
@@ -178,6 +195,10 @@ def main():
 
             # Mover al jugador
             player.move(keys)
+
+            # Verificar colisiones con el mapa TMX (poste, paredes, etc.)
+            if check_tile_collisions(player, tmx_map):
+                print("Colisión con el mapa!")
 
             # Mover las tortugas
             for turtle in turtles:
