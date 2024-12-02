@@ -16,6 +16,7 @@ from zorro import Fox
 from egg import Egg
 import math
 from utils import mostrar_letrero_personalizado
+from buttons import Button
 #MUSICA
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
@@ -220,7 +221,14 @@ start_time = None
 start_time_dia = None
 start_time_noche =None
 time_left = 60  # 60 segundos para completar la misión
-
+# Instancia de los botones
+#Botones
+boton_sirena = Button(100, 100, '../assets/images/botones_assets/boton_A.png',
+                       '../assets/images/botones_assets/boton_A_presionado.png',
+                       '../assets/sounds/effects/policia/police_2.wav')
+boton_perros = Button(200, 200,  '../assets/images/botones_assets/boton_B.png',
+                       '../assets/images/botones_assets/boton_B_presionado.png',
+                       '../assets/sounds/effects/perros/dog_barking.wav')
 # Instancia del jugador
 player_assets_path = "../assets/images/player_assets"
 player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", turtles, crabs)
@@ -506,12 +514,19 @@ def main():
                 egg.update()
                 egg.draw(screen)
 
+            
+            boton_perros.check_collision(player)
+            boton_sirena.check_collision(player)
+            boton_perros.draw(screen)
+            boton_sirena.draw(screen)
+            
             # Dibujamos los zorros
             for fox in foxes:
+                if boton_perros.is_pressed: # Si el boton fue presionado haremos que los zorros huyan
+                    fox.huir()
                 fox.move()
                 fox.update()
                 fox.draw(screen)
-
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
             # Dibujar tortugas
             for turtle in turtles:
