@@ -535,6 +535,8 @@ def main():
             
             boton_perros.check_collision(player)
             boton_sirena.check_collision(player)
+            boton_perros.update()
+            boton_sirena.update()
             boton_perros.draw(screen)
             boton_sirena.draw(screen)
 
