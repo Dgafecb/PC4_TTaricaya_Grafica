@@ -1,7 +1,7 @@
 # Dimensiones de la pantalla
 WIDTH = 800
 HEIGHT = 600
-FPS = 60
+FPS = 48
 
 # Rutas de archivos
 ASSET_DIR = "assets/"
