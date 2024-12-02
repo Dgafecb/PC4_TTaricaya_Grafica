@@ -15,11 +15,11 @@ class Fox(pygame.sprite.Sprite):
 
         # Cargar las animaciones
         self.animaciones = {
-            "idle_left": self.cargar_sprites("GandalfHardcore doggy sheet 2.png", 0),  # Primer fila de la imagen
-            "idle_right": self.cargar_sprites_inv("GandalfHardcore doggy sheet 2.png", 0),  # Invertir la misma animación para idle
-            "walk_right": self.cargar_sprites("GandalfHardcore doggy sheet 2.png", 1),  # Segunda fila de la imagen
-            "walk_left": self.cargar_sprites_inv("GandalfHardcore doggy sheet 2.png", 1),  # Segunda fila invertida para caminar a la derecha
-            "attack": self.cargar_sprites("GandalfHardcore doggy sheet 2.png", 1),  # Usamos la misma animación para el ataque por ahora
+            "idle_left": self.cargar_sprites("GandalfHardcore doggy sheet 2.png", 0),
+            "idle_right": self.cargar_sprites_inv("GandalfHardcore doggy sheet 2.png", 0),
+            "walk_right": self.cargar_sprites("GandalfHardcore doggy sheet 2.png", 1),
+            "walk_left": self.cargar_sprites_inv("GandalfHardcore doggy sheet 2.png", 1),
+            "attack": self.cargar_sprites("GandalfHardcore doggy sheet 2.png", 1),
         }
 
         self.current_sprite = 0
@@ -31,23 +31,16 @@ class Fox(pygame.sprite.Sprite):
         self.is_attacking = False
         self.attack_steps = 0
         self.target_egg = None
-        self.attack_cooldown = 0  # Cooldown de ataque
-        self.attack_count = 0  # Contador de ataques realizados
+        self.attack_cooldown = 0
+        self.attack_count = 0
 
     def cargar_sprites(self, image_path, fila):
-        """Corta la imagen principal en frames individuales para las animaciones."""
         sprites = []
-        # Cargar la imagen completa
         sprite_sheet = pygame.image.load(os.path.join(self.asset_path, image_path)).convert_alpha()
+        sprite_width = sprite_sheet.get_width() // 6
+        sprite_height = sprite_sheet.get_height() // 2
 
-        # Asumimos que la imagen tiene 2 filas y 6 columnas (12 frames en total)
-        # Las dimensiones de cada sprite
-        sprite_width = sprite_sheet.get_width() // 6  # Divide la imagen en 6 partes (columnas)
-        sprite_height = sprite_sheet.get_height() // 2  # Divide la imagen en 2 partes (filas)
-
-        # Recortar los frames de la fila indicada
-        for i in range(6):  # Hay 6 frames por fila
-            # Recortar la imagen para obtener el sprite individual
+        for i in range(6):
             rect = pygame.Rect(i * sprite_width, fila * sprite_height, sprite_width, sprite_height)
             sprite = sprite_sheet.subsurface(rect)
             sprites.append(sprite)
@@ -55,22 +48,14 @@ class Fox(pygame.sprite.Sprite):
         return sprites
 
     def cargar_sprites_inv(self, image_path, fila):
-        """Corta la imagen principal en frames individuales para las animaciones y las invierte."""
         sprites = []
-        # Cargar la imagen completa
         sprite_sheet = pygame.image.load(os.path.join(self.asset_path, image_path)).convert_alpha()
+        sprite_width = sprite_sheet.get_width() // 6
+        sprite_height = sprite_sheet.get_height() // 2
 
-        # Asumimos que la imagen tiene 2 filas y 6 columnas (12 frames en total)
-        # Las dimensiones de cada sprite
-        sprite_width = sprite_sheet.get_width() // 6  # Divide la imagen en 6 partes (columnas)
-        sprite_height = sprite_sheet.get_height() // 2  # Divide la imagen en 2 partes (filas)
-
-        # Recortar los frames de la fila indicada
-        for i in range(6):  # Hay 6 frames por fila
-            # Recortar la imagen para obtener el sprite individual
+        for i in range(6):
             rect = pygame.Rect(i * sprite_width, fila * sprite_height, sprite_width, sprite_height)
             sprite = sprite_sheet.subsurface(rect)
-            # Invertir el sprite
             sprite_invertido = pygame.transform.flip(sprite, True, False)
             sprites.append(sprite_invertido)
 
@@ -80,30 +65,30 @@ class Fox(pygame.sprite.Sprite):
         """Actualiza la animación y la lógica del zorro."""
         self.find_closest_egg()
 
-        # Control de cooldown de ataque
         if self.attack_cooldown > 0:
-            self.attack_cooldown -= 1  # Reducir el cooldown
+            self.attack_cooldown -= 1
         
+        # Control de animación y ataque
         if self.is_attacking and self.attack_cooldown == 0:
             self.current_animation = self.animaciones["attack"]
             self.attack_steps += 1
             if self.attack_steps >= len(self.current_animation):
-                # Llama al método de eliminar huevo
                 if self.target_egg:
-                    self.target_egg.break_egg()  # Eliminar el huevo atacado
+                    self.target_egg.break_egg()
 
                 self.attack_steps = 0
                 self.attack_count += 1
-                self.attack_cooldown = 90  # Establece el tiempo de cooldown
-                
-                if self.attack_count >= 3:  # Limitar a 3 ataques antes de establecer cooldown
+                self.attack_cooldown = 90
+
+                if self.attack_count >= 3:
                     self.attack_count = 0
-                    self.attack_cooldown = 120  # Establecer cooldown más largo después de 3 ataques
+                    self.attack_cooldown = 120
                     self.is_attacking = False
-                    self.current_animation = self.animaciones["walk_right"]
-                    self.direccion = "walk_right"
+                    self.current_animation = self.animaciones["walk_left"]
+                    self.direccion = "walk_left"
         else:
             if not self.is_attacking:
+                # Cambio de animación dependiendo de la dirección
                 if self.direccion == "walk_left":
                     self.current_animation = self.animaciones["walk_left"]
                 else:
@@ -116,41 +101,20 @@ class Fox(pygame.sprite.Sprite):
         self.image = self.current_animation[self.current_sprite]
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
-        # Mover hacia la izquierda o derecha
-        if self.target_egg:
-            if self.target_egg.x < self.x:
-                self.x -= self.velocidad
-                self.direccion = "walk_left"
-            elif self.target_egg.x > self.x:
-                self.x += self.velocidad
-                self.direccion = "walk_right"
-
-            if self.target_egg.y > self.y:
-                self.y += self.velocidad
-            elif self.target_egg.y < self.y:
-                self.y -= self.velocidad
-        else:
-            if self.direccion == "walk_left":
-                self.x -= self.velocidad
-                if self.x < 0:  # Cuando el zorro llegue al borde izquierdo, reinicia
-                    self.x = WIDTH
-            else:
-                self.x += self.velocidad
-                if self.x > WIDTH:  # Cuando el zorro llegue al borde derecho, reinicia
-                    self.x = 0
     def move(self):
-        """Mueve el zorro hacia el huevo más cercana o camina por su cuenta."""
+        """Mueve el zorro hacia el huevo más cercano o camina por su cuenta."""
         if self.target_egg:
             if self.target_egg.x > self.x:
                 self.x += self.velocidad
+                self.direccion = "walk_right"
             elif self.target_egg.x < self.x:
                 self.x -= self.velocidad
+                self.direccion = "walk_left"    
 
             if self.target_egg.y > self.y:
                 self.y += self.velocidad
             elif self.target_egg.y < self.y:
                 self.y -= self.velocidad
-    
         else:
             if self.direccion == "walk_left":
                 self.x -= self.velocidad
@@ -163,7 +127,7 @@ class Fox(pygame.sprite.Sprite):
 
     def attack(self):
         """Inicia el ataque del zorro si no está en cooldown."""        
-        if self.attack_cooldown == 0:  # Solo atacar si no hay cooldown
+        if self.attack_cooldown == 0:  
             self.is_attacking = True
 
     def stop_attack(self):
@@ -177,7 +141,6 @@ class Fox(pygame.sprite.Sprite):
 
         for egg in self.eggs_group:
             distance = pygame.math.Vector2(self.x - egg.x, self.y - egg.y).length()
-            # Verificar si el huevo está lo suficientemente cerca
             if distance < min_distance and distance < 100:
                 min_distance = distance
                 closest_egg = egg
@@ -187,3 +150,4 @@ class Fox(pygame.sprite.Sprite):
     def draw(self, screen):
         """Dibuja el zorro en la pantalla."""
         screen.blit(self.image, (self.x, self.y))
+

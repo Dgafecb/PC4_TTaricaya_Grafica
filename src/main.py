@@ -19,8 +19,12 @@ import math
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
 
+
+path_musica_dia = '../assets/sounds/platformer_level03_loop.ogg'
+path_musica_noche = '../assets/sounds/fantasy Dragon.ogg'
+
 # Cargar la música
-pygame.mixer.music.load("../assets/sounds/platformer_level03_loop.ogg")  # Ruta a tu archivo de música
+pygame.mixer.music.load(path_musica_noche)  # Ruta a tu archivo de música
 pygame.mixer.music.set_volume(0.5)  # Establece el volumen (opcional)
 
 # Sustituye map_data y ajusta draw_map
@@ -104,7 +108,9 @@ def generate_random_powerup(n):
 # Función para generar zorros aleatorios
 def generate_random_fox(n):
     for _ in range(n):
-        x = random.randint(-50, -10)
+        # A la derecha
+        x = WIDTH + 100
+
         y = random.randint(100, HEIGHT - 100)
         fox = Fox("../assets/images/fox_assets", eggs)
         foxes.add(fox)
@@ -115,7 +121,7 @@ egg_positions_individual = []  # Almacena las posiciones de los huevos generados
 generate_random_turtle(12)  # Iniciar con una tortuga
 
 
-generate_random_fox(2)  # Iniciar con un zorro
+
 
 # Lista de cangrejos
 crabs = pygame.sprite.Group()
@@ -293,14 +299,14 @@ def main():
                             
                             estado_actual = ESTADOS["juego_noche"] #Para que pueda iniciar el juego de noche
                             dialogue_box.hide()
-                            start_time_noche = time.time()
+                            
                             
                             
                     elif event.key == pygame.K_SPACE:  # Salta la narrativa
                         dialogue_box.hide()
 
                         estado_actual = ESTADOS["juego_noche"] #Para que pueda iniciar el juego de noche
-                        start_time_noche = time.time()
+                        #start_time_noche = time.time()
                 # Avanzar dialogos narrativa de dia
                 elif estado_actual in [ESTADOS["narrativa_dia"]]: 
                     if event.key == pygame.K_q:  # Avanza la narrativa con la tecla Q
@@ -339,12 +345,11 @@ def main():
                             turtle.attack()
                             turtle.is_following_player = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if estado_actual in [ESTADOS["juego_noche"]]:
+                if estado_actual in [ESTADOS["juego_noche"]] and not start_time_noche:
                     x_, y_ = event.pos
                     print(f"Click en {x_}, {y_}")
                     create_or_remove_egg_pack(x_, y_)
-            
-            
+         
             if event.type == pygame.KEYDOWN: #SOLO
                 if event.key ==pygame.K_n:   # PARA
                     start_time = time.time()  # Inicia el cronómetro después de la historia
@@ -458,6 +463,11 @@ def main():
         # Dibujamos el tiempo restante del powerup
 
         if estado_actual in [ESTADOS["juego_noche"]]:
+            if len(egg_packs.keys()) == max_egg_packs and not start_time_noche:
+                print("Has alcanzado el máximo de packs de huevos")
+                start_time_noche = time.time()
+                generate_random_fox(2)  # Iniciar con un zorro
+
             # Verificamos que el zorro este cerca a un huevo
             for fox in foxes:
                 for egg in eggs:
@@ -517,6 +527,12 @@ def main():
         
         if start_time_noche and time_left <=0:
             estado_actual = ESTADOS["narrativa_dia"]
+
+            # Cambiar la música cuando se inicia el juego de día
+            pygame.mixer.music.stop()  # Detener la música actual
+            pygame.mixer.music.load(path_musica_dia)  # Cargar la música de día
+            pygame.mixer.music.play(loops=-1, start=0.0)  # Reproducir en bucle
+            
             dialogue_box.set_text(story_dia[current_story_index_dia])
             if start_time_dia:
                 running= False
