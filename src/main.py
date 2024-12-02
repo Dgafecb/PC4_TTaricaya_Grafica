@@ -15,6 +15,11 @@ from utils import  draw_powerup_info
 from zorro import Fox
 from egg import Egg
 import math
+from utils import mostrar_letrero_personalizado
+from buttons import Button
+from enemy import Enemy
+from utils import draw_image
+
 #MUSICA
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
@@ -26,6 +31,17 @@ path_musica_noche = '../assets/sounds/fantasy Dragon.ogg'
 # Cargar la música
 pygame.mixer.music.load(path_musica_noche)  # Ruta a tu archivo de música
 pygame.mixer.music.set_volume(0.5)  # Establece el volumen (opcional)
+
+# Sustituye map_data y ajusta draw_map
+def draw_map_from_tmx(screen, tmx_data):
+    for layer in tmx_data.visible_layers:  # Iterar por las capas visibles del mapa
+        if hasattr(layer, "tiles"):  # Si la capa contiene tiles
+            for x, y, tile_surface in layer.tiles():  # tile_surface es la imagen del tile
+                if tile_surface is not None:  # Solo dibujar tiles válidos
+                    screen.blit(tile_surface, (x * tmx_data.tilewidth, y * tmx_data.tileheight))
+
+
+path_nido ='../assets/images/ui/frames/nido.png'
 
 # Inicialización
 pygame.init()
@@ -149,7 +165,7 @@ egg_packs = {}
 # Función para generar huevos en un patrón circular
 def generate_pack_egg(x, y, n):
     """Genera un pack de huevos en una posición (x, y) en un patrón circular"""
-    radio = 30  # Ajusta este valor dependiendo de qué tan dispersos quieres los huevos
+    radio = 25  # Ajusta este valor dependiendo de qué tan dispersos quieres los huevos
     angulo_incremento = 2 * math.pi / n  # Para distribuir los huevos de manera equidistante
     
     # Lista de los objetos egg
@@ -192,7 +208,7 @@ def create_or_remove_egg_pack(x, y):
     for (pack_x, pack_y), list_packs in egg_packs.items():
         # Verificar si el clic está dentro del radio del pack
         distancia = math.sqrt((x - pack_x) ** 2 + (y - pack_y) ** 2)
-        if distancia <= 30:  # Si está dentro del radio del pack (ajustar el radio según sea necesario)
+        if distancia < 25:  # Si está dentro del radio del pack (ajustar el radio según sea necesario)
             print(f"Eliminando huevos en el pack en ({pack_x}, {pack_y})")
             remove_eggs_in_pack(pack_x, pack_y)  # Eliminar los huevos del pack
             break
@@ -465,6 +481,18 @@ def main():
                     if fox.rect.colliderect(egg.rect):
                         fox.attack()
 
+
+            keys = pygame.key.get_pressed()
+
+            # Mover al jugador
+            player.move(keys)
+            player.draw(screen)
+
+            if egg_packs:
+                # Dibujamos el nido
+                for (x_nido,y_nido) in egg_packs.keys():
+                    draw_image(screen, path_nido, x_nido, y_nido)
+           
 
             # Dibujamos los huevos
             for egg in eggs:
