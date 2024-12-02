@@ -1,15 +1,23 @@
 import pygame
-import os
+import random
+import time
+from settings import HEIGHT, WIDTH
 
 class Egg(pygame.sprite.Sprite):
-    def __init__(self, x, y, asset_path):
+    score = 25
+    
+    def __init__(self, x, y, asset_path, enemies_group):
         super().__init__()
         self.x = x
         self.y = y
         self.asset_path = asset_path
+        self.enemies_group = enemies_group  # Grupo de enemigos
+        self.enemy = None  # Inicialmente no hay enemigo asignado
         self.is_broken = False
         self.is_rolling = False
+        self.is_visible = True
 
+    
         # Cargar las animaciones
         self.animaciones = {
             "idle": self.cargar_sprites("egg-idle.png", 6),      # Estado Idle (6 frames)
@@ -32,14 +40,12 @@ class Egg(pygame.sprite.Sprite):
             rect = pygame.Rect(i * sprite_width, 0, sprite_width, sprite_height)
             sprite = sprite_sheet.subsurface(rect)
             sprites.append(sprite)
-            sprites.append(sprite)
-           
         return sprites
 
     def update(self):
         """Actualiza la animación y la lógica del huevo."""
+
         if self.is_broken:
-            print("Huevo roto")
             self.current_animation = self.animaciones["breaking"]
         elif self.is_rolling:
             self.current_animation = self.animaciones["rolling"]
@@ -50,8 +56,8 @@ class Egg(pygame.sprite.Sprite):
         if self.current_sprite >= len(self.current_animation):
             if self.is_broken:  # El huevo roto mantiene el último frame
                 self.current_sprite = len(self.current_animation) - 1
-                # Eliminar el huevo roto
-                self.kill()
+                Egg.score -= 1
+                self.kill()  # Eliminar el huevo roto
             elif self.is_rolling:  # El huevo en rolling hace un loop
                 self.current_sprite = 0
             else:  # Idle también hace un loop
@@ -60,6 +66,7 @@ class Egg(pygame.sprite.Sprite):
         self.image = self.current_animation[self.current_sprite]
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
+       
     def break_egg(self):
         """Rompe el huevo cuando es atacado por el zorro."""
         if not self.is_broken:
@@ -77,4 +84,22 @@ class Egg(pygame.sprite.Sprite):
 
     def draw(self, screen):
         """Dibuja el huevo en la pantalla."""
-        screen.blit(self.image, (self.x, self.y))
+        if self.is_visible:
+            screen.blit(self.image, (self.x, self.y))
+
+    def take_egg(self, enemy):
+        """El huevo es tomado por el jugador."""
+        print("Huevo tomado")
+        self.is_visible = False  # Hacerlo invisible
+        self.enemy = enemy
+
+    def drop_egg(self):
+        """Cuando el enemigo huye, hace caer los huevos desde su posición."""
+        print("Huevo soltado")
+        if self.enemy:
+            self.is_visible = True  # Hacer visible el huevo
+            # Puedes establecer aquí la posición del enemigo
+            self.x = self.enemy.x - random.randint(0, 50)
+            self.y = self.enemy.y - random.randint(0, 50)
+            print(f"Posición del huevo: {self.x}, {self.y}")
+

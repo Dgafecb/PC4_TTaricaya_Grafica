@@ -149,7 +149,7 @@ class Fox(pygame.sprite.Sprite):
 
         for egg in self.eggs_group:
             distance = pygame.math.Vector2(self.x - egg.x, self.y - egg.y).length()
-            if distance < min_distance and distance < 100:
+            if distance < min_distance and distance < 100 and egg.is_visible:
                 min_distance = distance
                 closest_egg = egg
 

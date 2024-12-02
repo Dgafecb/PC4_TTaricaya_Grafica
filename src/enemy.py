@@ -6,12 +6,14 @@ from settings import WIDTH, HEIGHT
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, asset_path, eggs_group):
         super().__init__()
-        self.x = random.choice([WIDTH / 2, WIDTH])
+        self.x = random.randint(-250,-50) # Aparece en la zona izquierda (primer cuarto del ancho)
+
         self.y = random.randint(100, HEIGHT - 100)
-        self.velocidad = 3
-        self.direccion = "running_left"  # Se mueve hacia la izquierda por defecto
+        self.velocidad = 2
+        self.direccion = "running_right"  # Se mueve hacia la izquierda por defecto
         self.asset_path = asset_path
         self.eggs_group = eggs_group
+        self.eggs_taken = []
 
         # Cargar las animaciones
         self.animaciones = {
@@ -69,21 +71,35 @@ class Enemy(pygame.sprite.Sprite):
         """Actualiza la animación y la lógica del enemigo."""
         self.find_closest_egg()
         if self.escapando:
+            if self.eggs_taken:
+                for egg in self.eggs_taken:
+                    egg.is_in_enemy_collection = False
+                    egg.drop_egg()
+                self.eggs_taken = []
+
+
             self.target_egg = None
             self.is_attacking = False
             self.current_animation = self.animaciones["running_left"]
             self.direccion = "running_left"
             self.attack_cooldown = 120
+            # Ajustar la velocidad para que el enemigo huya más rápido
+            self.velocidad = 3
+            
+            
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
         
         # Control de animación y ataque
-        if self.is_attacking and self.attack_cooldown == 0:
+        if self.is_attacking and self.attack_cooldown == 0 :
             self.current_animation = self.animaciones["attack"]
             self.attack_steps += 1
             if self.attack_steps >= len(self.current_animation):
                 if self.target_egg:
-                    self.target_egg.break_egg()
+                    self.target_egg.take_egg(self)  # Pasar el objeto enemigo a la función take_egg
+                    self.eggs_taken.append(self.target_egg)
+                    print(f"El enemigo ha tomado un huevo. Total: {len(self.eggs_taken)}")
+                    self.target_egg = None
 
                 self.attack_steps = 0
                 self.attack_count += 1
@@ -135,14 +151,19 @@ class Enemy(pygame.sprite.Sprite):
         else:
             if self.direccion == "running_left":
                 self.x -= self.velocidad
-                if self.x < 0:  # Cuando el enemigo llegue al borde izquierdo, reinicia
-                    self.x = WIDTH
+                if self.x < -self.rect.width:  # Cuando el enemigo salga del borde izquierdo, no reaparece inmediatamente
                     self.escapando = False
+                    self.direccion = "running_right"
+                    self.x = random.randint(-200,-100)
+                    # Ajustar la velocidad NORMAL
+                    self.velocidad = 2
+
             elif self.direccion == "running_right":
                 self.x += self.velocidad
                 if self.x > WIDTH:  # Cuando el enemigo llegue al borde derecho, reinicia
-                    self.x = 0
+                    self.x = -100
                     self.escapando = False
+                    
 
     def attack(self):
         """Inicia el ataque del enemigo si no está en cooldown."""        
@@ -160,7 +181,7 @@ class Enemy(pygame.sprite.Sprite):
 
         for egg in self.eggs_group:
             distance = pygame.math.Vector2(self.x - egg.x, self.y - egg.y).length()
-            if distance < min_distance and distance < 100:
+            if distance < min_distance and distance < 100 and egg.is_visible:
                 min_distance = distance
                 closest_egg = egg
 
@@ -178,7 +199,7 @@ class Enemy(pygame.sprite.Sprite):
         """Verifica si el enemigo colisiona con algun huevo"""
         if not self.escapando:
             for egg in self.eggs_group:
-                if self.rect.colliderect(egg.rect):
+                if self.rect.colliderect(egg.rect) and egg.is_visible:
                     self.attack()
                     self.target_egg = egg
                     break

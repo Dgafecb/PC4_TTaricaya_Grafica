@@ -3,45 +3,63 @@ import random
 import time
 
 class Button(pygame.sprite.Sprite):
-    def __init__(self, x, y, image_normal, image_pressed, sound_file):
-        super().__init__()  # Inicializa la clase base Sprite
+    def __init__(self, x, y, image_normal, image_pressed, sound_file, scale_factor=1.5): # scale_factor permite escalar el size del sprite del boton
+        super().__init__()
         self.x = x
         self.y = y
+        self.scale_factor = scale_factor
+
+        # Carga y escala las imágenes
         self.image_normal = pygame.image.load(image_normal).convert_alpha()
         self.image_pressed = pygame.image.load(image_pressed).convert_alpha()
-        self.image = self.image_normal  # Imagen por defecto
-        self.rect = self.image.get_rect(topleft=(x, y))  # Posición inicial del botón
-        self.is_pressed = False  # Estado de si el botón está presionado
-        
+        self.image_normal = pygame.transform.scale(
+            self.image_normal,
+            (
+                int(self.image_normal.get_width() * self.scale_factor),
+                int(self.image_normal.get_height() * self.scale_factor),
+            )
+        )
+        self.image_pressed = pygame.transform.scale(
+            self.image_pressed,
+            (
+                int(self.image_pressed.get_width() * self.scale_factor),
+                int(self.image_pressed.get_height() * self.scale_factor),
+            )
+        )
+
+        self.image = self.image_normal
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.is_pressed = False
+        self.pressed_time = None  # Momento en que el botón fue presionado
+
         # Carga el sonido
         self.sound = pygame.mixer.Sound(sound_file)
-        self.sound_channel = None  # Para rastrear el canal donde se reproduce el sonido
-        self.start_time = None  # Para controlar cuándo comenzó el sonido
 
     def check_collision(self, player):
         """Verifica la colisión con el player y presiona el botón si colisiona."""
         if self.rect.colliderect(player.rect):
-            if not self.is_pressed:  # Solo ejecuta acciones si no estaba presionado
-                self.sound_channel = self.sound.play()
-                self.start_time = time.time()  # Marca el tiempo en que comienza el sonido
-                self.image = self.image_pressed  # Cambia a la imagen presionada
-                self.is_pressed = True  # Marca el botón como presionado
-                self.change_position()  # Cambia la posición del botón
+            if not self.is_pressed:
+                self.sound.play()
+                self.image = self.image_pressed
+                self.is_pressed = True
+                self.pressed_time = time.time()  # Marca el momento en que fue presionado
         else:
-            self.image = self.image_normal  # Cambia de vuelta a la imagen normal
-            self.is_pressed = False  # Marca el botón como no presionado
+            if not self.is_pressed:  # Solo cambia a normal si no está en estado presionado
+                self.image = self.image_normal
 
     def update(self):
-        """Actualiza el estado del botón, incluyendo detener el sonido si ha pasado tiempo."""
-        if self.sound_channel and self.start_time:
-            elapsed_time = time.time() - self.start_time
-            if elapsed_time >= 5:  # Detiene el sonido después de 5 segundos
-                self.sound_channel.stop()
-                self.start_time = None  # Resetea el temporizador
+        """Actualiza el estado del botón."""
+        if self.is_pressed and self.pressed_time:
+            elapsed_time = time.time() - self.pressed_time
+            if elapsed_time >= 4:  # AQUI SE MODIFICA EL TIEMPO QUE ESPERA ANTES DE CAMBIAR DE LUGAR
+                self.change_position()
+                self.image = self.image_normal
+                self.is_pressed = False
+                self.pressed_time = None
 
     def change_position(self):
         """Cambia la posición del botón a un lugar aleatorio en la pantalla."""
-        width, height = 520, 600  # Dimensiones del área de movimiento del botón
+        width, height = 520, 600
         new_x = random.randint(0, width - self.rect.width)
         new_y = random.randint(80, height - self.rect.height)
         self.rect.topleft = (new_x, new_y)
@@ -51,6 +69,8 @@ class Button(pygame.sprite.Sprite):
     def draw(self, screen):
         """Dibuja el botón en la pantalla."""
         screen.blit(self.image, (self.x, self.y))
+
+
 
 
 """

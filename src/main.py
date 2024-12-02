@@ -163,7 +163,7 @@ def generate_pack_egg(x, y, n):
         egg_y = y + math.sin(angulo) * radio
         
         # Crear el huevo en la nueva posición calculada
-        egg = Egg(egg_x, egg_y, "../assets/images/egg_assets")
+        egg = Egg(egg_x, egg_y, "../assets/images/egg_assets",enemies)
         eggs.add(egg)  # Agregar el huevo al grupo de sprites
         lista_egg.append(egg)  # Agregar el huevo a la lista de huevos
     # Agregamos la lista de huevos a la lista de packs
@@ -445,8 +445,6 @@ def main():
 
         
         
-
-
         # Dibujar todo
         screen.fill((0, 0, 0))
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
@@ -465,20 +463,43 @@ def main():
             for fox in foxes:
                 for egg in eggs:
                     if fox.rect.colliderect(egg.rect):
-                        print("Zorro colisionando con huevo")
                         fox.attack()
 
 
             # Dibujamos los huevos
             for egg in eggs:
-                egg.update()
-                egg.draw(screen)
+                if egg.is_visible:
+                    egg.update()
+                    egg.draw(screen)
+            
 
+            
+            boton_perros.check_collision(player)
+            boton_sirena.check_collision(player)
+            boton_perros.update()
+            boton_sirena.update()
+            boton_perros.draw(screen)
+            boton_sirena.draw(screen)
+
+            # Verificamos colosiones con los enemigos
+            for enemy in enemies:
+                enemy.check_collision_egg()
+            
             # Dibujamos los zorros
             for fox in foxes:
                 fox.move()
                 fox.update()
                 fox.draw(screen)
+            
+            # Dibujamos los enemigos
+            for enemy in enemies:
+                if boton_sirena.is_pressed:
+                    enemy.huir()
+                enemy.move()
+                enemy.update()
+                enemy.draw(screen)
+
+
 
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
             # Dibujar tortugas
@@ -509,8 +530,10 @@ def main():
         if start_time_dia:
             time_left = max(0, game_duration - int(time.time() - start_time_dia))
         
-
-        score = Turtle.score
+        if estado_actual == ESTADOS["juego_noche"]:
+            score = Egg.score
+        elif estado_actual == ESTADOS["juego_dia"]:
+            score = Turtle.score
         draw_score(screen, score, time_left)
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
