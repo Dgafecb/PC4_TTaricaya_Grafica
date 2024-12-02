@@ -3,12 +3,32 @@ import random
 import time
 
 class Button(pygame.sprite.Sprite):
-    def __init__(self, x, y, image_normal, image_pressed, sound_file):
+    def __init__(self, x, y, image_normal, image_pressed, sound_file, scale_factor=1.5): # scale_factor permite escalar el tamaño de los sprites x1.5 default
         super().__init__()  # Inicializa la clase base Sprite
         self.x = x
         self.y = y
+        self.scale_factor = scale_factor  # Factor de escalado
+
+        # Carga y escala las imágenes
         self.image_normal = pygame.image.load(image_normal).convert_alpha()
         self.image_pressed = pygame.image.load(image_pressed).convert_alpha()
+        
+        # Incrementar el tamaño de las imágenes
+        self.image_normal = pygame.transform.scale(
+            self.image_normal,
+            (
+                int(self.image_normal.get_width() * self.scale_factor),
+                int(self.image_normal.get_height() * self.scale_factor),
+            )
+        )
+        self.image_pressed = pygame.transform.scale(
+            self.image_pressed,
+            (
+                int(self.image_pressed.get_width() * self.scale_factor),
+                int(self.image_pressed.get_height() * self.scale_factor),
+            )
+        )
+        
         self.image = self.image_normal  # Imagen por defecto
         self.rect = self.image.get_rect(topleft=(x, y))  # Posición inicial del botón
         self.is_pressed = False  # Estado de si el botón está presionado
