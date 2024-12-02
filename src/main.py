@@ -259,8 +259,9 @@ def main():
     time_left_powerup = 0  # Tiempo restante del power-up activo
 
     while running:
+        
         clock.tick(FPS)
-        for event in pygame.event.get():
+        for event in pygame.event.get():    
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
@@ -353,8 +354,6 @@ def main():
                 if event.key ==pygame.K_m:   # PARA
                     estado_actual = 3        # PRUEBAS
                     
-      
-      
         # Generamos power-ups aleatorios despues de la historia y una sola vez
         # Manejo de los power-ups y cooldowns
         current_time = pygame.time.get_ticks()
