@@ -7,10 +7,9 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, asset_path, eggs_group):
         super().__init__()
         self.x = random.randint(-250,-50) # Aparece en la zona izquierda (primer cuarto del ancho)
-
-        self.y = random.randint(100, HEIGHT - 100)
+        self.y = random.randint(100, HEIGHT // 2)
         self.velocidad = 2
-        self.direccion = "running_right"  # Se mueve hacia la izquierda por defecto
+        self.direccion = "running_right"  # Se mueve hacia derecha
         self.asset_path = asset_path
         self.eggs_group = eggs_group
         self.eggs_taken = []
@@ -152,17 +151,13 @@ class Enemy(pygame.sprite.Sprite):
             if self.direccion == "running_left":
                 self.x -= self.velocidad
                 if self.x < -self.rect.width:  # Cuando el enemigo salga del borde izquierdo, no reaparece inmediatamente
-                    self.escapando = False
                     self.direccion = "running_right"
-                    self.x = random.randint(-200,-100)
-                    # Ajustar la velocidad NORMAL
-                    self.velocidad = 2
+                    self.respawn()
 
             elif self.direccion == "running_right":
                 self.x += self.velocidad
-                if self.x > WIDTH:  # Cuando el enemigo llegue al borde derecho, reinicia
-                    self.x = -100
-                    self.escapando = False
+                if self.x > WIDTH-100:  # Cuando el enemigo llegue al borde derecho, reinicia
+                    self.respawn()
                     
 
     def attack(self):
@@ -203,3 +198,10 @@ class Enemy(pygame.sprite.Sprite):
                     self.attack()
                     self.target_egg = egg
                     break
+    
+    def respawn(self):
+        self.x = random.randint(-250,-50) # Aparece en la zona izquierda (primer cuarto del ancho)
+        self.y = random.randint(HEIGHT // 2, HEIGHT)
+        self.velocidad = 2
+        self.direccion = "running_right"  # Se mueve hacia la derecha
+        self.escapando = False

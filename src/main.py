@@ -600,6 +600,18 @@ def main():
             score = Egg.score
         elif estado_actual == ESTADOS["juego_dia"]:
             score = Turtle.score
+
+        if estado_actual in [ESTADOS["juego_noche"],ESTADOS["narrativa_noche"]]:
+            path_three = '../assets/images/ui/frames/arbol.png'
+            for j in range(690,711,20):
+                for i in range(60, 390, 30):
+                    draw_image(screen, path_three,j,i)
+       
+            
+
+            pass
+
+
         draw_score(screen, score, time_left)
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
