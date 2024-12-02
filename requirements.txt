@@ -1,3 +1,4 @@
 pillow==11.0.0
 pygame==2.6.1
 PyTMX==3.32
+pygame-menu==4.0.0

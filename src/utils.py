@@ -145,26 +145,40 @@ def draw_powerup_info(screen, powerup_active, time_left_powerup):
         # Si no hay power-up activo, no mostrar nada
         return
     
-def draw_instructions(screen, instructions):
+# Definimos un cuadro de instrucciones en la pantalla
+# Ubicado en la zona  superior derecha
+
+def draw_instructions(screen):
     font = pygame.font.Font(None, 24)  # Tamaño de fuente para las instrucciones
+    small_font = pygame.font.Font(None, 20)  # Fuente más pequeña para la descripción corta
+    
+    # Colores
     white = (255, 255, 255)
     black = (0, 0, 0)
     
+    # Texto de las instrucciones
+    instructions_text = "Instructions"
+    instructions_desc = "Use arrow keys to move"
+    
+    # Renderizar los textos
+    instructions_render = font.render(instructions_text, True, white)
+    instructions_desc_render = small_font.render(instructions_desc, True, white)
+    
     # Ajuste de tamaño de la caja
     box_width = 220
-    box_height = 120
+    box_height = 60
     
-    # Ubicar el cuadro en la esquina superior derecha
-    x = WIDTH - box_width - 10
-    y = 10
-
     # Dibujar fondo para el cuadro
-    pygame.draw.rect(screen, black, (x, y, box_width, box_height))  # Fondo
-    pygame.draw.rect(screen, white, (x, y, box_width, box_height), 4)  # Borde
-
-    # Dibujar las instrucciones
-    for i, instruction in enumerate(instructions):
-        text = font.render(instruction, True, white)
-        text_x = x + (box_width - text.get_width()) // 2
-        text_y = y + 10 + i * 30
-        screen.blit(text, (text_x, text_y))
+    pygame.draw.rect(screen, black, (WIDTH - box_width - 10, HEIGHT - box_height - 10, box_width, box_height))  # Fondo
+    pygame.draw.rect(screen, (255, 255, 255), (WIDTH - box_width - 10, HEIGHT - box_height - 10, box_width, box_height), 4)  # Borde
+    
+    # Centrar los textos dentro del cuadro
+    instructions_text_x = WIDTH - box_width + (box_width - instructions_render.get_width()) // 2  # Centrar texto de instrucciones
+    instructions_text_y = HEIGHT - box_height + 10  # Colocar en la parte superior
+    
+    instructions_desc_x = WIDTH - box_width + (box_width - instructions_desc_render.get_width()) // 2  # Centrar descripción
+    instructions_desc_y = instructions_text_y + 25  # Colocar debajo de las instrucciones
+    
+    # Dibujar los textos
+    screen.blit(instructions_render, (instructions_text_x, instructions_text_y))  # Dibujar instrucciones
+    screen.blit(instructions_desc_render, (instructions_desc_x, instructions_desc_y))  # Dibujar descripción

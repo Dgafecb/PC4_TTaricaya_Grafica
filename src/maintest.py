@@ -264,14 +264,6 @@ def main():
                         if player.rect.colliderect(turtle.rect) & turtle.is_following_player:
                             turtle.attack()
                             turtle.is_following_player = False
-            if event.type == pygame.KEYDOWN: #SOLO
-                if event.key ==pygame.K_n:   # PARA
-                    start_time = time.time()  # Inicia el cronómetro después de la historia
-                    estado_actual = 4        # PRUEBAS
-                    start_time_dia = time.time()  # Inicia el cronómetro del dia luego que termine 
-            if event.type == pygame.KEYDOWN: #SOLO
-                if event.key ==pygame.K_m:   # PARA
-                    estado_actual = 3        # PRUEBAS
                     
       
       
@@ -406,7 +398,7 @@ def main():
         draw_score(screen, score, time_left)
 
         # Dibujar instrucciones
-        draw_instructions(screen, "Presiona S para atacar a las tortugas\nPresiona A para que las tortugas te sigan")
+        draw_instructions(screen)
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
         #if in_story:

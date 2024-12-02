@@ -15,6 +15,7 @@ from utils import  draw_powerup_info
 from zorro import Fox
 from egg import Egg
 import math
+from reader_map import draw_map_from_tmx
 #MUSICA
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
