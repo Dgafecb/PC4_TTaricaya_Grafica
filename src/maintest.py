@@ -11,7 +11,7 @@ from crab import Crab  # Importa la clase Crab
 from utils import  draw_score
 import time
 from power import Power  # Importa la clase Power
-from utils import  draw_powerup_info
+from utils import  draw_powerup_info,draw_instructions
 from reader_map import draw_map_from_tmx
 #MUSICA
 # Inicializa el mixer de Pygame
@@ -58,6 +58,17 @@ dialogue_box = DialogueBox(
     box_height=120,
     letter_size=(16, 16)
 )
+# Cuadro de dialogo para mostrar instrucciones
+dialogue_box_help = DialogueBox(
+    # Letras con fuente predeterminada
+    letters_path="../assets/images/ui/ascii",
+    position=(100,100),
+    text_speed=0.5,
+    box_width=600,
+    box_height=60,
+    letter_size=(12, 12)
+)
+
 story = load_story_from_json('../history.json')
 story_noche = load_story_from_json("../history.json", "story_noche")
 story_dia = load_story_from_json("../history.json", "story_dia")
@@ -135,7 +146,7 @@ player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", t
  # estados del juego
 ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4}
 # estado actual del juego
-estado_actual = ESTADOS["narrativa_inicio"]# 0 
+estado_actual = ESTADOS["narrativa_dia"]# 0 
 def main():
     global following_turtle, score, time_left, start_time,start_time_dia,estado_actual, start_time_noche  # Usamos la variable global para modificarla dentro del ciclo principal
    
@@ -179,6 +190,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
+                dialogue_box_help.set_text("Presiona N para iniciar el juego de noche\nPresiona M para iniciar el juego de dia")
                 if estado_actual in [ESTADOS["narrativa_inicio"]]: # Refactorizo historia para verificar que esta en la narrativa inicial
                     if event.key == pygame.K_q:  # Avanza la narrativa con la tecla Q
                         if current_story_index < len(story) - 1:
@@ -186,7 +198,7 @@ def main():
                             dialogue_box.set_text(story[current_story_index])
                         else:
                             #in_story = False  # Refactorizo el fin de la narrativa inicial
-                            estado_actual = ESTADOS["narrativa_noche"] #Para que pueda iniciar la narrativa del juego de noche
+                            estado_actual = ESTADOS["narrativa_dia"] #Para que pueda iniciar la narrativa del juego de noche
                             #dialogue_box.hide()
                             #inicia el dialogo de noche
                             dialogue_box.set_text(story_noche[current_story_index_noche])
@@ -328,7 +340,7 @@ def main():
             last_turtle_spawn_time = current_time  # Actualizar el tiempo de la última tortuga creada
 
         #if not in_story:
-        if estado_actual in [ESTADOS["juego_dia"]]:
+        if estado_actual in [ESTADOS["juego_dia"],ESTADOS["juego_noche"]]:
             keys = pygame.key.get_pressed()
 
             # Mover al jugador
@@ -361,7 +373,7 @@ def main():
         # Dibujamos el tiempo restante del powerup
        
         
-        if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
+        if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"],ESTADOS["juego_noche"]]:
             # Dibujar tortugas
             for turtle in turtles:
                 turtle.draw(screen)
@@ -392,6 +404,9 @@ def main():
 
         score = Turtle.score
         draw_score(screen, score, time_left)
+
+        # Dibujar instrucciones
+        draw_instructions(screen, "Presiona S para atacar a las tortugas\nPresiona A para que las tortugas te sigan")
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
         #if in_story:

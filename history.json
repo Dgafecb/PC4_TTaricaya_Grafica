@@ -5,28 +5,30 @@
     "Tu mision es proteger sus nidos. No es facil, pero vale la pena.",
     "Los zorros, esos astutos... buscan robar los huevos. Y los humanos, ni hablar.",
     "Cuando las crias nacen, la carrera comienza. El rio es su hogar, pero hay peligros.",
-    "Cangrejos, aves, peces... todo quiere hacerles dano.",
-    "Tu las guiara, como un buen guardian. No las dejes caer.",
+    "Cangrejos, aves, peces... todo quiere hacerles daño.",
+    "Tu las guiaras, como un buen guardian. No las dejes caer.",
     "Recuerda, joven, la vida es fragil. Pero con tus manos, todo puede salvarse."
   ],
   "story_noche": [
-    "La noche cae en la Reserva Pacaya-Samiria, y los peligros aumentan.",
-    "Los zorros estan mas activos, acechando los nidos con mayor audacia.",
-    "Tambien los humanos, con intenciones oscuras, pueden aparecer en busca de los huevos.",
-    "Debes mantenerte alerta. Los depredadores nocturnos, como buhos y murcielagos, tambien se suman a las amenazas.",
-    "Cuando las crias nacen, el camino al rio se vuelve mas peligroso bajo la oscuridad.",
-    "Cangrejos, aves nocturnas y peces esperan su oportunidad.",
-    "Guialas con cuidado, joven guardian. En la noche, tus acciones son mas cruciales que nunca.",
-    "Recuerda, cada cria que llega al rio es un triunfo contra la adversidad."
+    "La noche ha llegado, joven guardian. Has hecho un gran trabajo durante el dia, pero la oscuridad trae consigo nuevos desafios.",
+    "Los zorros se vuelven mas audaces en la penumbra, acechando los nidos con mayor fiereza.",
+    "Y los humanos... no te confies. La oscuridad es su aliada, y puede ser mas dificil detectar sus movimientos.",
+    "Sera dificil ver a las crias, pero no puedes fallar. Ellas confian en ti, y no puedes dejar que la oscuridad te detenga.",
+    "La noche pondra a prueba tu resistencia, pero recuerda: cada paso que das, cada cria que guias, es una victoria.",
+    "La luz de la luna puede ser debil, pero es suficiente para que sigas adelante. Sigue guiando a las taricayas hacia su destino.",
+    "No te rindas, joven. El desafio nocturno es solo una prueba mas en tu camino como guardian.",
+    "Recuerda, la oscuridad solo oculta lo que quieres ver, pero tu corazon es mas fuerte que cualquier sombra."
   ],
   "story_dia": [
-    "Bienvenido a la Reserva Pacaya-Samiria, la casa de las taricayas. Aqui comenzaras tu mision.",
-    "Tu objetivo es simple pero crucial: proteger los nidos de las taricayas. Presta atencion al entorno y manten a los depredadores alejados.",
-    "Los zorros, agiles y astutos, intentaran robar los huevos. Tambien debes estar atento a cualquier actividad humana sospechosa.",
+    "Aqui comienza tu mision, joven guardian.",
     "Cuando las crias nazcan, tu trabajo no termina. Guialas cuidadosamente hacia el rio, esquivando a sus enemigos naturales.",
     "Cangrejos, aves y peces estan al acecho. Vigila su camino y actúa rapido para mantenerlas a salvo.",
     "No permitas que caigan en manos enemigas. Cada paso que das cuenta para su supervivencia.",
-    "Se un buen guardian, joven. Las taricayas confian en ti para llegar al rio.",
-    "Recuerda, la vida en la selva es un desafio, pero tambien es un regalo que vale la pena proteger."
+    "INSTRUCCIONES: Usa las flechas del teclado para moverte por el mapa",
+    "Las tortugas saben que su destino es el rio. Tu mision es guiarlas hacia el agua, evitando los peligros del camino.",
+    "Puedes ayudarlas a evitar los depredadores con la tecla \"A\"",
+    "Ademas con la tecla \"S\" puedes empujar a las crias hacia adelante.",
+    "Recuerda, cada tortuga que llega al rio es una victoria para ti y para la naturaleza.",
+    "Buena suerte, joven guardian. El destino de las taricayas esta en tus manos."
   ]
 }

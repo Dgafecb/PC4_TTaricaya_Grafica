@@ -144,3 +144,27 @@ def draw_powerup_info(screen, powerup_active, time_left_powerup):
     else:
         # Si no hay power-up activo, no mostrar nada
         return
+    
+def draw_instructions(screen, instructions):
+    font = pygame.font.Font(None, 24)  # Tamaño de fuente para las instrucciones
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+    
+    # Ajuste de tamaño de la caja
+    box_width = 220
+    box_height = 120
+    
+    # Ubicar el cuadro en la esquina superior derecha
+    x = WIDTH - box_width - 10
+    y = 10
+
+    # Dibujar fondo para el cuadro
+    pygame.draw.rect(screen, black, (x, y, box_width, box_height))  # Fondo
+    pygame.draw.rect(screen, white, (x, y, box_width, box_height), 4)  # Borde
+
+    # Dibujar las instrucciones
+    for i, instruction in enumerate(instructions):
+        text = font.render(instruction, True, white)
+        text_x = x + (box_width - text.get_width()) // 2
+        text_y = y + 10 + i * 30
+        screen.blit(text, (text_x, text_y))
