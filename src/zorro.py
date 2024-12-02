@@ -33,6 +33,7 @@ class Fox(pygame.sprite.Sprite):
         self.target_egg = None
         self.attack_cooldown = 0
         self.attack_count = 0
+        self.escapando = False
 
     def cargar_sprites(self, image_path, fila):
         sprites = []
@@ -64,7 +65,12 @@ class Fox(pygame.sprite.Sprite):
     def update(self):
         """Actualiza la animación y la lógica del zorro."""
         self.find_closest_egg()
-
+        if self.escapando:
+            self.target_egg = None
+            self.is_attacking = False
+            self.current_animation = self.animaciones["walk_left"]
+            self.direccion = "walk_left"
+            self.attack_cooldown = 120
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
         
@@ -120,10 +126,12 @@ class Fox(pygame.sprite.Sprite):
                 self.x -= self.velocidad
                 if self.x < 0:  # Cuando el zorro llegue al borde izquierdo, reinicia
                     self.x = WIDTH
+                    self.escapando = False
             else:
                 self.x += self.velocidad
                 if self.x > WIDTH:  # Cuando el zorro llegue al borde derecho, reinicia
                     self.x = 0
+                    self.escapando = False
 
     def attack(self):
         """Inicia el ataque del zorro si no está en cooldown."""        
@@ -150,4 +158,6 @@ class Fox(pygame.sprite.Sprite):
     def draw(self, screen):
         """Dibuja el zorro en la pantalla."""
         screen.blit(self.image, (self.x, self.y))
+    def huir(self):
+        self.escapando = True
 

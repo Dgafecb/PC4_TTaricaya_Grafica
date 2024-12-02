@@ -108,7 +108,6 @@ def draw_powerup_info(screen, powerup_active, time_left_powerup):
         powerup_image = pygame.image.load(powerup_image_path).convert_alpha()
         time_left_powerup /= 1000  # Convertir a segundos
         # redodear superiormente
-        time_left_powerup = round(time_left_powerup + 0.5)
         time_text = f"Time Left: {int(time_left_powerup)}s"
         
         # Renderizar los textos
@@ -144,41 +143,33 @@ def draw_powerup_info(screen, powerup_active, time_left_powerup):
     else:
         # Si no hay power-up activo, no mostrar nada
         return
-    
-# Definimos un cuadro de instrucciones en la pantalla
-# Ubicado en la zona  superior derecha
 
-def draw_instructions(screen):
-    font = pygame.font.Font(None, 24)  # Tamaño de fuente para las instrucciones
-    small_font = pygame.font.Font(None, 20)  # Fuente más pequeña para la descripción corta
+def mostrar_letrero_personalizado(screen, current_egg_packs, max_egg_packs):
+    # Crear la fuente internamente dentro de la función
+    font = pygame.font.SysFont('Arial', 20)
     
-    # Colores
-    white = (255, 255, 255)
-    black = (0, 0, 0)
+    # Establecer el mensaje dependiendo de la cantidad de packs
+    if current_egg_packs < max_egg_packs:
+        mensaje = f"Puedes ingresar huevos (click). Packs actuales: {current_egg_packs}/{max_egg_packs}"
+    else:
+        mensaje = f"¡Has alcanzado el máximo de packs de huevos!"
     
-    # Texto de las instrucciones
-    instructions_text = "Instructions"
-    instructions_desc = "Use arrow keys to move"
+    # Colores personalizables
+    color_texto = (255, 255, 255)  # Blanco para el texto
+    color_fondo = (0, 0, 0)  # Fondo negro
+    color_borde = (255, 165, 0)  # Borde naranja (puedes cambiar a cualquier color que te guste)
     
-    # Renderizar los textos
-    instructions_render = font.render(instructions_text, True, white)
-    instructions_desc_render = small_font.render(instructions_desc, True, white)
+    # Tamaño y márgenes del cuadro de texto
+    margen = 15
+    texto = font.render(mensaje, True, color_texto)
+    texto_rect = texto.get_rect(center=(screen.get_width() // 2, 100 ))
+
+    # Crear el fondo del letrero (con bordes redondeados)
+    cuadro_rect = texto_rect.inflate(margen, margen)
     
-    # Ajuste de tamaño de la caja
-    box_width = 220
-    box_height = 60
-    
-    # Dibujar fondo para el cuadro
-    pygame.draw.rect(screen, black, (WIDTH - box_width - 10, HEIGHT - box_height - 10, box_width, box_height))  # Fondo
-    pygame.draw.rect(screen, (255, 255, 255), (WIDTH - box_width - 10, HEIGHT - box_height - 10, box_width, box_height), 4)  # Borde
-    
-    # Centrar los textos dentro del cuadro
-    instructions_text_x = WIDTH - box_width + (box_width - instructions_render.get_width()) // 2  # Centrar texto de instrucciones
-    instructions_text_y = HEIGHT - box_height + 10  # Colocar en la parte superior
-    
-    instructions_desc_x = WIDTH - box_width + (box_width - instructions_desc_render.get_width()) // 2  # Centrar descripción
-    instructions_desc_y = instructions_text_y + 25  # Colocar debajo de las instrucciones
-    
-    # Dibujar los textos
-    screen.blit(instructions_render, (instructions_text_x, instructions_text_y))  # Dibujar instrucciones
-    screen.blit(instructions_desc_render, (instructions_desc_x, instructions_desc_y))  # Dibujar descripción
+    # Fondo con borde
+    pygame.draw.rect(screen, color_borde, cuadro_rect, border_radius=15)
+    pygame.draw.rect(screen, color_fondo, texto_rect.inflate(margen, margen), border_radius=15)
+
+    # Dibujar el texto en el centro del letrero
+    screen.blit(texto, texto_rect)

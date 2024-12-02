@@ -15,7 +15,11 @@ from utils import  draw_powerup_info
 from zorro import Fox
 from egg import Egg
 import math
-from reader_map import draw_map_from_tmx
+from utils import mostrar_letrero_personalizado
+from buttons import Button
+from enemy import Enemy
+
+
 #MUSICA
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
@@ -58,7 +62,7 @@ narrador_sprite_y = 450 - narrador_sprite.get_height() - 10  # 10 píxeles encim
 
 # Crear el cuadro de diálogo de narrativa inicial
 dialogue_box = DialogueBox(
-    letters_path="../assets/images/ui/ascii",
+    letters_path="../assets/images/ui/ascii_noche/",
     position=(50, 450),
     text_speed=0.5,
     box_width=700,
@@ -80,6 +84,9 @@ foxes = pygame.sprite.Group()
 
 # Huevos: generados aleatoriamente
 eggs = pygame.sprite.Group()
+
+# Enemigo: generados aleatoriamente
+enemies = pygame.sprite.Group()
 
 # Función para crear tortugas aleatorias
 def generate_random_turtle(n):
@@ -108,6 +115,15 @@ def generate_random_fox(n):
         y = random.randint(100, HEIGHT - 100)
         fox = Fox("../assets/images/fox_assets", eggs)
         foxes.add(fox)
+
+
+def generate_random_enemy(n):
+    for _ in range(n):
+        x = WIDTH + 100
+        y = random.randint(100, HEIGHT - 100)
+        enemy = Enemy("../assets/images/hunter_assets",eggs)
+        enemies.add(enemy)
+
 # Lista para almacenar las posiciones de los huevos generados
 egg_positions_individual = []  # Almacena las posiciones de los huevos generados
 
@@ -213,7 +229,14 @@ start_time = None
 start_time_dia = None
 start_time_noche =None
 time_left = 60  # 60 segundos para completar la misión
-
+# Instancia de los botones
+#Botones
+boton_sirena = Button(100, 100, '../assets/images/botones_assets/boton_A.png',
+                       '../assets/images/botones_assets/boton_A_presionado.png',
+                       '../assets/sounds/effects/policia/police_2.wav')
+boton_perros = Button(200, 200,  '../assets/images/botones_assets/boton_B.png',
+                       '../assets/images/botones_assets/boton_B_presionado.png',
+                       '../assets/sounds/effects/perros/dog_barking.wav')
 # Instancia del jugador
 player_assets_path = "../assets/images/player_assets"
 player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", turtles, crabs)
@@ -257,7 +280,8 @@ def main():
     powerup_duration = 5000  # Duración de 5 segundos para cada power-up
     powerup_cooldowns = {'speed': 0, 'invisible_turtle_follower': 0, 'turtle_speed': 0}  # Cooldowns de los poderes
     time_left_powerup = 0  # Tiempo restante del power-up activo
-
+    color_fondo = '#071821'
+    color_letra = '#e4fccc'
     while running:
         
         clock.tick(FPS)
@@ -309,10 +333,14 @@ def main():
                             current_story_index_dia += 1
                             dialogue_box.set_text(story_dia[current_story_index_dia])
                         else:
-                            
                             estado_actual = ESTADOS["juego_dia"] #Para que pueda iniciar el juego de noche
                             dialogue_box.hide()
                             start_time_dia = time.time()
+                            # Cambiar el dialogo de dia
+                            # 346c54 (letra dia) - # #e4fccc (fondo dia)
+                            # Ubicar al player en el centro
+                            player.x = WIDTH // 2
+                            player.y = HEIGHT // 2
                             
                             
                     elif event.key == pygame.K_SPACE:  # Salta la narrativa
@@ -320,6 +348,9 @@ def main():
                         #in_story = False
                         estado_actual = ESTADOS["juego_dia"] #Para que pueda iniciar el juego de noche
                         start_time_dia = time.time()
+                        player.x = WIDTH // 2
+                        player.y = HEIGHT // 2
+                        
                 # Interacción con las tortugas cuando no estamos en la narrativa
                 
                 if estado_actual in [ESTADOS["juego_dia"]] and event.key == pygame.K_a: # R2
@@ -344,7 +375,8 @@ def main():
                     x_, y_ = event.pos
                     print(f"Click en {x_}, {y_}")
                     create_or_remove_egg_pack(x_, y_)
-         
+                
+
             if event.type == pygame.KEYDOWN: #SOLO
                 if event.key ==pygame.K_n:   # PARA
                     start_time = time.time()  # Inicia el cronómetro después de la historia
@@ -461,6 +493,16 @@ def main():
                 start_time_noche = time.time()
                 generate_random_fox(2)  # Iniciar con un zorro
 
+                # Generar enemigos
+                generate_random_enemy(2)
+
+                
+            else:
+                # Dibujamos un letrero para indicar que se pueden crear packs de huevos
+                if not start_time_noche:
+                    mostrar_letrero_personalizado(screen,len(egg_packs.keys()), max_egg_packs)
+                pass
+
             # Verificamos que el zorro este cerca a un huevo
             for fox in foxes:
                 for egg in eggs:
@@ -469,16 +511,47 @@ def main():
                         fox.attack()
 
 
+            keys = pygame.key.get_pressed()
+
+            # Mover al jugador
+            player.move(keys)
+            player.draw(screen)
+
+
+
             # Dibujamos los huevos
             for egg in eggs:
                 egg.update()
                 egg.draw(screen)
 
+            
+            boton_perros.check_collision(player)
+            boton_sirena.check_collision(player)
+            boton_perros.draw(screen)
+            boton_sirena.draw(screen)
+
+            # Verificamos colosiones con los enemigos
+            for enemy in enemies:
+                enemy.check_collision_egg()
+            
             # Dibujamos los zorros
             for fox in foxes:
+                if boton_perros.is_pressed: # Si el boton fue presionado haremos que los zorros huyan
+                    fox.huir()
                 fox.move()
                 fox.update()
                 fox.draw(screen)
+            
+            # Dibujamos los enemigos
+            for enemy in enemies:
+                if boton_sirena.is_pressed:
+                    enemy.huir()
+                enemy.move()
+                enemy.update()
+                enemy.draw(screen)
+
+
+
 
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
             # Dibujar tortugas
@@ -496,9 +569,10 @@ def main():
             
 
             player.draw(screen)
+
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
-        dialogue_box.draw(screen)
+        dialogue_box.draw(screen,color_fondo=color_fondo, color_letra=color_letra)
         
         # Dibujar el score y el tiempo
         
@@ -520,6 +594,9 @@ def main():
         
         if start_time_noche and time_left <=0:
             estado_actual = ESTADOS["narrativa_dia"]
+            color_fondo = '#e4fccc'
+            color_letra = '#346c54'
+            dialogue_box.letters_path = "../assets/images/ui/ascii/"
 
             # Cambiar la música cuando se inicia el juego de día
             pygame.mixer.music.stop()  # Detener la música actual
