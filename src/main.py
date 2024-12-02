@@ -15,6 +15,7 @@ from utils import  draw_powerup_info
 from zorro import Fox
 from egg import Egg
 import math
+from utils import mostrar_letrero_personalizado
 #MUSICA
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
@@ -314,10 +315,12 @@ def main():
                             current_story_index_dia += 1
                             dialogue_box.set_text(story_dia[current_story_index_dia])
                         else:
-                            
                             estado_actual = ESTADOS["juego_dia"] #Para que pueda iniciar el juego de noche
                             dialogue_box.hide()
                             start_time_dia = time.time()
+                            # Ubicar al player en el centro
+                            player.x = WIDTH // 2
+                            player.y = HEIGHT // 2
                             
                             
                     elif event.key == pygame.K_SPACE:  # Salta la narrativa
@@ -325,6 +328,8 @@ def main():
                         #in_story = False
                         estado_actual = ESTADOS["juego_dia"] #Para que pueda iniciar el juego de noche
                         start_time_dia = time.time()
+                        player.x = WIDTH // 2
+                        player.y = HEIGHT // 2
                 # Interacción con las tortugas cuando no estamos en la narrativa
                 
                 if estado_actual in [ESTADOS["juego_dia"]] and event.key == pygame.K_a: # R2
@@ -467,6 +472,10 @@ def main():
                 print("Has alcanzado el máximo de packs de huevos")
                 start_time_noche = time.time()
                 generate_random_fox(2)  # Iniciar con un zorro
+            else:
+                # Dibujamos un letrero para indicar que se pueden crear packs de huevos
+                mostrar_letrero_personalizado(screen,len(egg_packs.keys()), max_egg_packs)
+                pass
 
             # Verificamos que el zorro este cerca a un huevo
             for fox in foxes:
@@ -474,6 +483,14 @@ def main():
                     if fox.rect.colliderect(egg.rect):
                         print("Zorro colisionando con huevo")
                         fox.attack()
+
+
+            keys = pygame.key.get_pressed()
+
+            # Mover al jugador
+            player.move(keys)
+            player.draw(screen)
+
 
 
             # Dibujamos los huevos
@@ -503,6 +520,7 @@ def main():
             
 
             player.draw(screen)
+
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
         dialogue_box.draw(screen)

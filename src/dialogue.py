@@ -53,7 +53,7 @@ class DialogueBox:
             # Dibuja el rectángulo del cuadro de diálogo
             pygame.draw.rect(
                 screen, 
-                (50, 50, 50),  # Color del cuadro (gris oscuro)
+                '#e4fccc',  # Color del cuadro (gris oscuro)
                 (self.position[0], self.position[1], self.box_width, self.box_height)
             )
             pygame.draw.rect(
@@ -138,5 +138,5 @@ class DialogueBox:
 
             # Dibuja las instrucciones debajo del texto
             instructions = "Presiona: (ESPACIO) para terminar   (Q) para continuar"
-            instructions_surface = self.font.render(instructions, True, (255, 255, 255))  # Texto blanco
+            instructions_surface = self.font.render(instructions, True, '#346c54')  # Texto blanco
             screen.blit(instructions_surface, (self.position[0] + 20, self.position[1] + self.box_height - instructions_height))
