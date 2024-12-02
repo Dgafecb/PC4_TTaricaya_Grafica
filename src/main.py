@@ -358,6 +358,26 @@ def main():
                         player.x = WIDTH // 2
                         player.y = HEIGHT // 2
                         
+                if estado_actual in [ESTADOS["juego_noche"]]:
+                    if event.key == pygame.K_a:
+                        print("Presionando la tecla A")
+                        # Verificar si ha colisionado con un huevo
+                        for egg in eggs:
+                            if player.rect.colliderect(egg.rect):
+                                print("Huevo tomado")
+                                egg.is_taken_player = True
+                                egg.player = player
+                                break
+                        
+                    elif event.key == pygame.K_s:
+                        # Soltamos el huevo
+                        print("Presionando la tecla S")
+                        for egg in eggs:
+                            if egg.is_taken_player:
+                                print("Huevo soltado")
+                                egg.stop_following_player()
+                                break
+            
                 # Interacción con las tortugas cuando no estamos en la narrativa
                 
                 if estado_actual in [ESTADOS["juego_dia"]] and event.key == pygame.K_a: # R2
