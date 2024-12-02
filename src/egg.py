@@ -2,6 +2,7 @@ import pygame
 import os
 
 class Egg(pygame.sprite.Sprite):
+    score = 25
     def __init__(self, x, y, asset_path):
         super().__init__()
         self.x = x
@@ -31,7 +32,7 @@ class Egg(pygame.sprite.Sprite):
         for i in range(frames):
             rect = pygame.Rect(i * sprite_width, 0, sprite_width, sprite_height)
             sprite = sprite_sheet.subsurface(rect)
-            sprites.append(sprite)
+           
             sprites.append(sprite)
            
         return sprites
@@ -50,8 +51,12 @@ class Egg(pygame.sprite.Sprite):
         if self.current_sprite >= len(self.current_animation):
             if self.is_broken:  # El huevo roto mantiene el último frame
                 self.current_sprite = len(self.current_animation) - 1
+                Egg.score -= 1
                 # Eliminar el huevo roto
                 self.kill()
+                
+                
+
             elif self.is_rolling:  # El huevo en rolling hace un loop
                 self.current_sprite = 0
             else:  # Idle también hace un loop

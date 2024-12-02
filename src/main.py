@@ -591,8 +591,10 @@ def main():
         if start_time_dia:
             time_left = max(0, game_duration - int(time.time() - start_time_dia))
         
-
-        score = Turtle.score
+        if estado_actual == ESTADOS["juego_noche"]:
+            score = Egg.score
+        elif estado_actual == ESTADOS["juego_dia"]:
+            score = Turtle.score
         draw_score(screen, score, time_left)
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
