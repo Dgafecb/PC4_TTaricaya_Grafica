@@ -6,8 +6,7 @@ from settings import WIDTH, HEIGHT
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, asset_path, eggs_group):
         super().__init__()
-        self.x = random.randint(-250,-50) # Aparece en la zona izquierda (primer cuarto del ancho)
-        self.y = random.randint(100, HEIGHT // 2)
+        self.respawn()
         self.velocidad = 2
         self.direccion = "running_right"  # Se mueve hacia derecha
         self.asset_path = asset_path

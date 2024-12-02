@@ -407,7 +407,7 @@ def main():
                 # Activar el poder correspondiente si no está en cooldown
                 if powerup.type == 'speed' and powerup_cooldowns['speed'] == 0:
                     print("Activando velocidad")
-                    player.velocidad = 10
+                    player.velocidad = 9
                     powerup_active = 'speed'
                     powerup_start_time = current_time
                     powerup_cooldowns['speed'] = 5000
@@ -601,17 +601,13 @@ def main():
         elif estado_actual == ESTADOS["juego_dia"]:
             score = Turtle.score
 
-        if estado_actual in [ESTADOS["juego_noche"],ESTADOS["narrativa_noche"]]:
+        if estado_actual in [ESTADOS["juego_noche"],ESTADOS["narrativa_noche"],ESTADOS["narrativa_inicio"]]:
             path_three = '../assets/images/ui/frames/arbol.png'
             for j in range(690,711,20):
                 for i in range(60, 390, 30):
                     draw_image(screen, path_three,j,i)
        
             
-
-            pass
-
-
         draw_score(screen, score, time_left)
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
