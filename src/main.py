@@ -187,7 +187,7 @@ def generate_pack_egg(x, y, n):
         egg_y = y + math.sin(angulo) * radio
         
         # Crear el huevo en la nueva posición calculada
-        egg = Egg(egg_x, egg_y, "../assets/images/egg_assets")
+        egg = Egg(egg_x, egg_y, "../assets/images/egg_assets",enemies)
         eggs.add(egg)  # Agregar el huevo al grupo de sprites
         lista_egg.append(egg)  # Agregar el huevo a la lista de huevos
     # Agregamos la lista de huevos a la lista de packs
@@ -485,8 +485,6 @@ def main():
 
         
         
-
-
         # Dibujar todo
         screen.fill((0, 0, 0))
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
@@ -515,7 +513,6 @@ def main():
             for fox in foxes:
                 for egg in eggs:
                     if fox.rect.colliderect(egg.rect):
-                        print("Zorro colisionando con huevo")
                         fox.attack()
 
 
@@ -529,8 +526,10 @@ def main():
 
             # Dibujamos los huevos
             for egg in eggs:
-                egg.update()
-                egg.draw(screen)
+                if egg.is_visible:
+                    egg.update()
+                    egg.draw(screen)
+            
 
             
             boton_perros.check_collision(player)
@@ -559,7 +558,6 @@ def main():
                 enemy.move()
                 enemy.update()
                 enemy.draw(screen)
-
 
 
 

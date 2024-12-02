@@ -6,7 +6,7 @@ from settings import WIDTH, HEIGHT
 class Crab(pygame.sprite.Sprite):
     def __init__(self, asset_path, turtles_group):
         super().__init__()
-        self.x = random.choice([WIDTH/2, WIDTH])
+        self.x = random.choice([WIDTH/2, WIDTH-100])
         self.y = random.randint(100, HEIGHT - 100)
         self.velocidad = 1
         self.direccion = "walk"
