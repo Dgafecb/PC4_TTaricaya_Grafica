@@ -363,7 +363,7 @@ def main():
                         print("Presionando la tecla A")
                         # Verificar si ha colisionado con un huevo
                         for egg in eggs:
-                            if player.rect.colliderect(egg.rect):
+                            if player.rect.colliderect(egg.rect) and egg.is_taken_player == False:
                                 print("Huevo tomado")
                                 egg.is_taken_player = True
                                 egg.player = player
