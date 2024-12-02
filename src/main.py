@@ -17,6 +17,9 @@ from egg import Egg
 import math
 from utils import mostrar_letrero_personalizado
 from buttons import Button
+from enemy import Enemy
+
+
 #MUSICA
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
@@ -89,6 +92,9 @@ foxes = pygame.sprite.Group()
 # Huevos: generados aleatoriamente
 eggs = pygame.sprite.Group()
 
+# Enemigo: generados aleatoriamente
+enemies = pygame.sprite.Group()
+
 # Función para crear tortugas aleatorias
 def generate_random_turtle(n):
     for _ in range(n):
@@ -116,6 +122,15 @@ def generate_random_fox(n):
         y = random.randint(100, HEIGHT - 100)
         fox = Fox("../assets/images/fox_assets", eggs)
         foxes.add(fox)
+
+
+def generate_random_enemy(n):
+    for _ in range(n):
+        x = WIDTH + 100
+        y = random.randint(100, HEIGHT - 100)
+        enemy = Enemy("../assets/images/hunter_assets",eggs)
+        enemies.add(enemy)
+
 # Lista para almacenar las posiciones de los huevos generados
 egg_positions_individual = []  # Almacena las posiciones de los huevos generados
 
@@ -486,6 +501,9 @@ def main():
                 start_time_noche = time.time()
                 generate_random_fox(2)  # Iniciar con un zorro
 
+                # Generar enemigos
+                generate_random_enemy(2)
+
                 
             else:
                 # Dibujamos un letrero para indicar que se pueden crear packs de huevos
@@ -519,6 +537,10 @@ def main():
             boton_sirena.check_collision(player)
             boton_perros.draw(screen)
             boton_sirena.draw(screen)
+
+            # Verificamos colosiones con los enemigos
+            for enemy in enemies:
+                enemy.check_collision_egg()
             
             # Dibujamos los zorros
             for fox in foxes:
@@ -527,6 +549,18 @@ def main():
                 fox.move()
                 fox.update()
                 fox.draw(screen)
+            
+            # Dibujamos los enemigos
+            for enemy in enemies:
+                if boton_sirena.is_pressed:
+                    enemy.huir()
+                enemy.move()
+                enemy.update()
+                enemy.draw(screen)
+
+
+
+
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
             # Dibujar tortugas
             for turtle in turtles:

@@ -150,7 +150,7 @@ def mostrar_letrero_personalizado(screen, current_egg_packs, max_egg_packs):
     
     # Establecer el mensaje dependiendo de la cantidad de packs
     if current_egg_packs < max_egg_packs:
-        mensaje = f"Puedes ingresar huevos. Packs actuales: {current_egg_packs}/{max_egg_packs}"
+        mensaje = f"Puedes ingresar huevos (click). Packs actuales: {current_egg_packs}/{max_egg_packs}"
     else:
         mensaje = f"¡Has alcanzado el máximo de packs de huevos!"
     
