@@ -45,7 +45,7 @@ class DialogueBox:
             # Reemplaza gradualmente los espacios con las letras reales
             self.visible_text = self.text[:int(self.current_index)] + " " * (len(self.text) - int(self.current_index))
 
-    def draw(self, screen):
+    def draw(self, screen, color_fondo = '#071821', color_letra='#e4fccc'):
         """
         Dibuja el cuadro de diálogo y el texto.
         """
@@ -53,7 +53,7 @@ class DialogueBox:
             # Dibuja el rectángulo del cuadro de diálogo
             pygame.draw.rect(
                 screen, 
-                '#e4fccc',  # Color del cuadro (gris oscuro)
+                color_fondo,  # Color del cuadro # 346c54 (letra dia) - # #e4fccc (fondo dia)
                 (self.position[0], self.position[1], self.box_width, self.box_height)
             )
             pygame.draw.rect(
@@ -138,5 +138,5 @@ class DialogueBox:
 
             # Dibuja las instrucciones debajo del texto
             instructions = "Presiona: (ESPACIO) para terminar   (Q) para continuar"
-            instructions_surface = self.font.render(instructions, True, '#346c54')  # Texto blanco
+            instructions_surface = self.font.render(instructions, True, color_letra)  # Texto blanco
             screen.blit(instructions_surface, (self.position[0] + 20, self.position[1] + self.box_height - instructions_height))

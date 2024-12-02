@@ -65,7 +65,7 @@ narrador_sprite_y = 450 - narrador_sprite.get_height() - 10  # 10 píxeles encim
 
 # Crear el cuadro de diálogo de narrativa inicial
 dialogue_box = DialogueBox(
-    letters_path="../assets/images/ui/ascii",
+    letters_path="../assets/images/ui/ascii_noche/",
     position=(50, 450),
     text_speed=0.5,
     box_width=700,
@@ -264,7 +264,8 @@ def main():
     powerup_duration = 5000  # Duración de 5 segundos para cada power-up
     powerup_cooldowns = {'speed': 0, 'invisible_turtle_follower': 0, 'turtle_speed': 0}  # Cooldowns de los poderes
     time_left_powerup = 0  # Tiempo restante del power-up activo
-
+    color_fondo = '#071821'
+    color_letra = '#e4fccc'
     while running:
         clock.tick(FPS)
         for event in pygame.event.get():
@@ -318,6 +319,8 @@ def main():
                             estado_actual = ESTADOS["juego_dia"] #Para que pueda iniciar el juego de noche
                             dialogue_box.hide()
                             start_time_dia = time.time()
+                            # Cambiar el dialogo de dia
+                            # 346c54 (letra dia) - # #e4fccc (fondo dia)
                             # Ubicar al player en el centro
                             player.x = WIDTH // 2
                             player.y = HEIGHT // 2
@@ -330,6 +333,7 @@ def main():
                         start_time_dia = time.time()
                         player.x = WIDTH // 2
                         player.y = HEIGHT // 2
+                        
                 # Interacción con las tortugas cuando no estamos en la narrativa
                 
                 if estado_actual in [ESTADOS["juego_dia"]] and event.key == pygame.K_a: # R2
@@ -354,7 +358,8 @@ def main():
                     x_, y_ = event.pos
                     print(f"Click en {x_}, {y_}")
                     create_or_remove_egg_pack(x_, y_)
-         
+                
+
             if event.type == pygame.KEYDOWN: #SOLO
                 if event.key ==pygame.K_n:   # PARA
                     start_time = time.time()  # Inicia el cronómetro después de la historia
@@ -472,9 +477,12 @@ def main():
                 print("Has alcanzado el máximo de packs de huevos")
                 start_time_noche = time.time()
                 generate_random_fox(2)  # Iniciar con un zorro
+
+                
             else:
                 # Dibujamos un letrero para indicar que se pueden crear packs de huevos
-                mostrar_letrero_personalizado(screen,len(egg_packs.keys()), max_egg_packs)
+                if not start_time_noche:
+                    mostrar_letrero_personalizado(screen,len(egg_packs.keys()), max_egg_packs)
                 pass
 
             # Verificamos que el zorro este cerca a un huevo
@@ -523,7 +531,7 @@ def main():
 
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
-        dialogue_box.draw(screen)
+        dialogue_box.draw(screen,color_fondo=color_fondo, color_letra=color_letra)
         
         # Dibujar el score y el tiempo
         
@@ -545,6 +553,9 @@ def main():
         
         if start_time_noche and time_left <=0:
             estado_actual = ESTADOS["narrativa_dia"]
+            color_fondo = '#e4fccc'
+            color_letra = '#346c54'
+            dialogue_box.letters_path = "../assets/images/ui/ascii/"
 
             # Cambiar la música cuando se inicia el juego de día
             pygame.mixer.music.stop()  # Detener la música actual
