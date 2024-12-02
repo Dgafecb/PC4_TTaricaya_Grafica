@@ -12,13 +12,19 @@ from utils import  draw_score
 import time
 from power import Power  # Importa la clase Power
 from utils import  draw_powerup_info
-from reader_map import draw_map_from_tmx
+from zorro import Fox
+from egg import Egg
+import math
 #MUSICA
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
 
+
+path_musica_dia = '../assets/sounds/platformer_level03_loop.ogg'
+path_musica_noche = '../assets/sounds/fantasy Dragon.ogg'
+
 # Cargar la música
-pygame.mixer.music.load("../assets/sounds/platformer_level03_loop.ogg")  # Ruta a tu archivo de música
+pygame.mixer.music.load(path_musica_noche)  # Ruta a tu archivo de música
 pygame.mixer.music.set_volume(0.5)  # Establece el volumen (opcional)
 
 # Inicialización
@@ -68,6 +74,12 @@ turtles = pygame.sprite.Group()
 # En el ciclo principal:
 powerups = pygame.sprite.Group()  # Grupo de power-ups
 
+# Zorros: generados aleatoriamente
+foxes = pygame.sprite.Group()
+
+# Huevos: generados aleatoriamente
+eggs = pygame.sprite.Group()
+
 # Función para crear tortugas aleatorias
 def generate_random_turtle(n):
     for _ in range(n):
@@ -86,6 +98,17 @@ def generate_random_powerup(n):
         powerup = Power(x, y, "../assets/images/power_upps")
         powerups.add(powerup)
 
+# Función para generar zorros aleatorios
+def generate_random_fox(n):
+    for _ in range(n):
+        # A la derecha
+        x = WIDTH + 100
+
+        y = random.randint(100, HEIGHT - 100)
+        fox = Fox("../assets/images/fox_assets", eggs)
+        foxes.add(fox)
+# Lista para almacenar las posiciones de los huevos generados
+egg_positions_individual = []  # Almacena las posiciones de los huevos generados
 
 # Añadir las tortugas al grupo al inicio
 generate_random_turtle(12)  # Iniciar con una tortuga
@@ -120,6 +143,67 @@ def check_collision_power(player, powerups):
             return powerup
     return None
 
+# Creamos una lista de packs
+egg_packs = {}
+
+# Función para generar huevos en un patrón circular
+def generate_pack_egg(x, y, n):
+    """Genera un pack de huevos en una posición (x, y) en un patrón circular"""
+    radio = 30  # Ajusta este valor dependiendo de qué tan dispersos quieres los huevos
+    angulo_incremento = 2 * math.pi / n  # Para distribuir los huevos de manera equidistante
+    
+    # Lista de los objetos egg
+    lista_egg = []
+   
+    for i in range(n):
+        # Calcular el ángulo para cada huevo
+        angulo = angulo_incremento * i
+        # Calcular la nueva posición para cada huevo en el círculo
+        egg_x = x + math.cos(angulo) * radio
+        egg_y = y + math.sin(angulo) * radio
+        
+        # Crear el huevo en la nueva posición calculada
+        egg = Egg(egg_x, egg_y, "../assets/images/egg_assets")
+        eggs.add(egg)  # Agregar el huevo al grupo de sprites
+        lista_egg.append(egg)  # Agregar el huevo a la lista de huevos
+    # Agregamos la lista de huevos a la lista de packs
+    egg_packs[(x, y)] = lista_egg
+
+
+# Función para eliminar los huevos de un pack específico
+def remove_eggs_in_pack(pack_x, pack_y):
+    """Elimina los huevos correspondientes a un pack en la posición (pack_x, pack_y)"""
+    # Obtener la lista de huevos del pack
+    lista_egg = egg_packs[(pack_x, pack_y)]
+
+    # Eliminar cada huevo de la lista de sprites
+    for e in lista_egg:
+        e.kill()  # Elimina el huevo del grupo de sprites
+
+    # Eliminar la entrada del pack en el diccionario
+    del egg_packs[(pack_x, pack_y)]
+
+
+# Función para crear o eliminar un pack de huevos
+def create_or_remove_egg_pack(x, y):
+    """Crea o elimina un pack de huevos en la posición especificada."""
+  
+    # Verificar si el clic está dentro de un pack existente
+    for (pack_x, pack_y), list_packs in egg_packs.items():
+        # Verificar si el clic está dentro del radio del pack
+        distancia = math.sqrt((x - pack_x) ** 2 + (y - pack_y) ** 2)
+        if distancia <= 30:  # Si está dentro del radio del pack (ajustar el radio según sea necesario)
+            print(f"Eliminando huevos en el pack en ({pack_x}, {pack_y})")
+            remove_eggs_in_pack(pack_x, pack_y)  # Eliminar los huevos del pack
+            break
+    else:
+        # Si no hay un pack en esta posición y no hemos alcanzado el máximo de 5
+        if len(egg_packs) < max_egg_packs:
+            print("Creando un nuevo pack de huevos")
+            generate_pack_egg(x, y, 5)  # Crear un nuevo pack de huevos
+        
+# Variables globales
+max_egg_packs = 5  # Número máximo de packs de huevos generados
 
 
 # Variables globales para el puntaje y tiempo
@@ -179,6 +263,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
+                
                 if estado_actual in [ESTADOS["narrativa_inicio"]]: # Refactorizo historia para verificar que esta en la narrativa inicial
                     if event.key == pygame.K_q:  # Avanza la narrativa con la tecla Q
                         if current_story_index < len(story) - 1:
@@ -207,14 +292,14 @@ def main():
                             
                             estado_actual = ESTADOS["juego_noche"] #Para que pueda iniciar el juego de noche
                             dialogue_box.hide()
-                            start_time_noche = time.time()
+                            
                             
                             
                     elif event.key == pygame.K_SPACE:  # Salta la narrativa
                         dialogue_box.hide()
 
                         estado_actual = ESTADOS["juego_noche"] #Para que pueda iniciar el juego de noche
-                        start_time_noche = time.time()
+                        #start_time_noche = time.time()
                 # Avanzar dialogos narrativa de dia
                 elif estado_actual in [ESTADOS["narrativa_dia"]]: 
                     if event.key == pygame.K_q:  # Avanza la narrativa con la tecla Q
@@ -252,6 +337,12 @@ def main():
                         if player.rect.colliderect(turtle.rect) & turtle.is_following_player:
                             turtle.attack()
                             turtle.is_following_player = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if estado_actual in [ESTADOS["juego_noche"]] and not start_time_noche:
+                    x_, y_ = event.pos
+                    print(f"Click en {x_}, {y_}")
+                    create_or_remove_egg_pack(x_, y_)
+         
             if event.type == pygame.KEYDOWN: #SOLO
                 if event.key ==pygame.K_n:   # PARA
                     start_time = time.time()  # Inicia el cronómetro después de la historia
@@ -352,6 +443,10 @@ def main():
                 crab.move()
                 crab.update()
 
+        
+        
+
+
         # Dibujar todo
         screen.fill((0, 0, 0))
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
@@ -359,8 +454,32 @@ def main():
         elif estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_noche"],ESTADOS["juego_noche"]]:
             screen.blit(mapa_noche,(0,0)) # Dibujamos el mapa de noche
         # Dibujamos el tiempo restante del powerup
-       
-        
+
+        if estado_actual in [ESTADOS["juego_noche"]]:
+            if len(egg_packs.keys()) == max_egg_packs and not start_time_noche:
+                print("Has alcanzado el máximo de packs de huevos")
+                start_time_noche = time.time()
+                generate_random_fox(2)  # Iniciar con un zorro
+
+            # Verificamos que el zorro este cerca a un huevo
+            for fox in foxes:
+                for egg in eggs:
+                    if fox.rect.colliderect(egg.rect):
+                        print("Zorro colisionando con huevo")
+                        fox.attack()
+
+
+            # Dibujamos los huevos
+            for egg in eggs:
+                egg.update()
+                egg.draw(screen)
+
+            # Dibujamos los zorros
+            for fox in foxes:
+                fox.move()
+                fox.update()
+                fox.draw(screen)
+
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
             # Dibujar tortugas
             for turtle in turtles:
@@ -374,7 +493,8 @@ def main():
             for powerup in powerups:
                 powerup.update()
                 powerup.draw(screen)
-                
+            
+
             player.draw(screen)
         # Dibujar el cuadro de diálogo si está activo
         dialogue_box.update()
@@ -400,6 +520,12 @@ def main():
         
         if start_time_noche and time_left <=0:
             estado_actual = ESTADOS["narrativa_dia"]
+
+            # Cambiar la música cuando se inicia el juego de día
+            pygame.mixer.music.stop()  # Detener la música actual
+            pygame.mixer.music.load(path_musica_dia)  # Cargar la música de día
+            pygame.mixer.music.play(loops=-1, start=0.0)  # Reproducir en bucle
+            
             dialogue_box.set_text(story_dia[current_story_index_dia])
             if start_time_dia:
                 running= False
