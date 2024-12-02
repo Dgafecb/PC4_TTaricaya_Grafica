@@ -18,7 +18,7 @@ import math
 from utils import mostrar_letrero_personalizado
 from buttons import Button
 from enemy import Enemy
-
+from utils import draw_image
 
 #MUSICA
 # Inicializa el mixer de Pygame
@@ -41,6 +41,7 @@ def draw_map_from_tmx(screen, tmx_data):
                     screen.blit(tile_surface, (x * tmx_data.tilewidth, y * tmx_data.tileheight))
 
 
+path_nido ='../assets/images/ui/frames/nido.png'
 
 # Inicialización
 pygame.init()
@@ -173,7 +174,7 @@ egg_packs = {}
 # Función para generar huevos en un patrón circular
 def generate_pack_egg(x, y, n):
     """Genera un pack de huevos en una posición (x, y) en un patrón circular"""
-    radio = 30  # Ajusta este valor dependiendo de qué tan dispersos quieres los huevos
+    radio = 25  # Ajusta este valor dependiendo de qué tan dispersos quieres los huevos
     angulo_incremento = 2 * math.pi / n  # Para distribuir los huevos de manera equidistante
     
     # Lista de los objetos egg
@@ -216,7 +217,7 @@ def create_or_remove_egg_pack(x, y):
     for (pack_x, pack_y), list_packs in egg_packs.items():
         # Verificar si el clic está dentro del radio del pack
         distancia = math.sqrt((x - pack_x) ** 2 + (y - pack_y) ** 2)
-        if distancia <= 30:  # Si está dentro del radio del pack (ajustar el radio según sea necesario)
+        if distancia < 25:  # Si está dentro del radio del pack (ajustar el radio según sea necesario)
             print(f"Eliminando huevos en el pack en ({pack_x}, {pack_y})")
             remove_eggs_in_pack(pack_x, pack_y)  # Eliminar los huevos del pack
             break
@@ -522,7 +523,11 @@ def main():
             player.move(keys)
             player.draw(screen)
 
-
+            if egg_packs:
+                # Dibujamos el nido
+                for (x_nido,y_nido) in egg_packs.keys():
+                    draw_image(screen, path_nido, x_nido, y_nido)
+           
 
             # Dibujamos los huevos
             for egg in eggs:

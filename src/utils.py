@@ -173,3 +173,20 @@ def mostrar_letrero_personalizado(screen, current_egg_packs, max_egg_packs):
 
     # Dibujar el texto en el centro del letrero
     screen.blit(texto, texto_rect)
+
+
+def draw_image(screen, image_path, x, y, scale=None):
+    """
+    Dibuja una imagen en la pantalla en las coordenadas (x, y).
+    
+    :param screen: La superficie en la que se dibujará la imagen.
+    :param image_path: Ruta al archivo de imagen.
+    :param x: Coordenada X donde se dibujará la imagen.
+    :param y: Coordenada Y donde se dibujará la imagen.
+    :param scale: (Opcional) Una tupla con las nuevas dimensiones (ancho, alto) para redimensionar la imagen.
+    """
+    # Cargar la imagen
+    image = load_image(image_path, scale)
+    
+    # Dibujar la imagen en las coordenadas especificadas
+    screen.blit(image, (x, y))
