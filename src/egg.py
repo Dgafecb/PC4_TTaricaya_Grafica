@@ -33,12 +33,13 @@ class Egg(pygame.sprite.Sprite):
             sprite = sprite_sheet.subsurface(rect)
             sprites.append(sprite)
             sprites.append(sprite)
-            sprites.append(sprite)
+           
         return sprites
 
     def update(self):
         """Actualiza la animación y la lógica del huevo."""
         if self.is_broken:
+            print("Huevo roto")
             self.current_animation = self.animaciones["breaking"]
         elif self.is_rolling:
             self.current_animation = self.animaciones["rolling"]
@@ -49,6 +50,8 @@ class Egg(pygame.sprite.Sprite):
         if self.current_sprite >= len(self.current_animation):
             if self.is_broken:  # El huevo roto mantiene el último frame
                 self.current_sprite = len(self.current_animation) - 1
+                # Eliminar el huevo roto
+                self.kill()
             elif self.is_rolling:  # El huevo en rolling hace un loop
                 self.current_sprite = 0
             else:  # Idle también hace un loop
