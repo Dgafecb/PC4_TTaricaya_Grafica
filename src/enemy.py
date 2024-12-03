@@ -36,6 +36,7 @@ class Enemy(pygame.sprite.Sprite):
         self.attack_cooldown = 0
         self.attack_count = 0
         self.escapando = False
+        
 
 
     def cargar_sprites(self, image_path, num_frames):

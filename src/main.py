@@ -135,8 +135,7 @@ def generate_random_enemy(n):
 # Lista para almacenar las posiciones de los huevos generados
 egg_positions_individual = []  # Almacena las posiciones de los huevos generados
 
-# Añadir las tortugas al grupo al inicio
-generate_random_turtle(12)  # Iniciar con una tortuga
+
 
 
 
@@ -252,8 +251,9 @@ player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", t
 ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4,"puntaje_noche":5,"puntaje_noche_transicion":6,"puntaje_noche_terminado":7,"puntaje_final_transicion":8,"puntaje_final":9}
 # estado actual del juego
 estado_actual = ESTADOS["narrativa_inicio"]# 0 
+
 def main():
-    global following_turtle, score, time_left, start_time,start_time_dia,estado_actual, start_time_noche  # Usamos la variable global para modificarla dentro del ciclo principal
+    global following_turtle, score, time_left, start_time,start_time_dia,estado_actual, start_time_noche # Usamos la variable global para modificarla dentro del ciclo principal
    
     
     # Reproducir música (en loop infinito)
@@ -273,7 +273,7 @@ def main():
     start_time = None
     start_time_noche = None # Inicia el cronometro despues de la narrativa de noche
     start_time_dia = None  # Inicia el cronómetro después de la historia
-    game_duration = 5  # Duración del juego en segundos
+    game_duration = 60  # Duración del juego en segundos
     noche_duration = 60 # Duracion de la noche
     dia_duration = 60 # Duracion del dia
     x_, y_ = 0, 0  # Inicializar las variables x_ y y_
@@ -290,6 +290,8 @@ def main():
     time_left_powerup = 0  # Tiempo restante del power-up activo
     color_fondo = '#071821'
     color_letra = '#e4fccc'
+    # Añadir las tortugas al grupo al inicio
+    generate_random_turtle(12)  # Iniciar con una tortuga
     while running:
         clock.tick(FPS)
         for event in pygame.event.get():
@@ -357,14 +359,47 @@ def main():
                         start_time_dia = time.time()
                         player.x = WIDTH // 2
                         player.y = HEIGHT // 2
+                # TRANSICION DEL PUNTAJE FINAL DE NOCHE
                 elif estado_actual in [ESTADOS["puntaje_noche_transicion"]]: 
                     if event.key == pygame.K_q or event.key == pygame.K_SPACE: # Presiona Q para dejar de mostrar puntaje y empezar la narrativa de dia
                         estado_actual = ESTADOS["puntaje_noche_terminado"]
                         dialogue_box.change_position((50,450))
+                # PRESIONAR Q PARA EMPEZAR DE NUEVO
+                elif estado_actual in [ESTADOS["puntaje_final_transicion"]]:
+                    if event.key == pygame.K_q:
+                        # REINICIAR TODAS LAS VARIABLES
+                        
+                        estado_actual = ESTADOS["narrativa_inicio"]
+                        score = 0
+                        start_time = None
+                        start_time_dia = None
+                        start_time_noche =None
+                        time_left = 60  # 60 segundos para completar la misión
+                        current_story_index = 0
+                        dialogue_box.change_position((50,450))
+                        dialogue_box.set_text(story[current_story_index])
+                        following_turtle = None
+                        #egg_positions_individual = []
+                        global egg_packs
+                        egg_packs= {}
+                        #print(egg_packs)
+                        for egg in eggs:
+                            egg.kill()
+                        for fox in foxes:
+                            fox.kill()
+                        for enemy in enemies:
+                            enemy.kill()          
+                        for turtle in turtles:
+                            turtle.kill()  
+                        main()
+                        
+                    if event.key == pygame.K_SPACE:
+                        # Termina el juego si apreta espacio
+                        running =  False
                 if estado_actual in [ESTADOS["juego_noche"]]:
                     if event.key == pygame.K_a:
                         print("Presionando la tecla A")
-                        
+                        print(egg_packs)
 
                         # Verificar si ha colisionado con un huevo
                         for egg in eggs:
@@ -550,6 +585,7 @@ def main():
         # Dibujamos el tiempo restante del powerup
 
         if estado_actual in [ESTADOS["juego_noche"]]:
+            print(f"linea 576 egg: {egg_packs}")
             if len(egg_packs.keys()) == max_egg_packs and not start_time_noche:
                 print("Has alcanzado el máximo de packs de huevos")
                 start_time_noche = time.time()
