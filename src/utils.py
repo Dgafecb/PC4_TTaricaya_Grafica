@@ -190,3 +190,4 @@ def draw_image(screen, image_path, x, y, scale=None):
     
     # Dibujar la imagen en las coordenadas especificadas
     screen.blit(image, (x, y))
+
