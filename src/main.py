@@ -66,8 +66,6 @@ narrador_sprite = pygame.transform.scale(narrador_sprite,(200,200))
 narrador_sprite_x = 50 + 700 // 2 - narrador_sprite.get_width() // 2  # Basado en las dimensiones del cuadro de diálogo
 narrador_sprite_y = 450 - narrador_sprite.get_height() - 10  # 10 píxeles encima del cuadro
 
-
-
 # Crear el cuadro de diálogo de narrativa inicial
 dialogue_box = DialogueBox(
     letters_path="../assets/images/ui/ascii_noche/",
@@ -124,7 +122,6 @@ def generate_random_fox(n):
         fox = Fox("../assets/images/fox_assets", eggs)
         foxes.add(fox)
 
-
 def generate_random_enemy(n):
     for _ in range(n):
         x = WIDTH + 100
@@ -134,12 +131,6 @@ def generate_random_enemy(n):
 
 # Lista para almacenar las posiciones de los huevos generados
 egg_positions_individual = []  # Almacena las posiciones de los huevos generados
-
-
-
-
-
-
 # Lista de cangrejos
 crabs = pygame.sprite.Group()
 for _ in range(4):  # Por ejemplo, 3 cangrejos
@@ -743,6 +734,5 @@ def main():
             estado_actual = ESTADOS["puntaje_noche"]
         pygame.display.flip()
               
-
 if __name__ == "__main__":
     main()

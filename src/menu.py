@@ -5,6 +5,7 @@ import sys
 import imageio
 from utils import imprimir_letras
 from gif import GifBackground
+import subprocess
 WIDTH = 800
 HEIGHT = 600
 green = (228, 252, 204)
@@ -42,14 +43,19 @@ def fade_out():
         fade_surface.set_alpha(alpha)
         surface.blit(fade_surface, (0, 0))
         pygame.display.flip()
-        pygame.time.delay(30)
+        pygame.time.delay(40)
 
 def start_game():
     pygame.mixer.music.stop()
     fade_out()
     pygame.quit()
-    os.system("python main.py")
+    #os.system("python main.py")
+    try:
+        subprocess.run(["python", "main.py"], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error al intentar ejecutar main.py: {e}")
     sys.exit()
+
 
 def create_instructions_menu():
     instructions_menu = pygame_menu.Menu('Instrucciones', WIDTH, HEIGHT, theme=theme)
@@ -79,7 +85,7 @@ theme.background_color = (0, 0, 0, 0)
 theme.title_font_color = green
 theme.button_font_color = green
 
-menu = pygame_menu.Menu('Taricaya: Guardian del Amazonas', WIDTH, HEIGHT, theme=theme)
+menu = pygame_menu.Menu('         Taricaya: Guardian del Amazonas        ', WIDTH, HEIGHT, theme=theme)
 menu.add.button('Empezar Juego', start_game)
 menu.add.button('Ver Instrucciones', lambda: switch_menu(instructions_menu))
 menu.add.button('Salir', pygame_menu.events.EXIT)
