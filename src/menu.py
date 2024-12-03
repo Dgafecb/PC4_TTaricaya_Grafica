@@ -2,14 +2,19 @@ import pygame
 import pygame_menu
 import os
 import sys
-import imageio
+import subprocess
 from utils import imprimir_letras
 from gif import GifBackground
-import subprocess
+from dialogue import DialogueBox  # Asegúrate de tener esta clase implementada
+
 WIDTH = 800
 HEIGHT = 600
-green = (228, 252, 204)
+# Colores de dia
+lg_bg = '#e4fccc'
+dg_bg = '#071821'
 
+lg_font = '#e4fccc'
+# Colores de noche
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, project_root)
@@ -49,48 +54,88 @@ def start_game():
     pygame.mixer.music.stop()
     fade_out()
     pygame.quit()
-    #os.system("python main.py")
     try:
         subprocess.run(["python", "main.py"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error al intentar ejecutar main.py: {e}")
     sys.exit()
 
-
 def create_instructions_menu():
-    instructions_menu = pygame_menu.Menu('Instrucciones', WIDTH, HEIGHT, theme=theme)
-    
-    # Agregar las instrucciones
-    instructions_menu.add.label("1. Usa las flechas del teclado para moverte por el mapa.",font_color=green)
-    instructions_menu.add.label("2. Usa \"A\" para guiar a las tortugas.",font_color=green)
-    instructions_menu.add.label("3. Usa \"S\" para darles un empujon.",font_color=green)
-    
-    # Agregar el botón "Volver" en una posición más baja
-    back_button = instructions_menu.add.button('Volver', go_back_to_main_menu, font_color=green)
-    
-    # Cambiar la posición del botón manualmente
-    back_button.set_position(WIDTH // 2 -50, HEIGHT - 100)  # Ajusta estas coordenadas según sea necesario
-    
-    return instructions_menu
+    # Crear cuadros de diálogo para las instrucciones
+    dialogue_boxes = []
 
+    box_width, box_height = 700, 100
+    text_speed = 2
+    letter_size = (16, 16)
+    letters_path_day = "../assets/images/ui/ascii"  # Cambia a la ruta de tus letras
+    letters_path_night = "../assets/images/ui/ascii_noche"  # Cambia a la ruta de tus letras
+
+    # Crear los cuadros de diálogo
+    dialogue_boxes.append(DialogueBox(letters_path_day, (50, 50), text_speed, box_width, box_height, letter_size))
+    dialogue_boxes[-1].set_text("Usa las flechas del teclado para moverte por el mapa.")
+
+    dialogue_boxes.append(DialogueBox(letters_path_day, (50, 150), text_speed, box_width, box_height, letter_size))
+    dialogue_boxes[-1].set_text("a. De dia: Usa \"A\" para guiar a las tortugas.\nUsa \"S\" para darles un empujon.")
+
+    dialogue_boxes.append(DialogueBox(letters_path_night, (50, 250), text_speed, box_width, box_height, letter_size))
+    dialogue_boxes[-1].set_text("b. De noche: Presiona los botones para ahuyentar depredadores.")
+
+    # Cambiando los fondos de los cuadros de diálogo
+    # Dibujar y actualizar cuadros de diálogo
+    dialogue_boxes[0].draw_menu(surface,color_fondo=lg_bg, color_letra=dg_bg)
+    dialogue_boxes[1].draw_menu(surface,color_fondo=lg_bg, color_letra=dg_bg)
+    dialogue_boxes[2].draw_menu(surface,color_fondo= dg_bg, color_letra=lg_bg)
+   
+    # Botón para volver al menú principal
+    back_button_rect = pygame.Rect(WIDTH // 2 - 50, HEIGHT - 100, 100, 40)
+    back_button_color = (100, 200, 100)
+
+    # Función para manejar eventos
+    def handle_events(event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if back_button_rect.collidepoint(event.pos):
+                return True
+        return False
+
+    def instructions_menu_loop():
+        clock = pygame.time.Clock()
+        running = True
+
+        while running:
+            surface.fill((0, 0, 0))
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if handle_events(event):
+                    running = False
+
+            
+
+            # Dibujar botón "Volver"
+            pygame.draw.rect(surface, back_button_color, back_button_rect)
+            font = pygame.font.SysFont('arial', 24)
+            text = font.render("Volver", True, (0, 0, 0))
+            surface.blit(text, (back_button_rect.x + 10, back_button_rect.y + 5))
+
+            pygame.display.flip()
+            clock.tick(60)
+
+    instructions_menu_loop()
 
 def go_back_to_main_menu():
     global current_menu
     current_menu = menu
 
-
-
-theme = pygame_menu.themes.THEME_GREEN.copy()
+theme = pygame_menu.themes.THEME_DARK.copy()
 theme.background_color = (0, 0, 0, 0)
-theme.title_font_color = green
-theme.button_font_color = green
+theme.button_font_color = lg_bg
 
 menu = pygame_menu.Menu('         Taricaya: Guardian del Amazonas        ', WIDTH, HEIGHT, theme=theme)
 menu.add.button('Empezar Juego', start_game)
-menu.add.button('Ver Instrucciones', lambda: switch_menu(instructions_menu))
+menu.add.button('Ver Instrucciones', create_instructions_menu)
 menu.add.button('Salir', pygame_menu.events.EXIT)
-
-instructions_menu = create_instructions_menu()
 
 current_menu = menu
 
@@ -103,7 +148,6 @@ if __name__ == "__main__":
 
     running = True
     while running:
-        
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT:
