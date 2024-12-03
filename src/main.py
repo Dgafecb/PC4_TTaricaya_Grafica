@@ -249,7 +249,7 @@ boton_perros = Button(200, 200,  '../assets/images/botones_assets/boton_B.png',
 player_assets_path = "../assets/images/player_assets"
 player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", turtles, crabs)
  # estados del juego
-ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4}
+ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4,"puntaje_noche":5,"puntaje_noche_terminado":6}
 # estado actual del juego
 estado_actual = ESTADOS["narrativa_inicio"]# 0 
 def main():
@@ -273,7 +273,7 @@ def main():
     start_time = None
     start_time_noche = None # Inicia el cronometro despues de la narrativa de noche
     start_time_dia = None  # Inicia el cronómetro después de la historia
-    game_duration = 60  # Duración del juego en segundos
+    game_duration = 5  # Duración del juego en segundos
     noche_duration = 60 # Duracion de la noche
     dia_duration = 60 # Duracion del dia
     x_, y_ = 0, 0  # Inicializar las variables x_ y y_
@@ -357,7 +357,9 @@ def main():
                         start_time_dia = time.time()
                         player.x = WIDTH // 2
                         player.y = HEIGHT // 2
-                        
+                elif estado_actual in [ESTADOS["puntaje_noche"]]: 
+                    if event.key == pygame.K_q: # Presiona Q para dejar de mostrar puntaje y empezar la narrativa de dia
+                        estado_actual = ESTADOS["puntaje_noche_terminado"]
                 if estado_actual in [ESTADOS["juego_noche"]]:
                     if event.key == pygame.K_a:
                         print("Presionando la tecla A")
@@ -510,7 +512,7 @@ def main():
         screen.fill((0, 0, 0))
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
             draw_map_from_tmx(screen, tmx_map_dia) #Dibujamos el mapa de dia
-        elif estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_noche"],ESTADOS["juego_noche"]]:
+        elif estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_noche"],ESTADOS["juego_noche"],ESTADOS["puntaje_noche"]]:
             screen.blit(mapa_noche,(0,0)) # Dibujamos el mapa de noche
         # Dibujamos el tiempo restante del powerup
 
@@ -626,7 +628,9 @@ def main():
             for j in range(690,711,20):
                 for i in range(60, 390, 30):
                     draw_image(screen, path_three,j,i)
-       
+        elif estado_actual == ESTADOS["puntaje_noche"]:
+            # MOSTRAR PUNAJE Y ESPERAR
+            print("Presiona Q para empezar la narrativa de dia")
             
         draw_score(screen, score, time_left)
         # Dibujamos el tiempo restante del powerup
@@ -635,7 +639,7 @@ def main():
         if estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_dia"],ESTADOS["narrativa_noche"]]:
             screen.blit(narrador_sprite, (narrador_sprite_x, narrador_sprite_y))
         
-        if start_time_noche and time_left <=0:
+        if start_time_noche and time_left <=0 and estado_actual == ESTADOS["puntaje_noche_terminado"]:
             estado_actual = ESTADOS["narrativa_dia"]
             color_fondo = '#e4fccc'
             color_letra = '#346c54'
@@ -647,9 +651,12 @@ def main():
             pygame.mixer.music.play(loops=-1, start=0.0)  # Reproducir en bucle
             
             dialogue_box.set_text(story_dia[current_story_index_dia])
-            if start_time_dia:
-                running= False
-                # MOSTRAR PUNTAJE FINAL AQUI
+            
+        if start_time_dia and start_time_noche and time_left<=0:
+            running= False
+            # MOSTRAR PUNTAJE FINAL AQUI
+        elif start_time_noche and time_left<=0 and estado_actual == ESTADOS["juego_noche"]:
+            estado_actual = ESTADOS["puntaje_noche"]
         pygame.display.flip()
               
 
