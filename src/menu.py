@@ -83,8 +83,11 @@ def create_instructions_menu():
     # Cambiando los fondos de los cuadros de diálogo
     # Dibujar y actualizar cuadros de diálogo
     dialogue_boxes[0].draw_menu(surface,color_fondo=lg_bg, color_letra=dg_bg)
+    dialogue_boxes.update()
     dialogue_boxes[1].draw_menu(surface,color_fondo=lg_bg, color_letra=dg_bg)
+    dialogue_boxes.update()
     dialogue_boxes[2].draw_menu(surface,color_fondo= dg_bg, color_letra=lg_bg)
+    dialogue_boxes.update()
    
     # Botón para volver al menú principal
     back_button_rect = pygame.Rect(WIDTH // 2 - 50, HEIGHT - 100, 100, 40)
