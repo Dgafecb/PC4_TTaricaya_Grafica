@@ -22,7 +22,8 @@ class DialogueBox:
         self.current_index = 0
         self.is_visible = False
         self.font = pygame.font.SysFont("arial", 18)  # Fuente para el texto simple de las instrucciones
-
+    def change_position(self,new_position):
+        self.position =  new_position
     def set_text(self, text):
         """
         Establece el texto para mostrar y reinicia el progreso.

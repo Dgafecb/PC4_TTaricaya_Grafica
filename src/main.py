@@ -135,8 +135,7 @@ def generate_random_enemy(n):
 # Lista para almacenar las posiciones de los huevos generados
 egg_positions_individual = []  # Almacena las posiciones de los huevos generados
 
-# Añadir las tortugas al grupo al inicio
-generate_random_turtle(12)  # Iniciar con una tortuga
+
 
 
 
@@ -218,13 +217,13 @@ def create_or_remove_egg_pack(x, y):
         # Verificar si el clic está dentro del radio del pack
         distancia = math.sqrt((x - pack_x) ** 2 + (y - pack_y) ** 2)
         if distancia < 25:  # Si está dentro del radio del pack (ajustar el radio según sea necesario)
-            print(f"Eliminando huevos en el pack en ({pack_x}, {pack_y})")
+            #print(f"Eliminando huevos en el pack en ({pack_x}, {pack_y})")
             remove_eggs_in_pack(pack_x, pack_y)  # Eliminar los huevos del pack
             break
     else:
         # Si no hay un pack en esta posición y no hemos alcanzado el máximo de 5
         if len(egg_packs) < max_egg_packs:
-            print("Creando un nuevo pack de huevos")
+            #print("Creando un nuevo pack de huevos")
             generate_pack_egg(x, y, 5)  # Crear un nuevo pack de huevos
         
 # Variables globales
@@ -249,11 +248,12 @@ boton_perros = Button(200, 200,  '../assets/images/botones_assets/boton_B.png',
 player_assets_path = "../assets/images/player_assets"
 player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", turtles, crabs)
  # estados del juego
-ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4}
+ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4,"puntaje_noche":5,"puntaje_noche_transicion":6,"puntaje_noche_terminado":7,"puntaje_final_transicion":8,"puntaje_final":9}
 # estado actual del juego
 estado_actual = ESTADOS["narrativa_inicio"]# 0 
+
 def main():
-    global following_turtle, score, time_left, start_time,start_time_dia,estado_actual, start_time_noche  # Usamos la variable global para modificarla dentro del ciclo principal
+    global following_turtle, score, time_left, start_time,start_time_dia,estado_actual, start_time_noche # Usamos la variable global para modificarla dentro del ciclo principal
    
     
     # Reproducir música (en loop infinito)
@@ -290,6 +290,8 @@ def main():
     time_left_powerup = 0  # Tiempo restante del power-up activo
     color_fondo = '#071821'
     color_letra = '#e4fccc'
+    # Añadir las tortugas al grupo al inicio
+    generate_random_turtle(12)  # Iniciar con una tortuga
     while running:
         clock.tick(FPS)
         for event in pygame.event.get():
@@ -357,7 +359,100 @@ def main():
                         start_time_dia = time.time()
                         player.x = WIDTH // 2
                         player.y = HEIGHT // 2
+                # TRANSICION DEL PUNTAJE FINAL DE NOCHE
+                elif estado_actual in [ESTADOS["puntaje_noche_transicion"]]: 
+                    if event.key == pygame.K_q or event.key == pygame.K_SPACE: # Presiona Q para dejar de mostrar puntaje y empezar la narrativa de dia
+                        estado_actual = ESTADOS["puntaje_noche_terminado"]
+                        dialogue_box.change_position((50,450))
+                # PRESIONAR Q PARA EMPEZAR DE NUEVO
+                elif estado_actual in [ESTADOS["puntaje_final_transicion"]]:
+                    if event.key == pygame.K_q:
+                        # REINICIAR TODAS LAS VARIABLES
                         
+                        estado_actual = ESTADOS["narrativa_inicio"]
+                        score = 0
+                        start_time = None
+                        start_time_dia = None
+                        start_time_noche =None
+                        time_left = 60  # 60 segundos para completar la misión
+                        current_story_index = 0
+                        dialogue_box.change_position((50,450))
+                        dialogue_box.set_text(story[current_story_index])
+                        following_turtle = None
+                        #egg_positions_individual = []
+                        global egg_packs
+                        egg_packs= {}
+                        #print(egg_packs)
+                        for egg in eggs:
+                            egg.kill()
+                        for fox in foxes:
+                            fox.kill()
+                        for enemy in enemies:
+                            enemy.kill()          
+                        for turtle in turtles:
+                            turtle.kill()  
+
+                        Egg.score = 25
+                        Turtle.score = 0
+
+                        
+                        main()
+                        
+                    if event.key == pygame.K_SPACE:
+                        # Termina el juego si apreta espacio
+                        running =  False
+                if estado_actual in [ESTADOS["juego_noche"]]:
+                    if event.key == pygame.K_a:
+                        #print("Presionando la tecla A")
+                        #print(egg_packs)
+
+                        # Verificar si ha colisionado con un huevo
+                        for egg in eggs:
+                            if player.rect.colliderect(egg.rect) and egg.is_taken_player == False:
+                                #print("Huevo tomado")
+                                egg.is_taken_player = True
+                                egg.player = player
+                                # Hemos encontrado al huevo, verificamos si este huevo pertenece a un pack
+                                for (x_nido, y_nido), lista_egg in egg_packs.items():
+                                    if egg in lista_egg:
+                                        #print(f"El huevo pertenece al pack en ({x_nido}, {y_nido})")
+                                        # Eliminamos el huevo del pack
+                                        lista_egg.remove(egg)
+                                        break
+                                break
+                        
+                    elif event.key == pygame.K_s:
+                        # Soltamos el huevo
+                        #print("Presionando la tecla S")
+                        for egg in eggs:
+                            if egg.is_taken_player:
+                                #print("Huevo soltado")
+                                egg.stop_following_player()
+                                # Hemos encontrado al huevo, verificamos si la posicion del huevo esta en el radio del nido del algun pack
+                                for (x_nido, y_nido), lista_egg in egg_packs.items():
+                                    distancia = math.sqrt((egg.x - x_nido) ** 2 + (egg.y - y_nido) ** 2)
+                                    if distancia < 25:  # Si está dentro del radio del pack (ajustar el radio según sea necesario)
+                                        #print(f"El huevo pertenece al pack en ({x_nido}, {y_nido})")
+                                        
+                                        # Agregamos el huevo al pack
+                                        lista_egg.append(egg)
+
+                                        # Calculamos la posición del huevo en el pack
+                                        radio = 25  # Ajusta este valor dependiendo de qué tan dispersos quieres los huevos
+                                        angulo_incremento = 2 * math.pi / max_egg_packs  # Para distribuir los huevos de manera equidistante
+                                        
+                                        # Calculamos el ángulo de la posición del huevo en el pack
+                                        index = len(lista_egg) # El índice del huevo que acaba de ser agregado
+                                        angulo = angulo_incremento * index  # Calculamos el ángulo correspondiente al huevo recién agregado
+                                        
+                                        x_nuevo = x_nido + math.cos(angulo) * radio
+                                        y_nuevo = y_nido + math.sin(angulo) * radio
+                                        egg.x = x_nuevo
+                                        egg.y = y_nuevo
+
+                                        break
+                                break
+            
                 # Interacción con las tortugas cuando no estamos en la narrativa
                 
                 if estado_actual in [ESTADOS["juego_dia"]] and event.key == pygame.K_a: # R2
@@ -380,7 +475,7 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if estado_actual in [ESTADOS["juego_noche"]] and not start_time_noche:
                     x_, y_ = event.pos
-                    print(f"Click en {x_}, {y_}")
+                    #print(f"Click en {x_}, {y_}")
                     create_or_remove_egg_pack(x_, y_)
                 
 
@@ -406,19 +501,19 @@ def main():
             if powerup:
                 # Activar el poder correspondiente si no está en cooldown
                 if powerup.type == 'speed' and powerup_cooldowns['speed'] == 0:
-                    print("Activando velocidad")
-                    player.velocidad = 10
+                    #print("Activando velocidad")
+                    player.velocidad = 9
                     powerup_active = 'speed'
                     powerup_start_time = current_time
                     powerup_cooldowns['speed'] = 5000
                 elif powerup.type == 'invisible_turtle_follower' and powerup_cooldowns['invisible_turtle_follower'] == 0:
-                    print("Activando invisibilidad de tortugas")
+                    #print("Activando invisibilidad de tortugas")
                     player.can_put_invisible = True
                     powerup_active = 'invisible_turtle_follower'
                     powerup_start_time = current_time
                     powerup_cooldowns['invisible_turtle_follower'] = 5000
                 elif powerup.type == 'turtle_speed' and powerup_cooldowns['turtle_speed'] == 0:
-                    print("Activando velocidad de tortugas")
+                    #print("Activando velocidad de tortugas")
                     player.can_speed_turtle_up = True
                     powerup_active = 'turtle_speed'
                     powerup_start_time = current_time
@@ -488,15 +583,16 @@ def main():
         
         # Dibujar todo
         screen.fill((0, 0, 0))
-        if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
+        if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"],ESTADOS["puntaje_final"],ESTADOS["puntaje_final_transicion"]]:
             draw_map_from_tmx(screen, tmx_map_dia) #Dibujamos el mapa de dia
-        elif estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_noche"],ESTADOS["juego_noche"]]:
+        elif estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_noche"],ESTADOS["juego_noche"],ESTADOS["puntaje_noche"],ESTADOS["puntaje_noche_transicion"]]:
             screen.blit(mapa_noche,(0,0)) # Dibujamos el mapa de noche
         # Dibujamos el tiempo restante del powerup
 
         if estado_actual in [ESTADOS["juego_noche"]]:
+            #rint(f"linea 576 egg: {egg_packs}")
             if len(egg_packs.keys()) == max_egg_packs and not start_time_noche:
-                print("Has alcanzado el máximo de packs de huevos")
+                #print("Has alcanzado el máximo de packs de huevos")
                 start_time_noche = time.time()
                 generate_random_fox(2)  # Iniciar con un zorro
 
@@ -600,14 +696,32 @@ def main():
             score = Egg.score
         elif estado_actual == ESTADOS["juego_dia"]:
             score = Turtle.score
-        draw_score(screen, score, time_left)
+
+        if estado_actual in [ESTADOS["juego_noche"],ESTADOS["narrativa_noche"],ESTADOS["narrativa_inicio"]]:
+            path_three = '../assets/images/ui/frames/arbol.png'
+            for j in range(690,711,20):
+                for i in range(60, 390, 30):
+                    draw_image(screen, path_three,j,i)
+        elif estado_actual == ESTADOS["puntaje_noche"]:
+            # Muestra el cuadro de dialogo de noche
+            dialogue_box.change_position((50,250))
+            dialogue_box.set_text(f"Puntaje obtenido en nivel 1: {score}          Presiona Q para empezar el nivel 2")
+            estado_actual = ESTADOS["puntaje_noche_transicion"]
+        elif estado_actual == ESTADOS["puntaje_final"]:
+            dialogue_box.change_position((50,250))
+            score_total = Egg.score+Turtle.score
+            dialogue_box.set_text(f"Puntaje total obtenido: {score_total}          Presiona Q para jugar de nuevo")
+            estado_actual = ESTADOS["puntaje_final_transicion"]
+        # Eliminamos el cuadro de score de la esquina superior cuando mostremos los puntajes finales de noche y final
+        if estado_actual not in [ESTADOS["puntaje_noche"],ESTADOS["puntaje_noche_transicion"],ESTADOS["puntaje_final"],ESTADOS["puntaje_final_transicion"]]:
+            draw_score(screen, score, time_left)
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
         #if in_story:
         if estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_dia"],ESTADOS["narrativa_noche"]]:
             screen.blit(narrador_sprite, (narrador_sprite_x, narrador_sprite_y))
         
-        if start_time_noche and time_left <=0:
+        if start_time_noche and time_left <=0 and estado_actual == ESTADOS["puntaje_noche_terminado"]:
             estado_actual = ESTADOS["narrativa_dia"]
             color_fondo = '#e4fccc'
             color_letra = '#346c54'
@@ -619,9 +733,14 @@ def main():
             pygame.mixer.music.play(loops=-1, start=0.0)  # Reproducir en bucle
             
             dialogue_box.set_text(story_dia[current_story_index_dia])
-            if start_time_dia:
-                running= False
-                # MOSTRAR PUNTAJE FINAL AQUI
+            
+        if start_time_dia and start_time_noche and time_left<=0 and estado_actual != ESTADOS["puntaje_final_transicion"]:
+            #running= False
+            # MOSTRAR PUNTAJE FINAL AQUI
+            estado_actual = ESTADOS["puntaje_final"]
+            
+        elif start_time_noche and time_left<=0 and estado_actual == ESTADOS["juego_noche"]:
+            estado_actual = ESTADOS["puntaje_noche"]
         pygame.display.flip()
               
 

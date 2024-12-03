@@ -17,6 +17,10 @@ class Egg(pygame.sprite.Sprite):
         self.is_rolling = False
         self.is_visible = True
 
+        # Si ha sido tomado por el player
+        self.is_taken_player = False
+        self.player = None
+
     
         # Cargar las animaciones
         self.animaciones = {
@@ -49,6 +53,9 @@ class Egg(pygame.sprite.Sprite):
             self.current_animation = self.animaciones["breaking"]
         elif self.is_rolling:
             self.current_animation = self.animaciones["rolling"]
+        elif self.is_taken_player:
+            self.follow_player(self.player)
+            self.current_animation = self.animaciones["idle"]
         else:
             self.current_animation = self.animaciones["idle"]
 
@@ -102,4 +109,14 @@ class Egg(pygame.sprite.Sprite):
             self.x = self.enemy.x - random.randint(0, 50)
             self.y = self.enemy.y - random.randint(0, 50)
             print(f"Posición del huevo: {self.x}, {self.y}")
+    
+    def follow_player(self,player):
+        """Huevo sigue al jugador."""
+        if self.is_taken_player and self.player:
+            self.x = player.x
+            self.y = player.y + 10
+
+    def stop_following_player(self):
+        """Deja de seguir al jugador."""
+        self.is_taken_player = False
 

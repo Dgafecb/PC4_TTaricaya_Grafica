@@ -6,8 +6,7 @@ from settings import WIDTH, HEIGHT
 class Fox(pygame.sprite.Sprite):
     def __init__(self, asset_path, eggs_group):
         super().__init__()
-        self.x = random.choice([WIDTH / 2, WIDTH])
-        self.y = random.randint(100, HEIGHT - 100)
+        self.respawn()
         self.velocidad = 2
         self.direccion = "walk_left"  # Camina hacia la izquierda por defecto
         self.asset_path = asset_path
@@ -68,8 +67,8 @@ class Fox(pygame.sprite.Sprite):
         if self.escapando:
             self.target_egg = None
             self.is_attacking = False
-            self.current_animation = self.animaciones["walk_left"]
-            self.direccion = "walk_left"
+            self.current_animation = self.animaciones["walk_right"]
+            self.direccion = "walk_right"
             self.attack_cooldown = 120
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
@@ -125,13 +124,25 @@ class Fox(pygame.sprite.Sprite):
             if self.direccion == "walk_left":
                 self.x -= self.velocidad
                 if self.x < 0:  # Cuando el zorro llegue al borde izquierdo, reinicia
-                    self.x = WIDTH
+                    self.respawn()
                     self.escapando = False
             else:
                 self.x += self.velocidad
-                if self.x > WIDTH:  # Cuando el zorro llegue al borde derecho, reinicia
-                    self.x = 0
+                if self.x > WIDTH -100 :  # Cuando el zorro llegue al borde derecho, reinicia
+                    self.respawn()
                     self.escapando = False
+        
+        # Si esta escapando, se mueve al punto de escape 700,200
+        if self.escapando:
+            if self.x < 700:
+                self.x += self.velocidad
+            if self.y < 200:
+                self.y += self.velocidad
+            if self.x > 700:
+                self.x -= self.velocidad
+            if self.y > 200:
+                self.y -= self.velocidad
+
 
     def attack(self):
         """Inicia el ataque del zorro si no está en cooldown."""        
@@ -160,4 +171,9 @@ class Fox(pygame.sprite.Sprite):
         screen.blit(self.image, (self.x, self.y))
     def huir(self):
         self.escapando = True
+
+    def respawn(self):
+        self.x = random.choice(range(690, 711, 20))  # Posición x dentro del rango del arbusto
+        self.y = random.choice(range(60, 390, 30))
+        self.direccion = "walk_left"
 
