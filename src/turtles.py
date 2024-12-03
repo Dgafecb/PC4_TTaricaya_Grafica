@@ -106,6 +106,8 @@ class Turtle(pygame.sprite.Sprite):
 
     def move(self, player):
         """Mueve la tortuga."""
+        self.evaluate_limits()
+
         if self.is_following_player:
             if player.x > self.x:
                 self.x += self.velocidad
@@ -126,10 +128,13 @@ class Turtle(pygame.sprite.Sprite):
                     self.x = random.randint(-50, -10)
                     self.y = random.randint(100, HEIGHT - 100)
 
-            if self.x > WIDTH - 278:
+            if self.x > WIDTH - 300:
                 # Aumentar el puntaje si la tortuga llega al final
                 Turtle.score += 1
                 self.kill()
+            
+            
+            
 
     def draw(self, screen):
         """Dibuja la tortuga en la pantalla."""
@@ -163,3 +168,15 @@ class Turtle(pygame.sprite.Sprite):
             
             self.attack_steps = 0  
             self.health -= 1  # Reducir la vida de la tortuga
+        
+    def evaluate_limits(self):
+        """Evalúa si la tortuga está dentro de los límites de la pantalla."""
+        if self.y < 450 :
+            if self.x > 580:
+                # Eliminamos la tortuga si se sale de los límites
+                Turtle.score += 1
+                self.kill()
+        else:
+            if self.x > WIDTH - 350:
+                Turtle.score += 1
+                self.kill()

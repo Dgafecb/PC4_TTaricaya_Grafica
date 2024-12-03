@@ -135,6 +135,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def move(self):
         """Mueve el enemigo hacia el huevo más cercano o camina por su cuenta."""
+        self.evaluate_limit()
         if self.target_egg:
             if self.target_egg.x > self.x:
                 self.x += self.velocidad
@@ -205,3 +206,8 @@ class Enemy(pygame.sprite.Sprite):
         self.velocidad = 2
         self.direccion = "running_right"  # Se mueve hacia la derecha
         self.escapando = False
+    
+    def evaluate_limit(self):
+        if self.x > WIDTH - 350:
+            # Cambiar la dirección si llega al borde derecho
+            self.direccion = "running_left"

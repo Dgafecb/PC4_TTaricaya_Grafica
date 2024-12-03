@@ -217,13 +217,13 @@ def create_or_remove_egg_pack(x, y):
         # Verificar si el clic está dentro del radio del pack
         distancia = math.sqrt((x - pack_x) ** 2 + (y - pack_y) ** 2)
         if distancia < 25:  # Si está dentro del radio del pack (ajustar el radio según sea necesario)
-            print(f"Eliminando huevos en el pack en ({pack_x}, {pack_y})")
+            #print(f"Eliminando huevos en el pack en ({pack_x}, {pack_y})")
             remove_eggs_in_pack(pack_x, pack_y)  # Eliminar los huevos del pack
             break
     else:
         # Si no hay un pack en esta posición y no hemos alcanzado el máximo de 5
         if len(egg_packs) < max_egg_packs:
-            print("Creando un nuevo pack de huevos")
+            #print("Creando un nuevo pack de huevos")
             generate_pack_egg(x, y, 5)  # Crear un nuevo pack de huevos
         
 # Variables globales
@@ -391,6 +391,11 @@ def main():
                             enemy.kill()          
                         for turtle in turtles:
                             turtle.kill()  
+
+                        Egg.score = 25
+                        Turtle.score = 0
+
+                        
                         main()
                         
                     if event.key == pygame.K_SPACE:
@@ -398,19 +403,19 @@ def main():
                         running =  False
                 if estado_actual in [ESTADOS["juego_noche"]]:
                     if event.key == pygame.K_a:
-                        print("Presionando la tecla A")
-                        print(egg_packs)
+                        #print("Presionando la tecla A")
+                        #print(egg_packs)
 
                         # Verificar si ha colisionado con un huevo
                         for egg in eggs:
                             if player.rect.colliderect(egg.rect) and egg.is_taken_player == False:
-                                print("Huevo tomado")
+                                #print("Huevo tomado")
                                 egg.is_taken_player = True
                                 egg.player = player
                                 # Hemos encontrado al huevo, verificamos si este huevo pertenece a un pack
                                 for (x_nido, y_nido), lista_egg in egg_packs.items():
                                     if egg in lista_egg:
-                                        print(f"El huevo pertenece al pack en ({x_nido}, {y_nido})")
+                                        #print(f"El huevo pertenece al pack en ({x_nido}, {y_nido})")
                                         # Eliminamos el huevo del pack
                                         lista_egg.remove(egg)
                                         break
@@ -418,16 +423,16 @@ def main():
                         
                     elif event.key == pygame.K_s:
                         # Soltamos el huevo
-                        print("Presionando la tecla S")
+                        #print("Presionando la tecla S")
                         for egg in eggs:
                             if egg.is_taken_player:
-                                print("Huevo soltado")
+                                #print("Huevo soltado")
                                 egg.stop_following_player()
                                 # Hemos encontrado al huevo, verificamos si la posicion del huevo esta en el radio del nido del algun pack
                                 for (x_nido, y_nido), lista_egg in egg_packs.items():
                                     distancia = math.sqrt((egg.x - x_nido) ** 2 + (egg.y - y_nido) ** 2)
                                     if distancia < 25:  # Si está dentro del radio del pack (ajustar el radio según sea necesario)
-                                        print(f"El huevo pertenece al pack en ({x_nido}, {y_nido})")
+                                        #print(f"El huevo pertenece al pack en ({x_nido}, {y_nido})")
                                         
                                         # Agregamos el huevo al pack
                                         lista_egg.append(egg)
@@ -470,7 +475,7 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if estado_actual in [ESTADOS["juego_noche"]] and not start_time_noche:
                     x_, y_ = event.pos
-                    print(f"Click en {x_}, {y_}")
+                    #print(f"Click en {x_}, {y_}")
                     create_or_remove_egg_pack(x_, y_)
                 
 
@@ -496,19 +501,19 @@ def main():
             if powerup:
                 # Activar el poder correspondiente si no está en cooldown
                 if powerup.type == 'speed' and powerup_cooldowns['speed'] == 0:
-                    print("Activando velocidad")
+                    #print("Activando velocidad")
                     player.velocidad = 9
                     powerup_active = 'speed'
                     powerup_start_time = current_time
                     powerup_cooldowns['speed'] = 5000
                 elif powerup.type == 'invisible_turtle_follower' and powerup_cooldowns['invisible_turtle_follower'] == 0:
-                    print("Activando invisibilidad de tortugas")
+                    #print("Activando invisibilidad de tortugas")
                     player.can_put_invisible = True
                     powerup_active = 'invisible_turtle_follower'
                     powerup_start_time = current_time
                     powerup_cooldowns['invisible_turtle_follower'] = 5000
                 elif powerup.type == 'turtle_speed' and powerup_cooldowns['turtle_speed'] == 0:
-                    print("Activando velocidad de tortugas")
+                    #print("Activando velocidad de tortugas")
                     player.can_speed_turtle_up = True
                     powerup_active = 'turtle_speed'
                     powerup_start_time = current_time
@@ -585,9 +590,9 @@ def main():
         # Dibujamos el tiempo restante del powerup
 
         if estado_actual in [ESTADOS["juego_noche"]]:
-            print(f"linea 576 egg: {egg_packs}")
+            #rint(f"linea 576 egg: {egg_packs}")
             if len(egg_packs.keys()) == max_egg_packs and not start_time_noche:
-                print("Has alcanzado el máximo de packs de huevos")
+                #print("Has alcanzado el máximo de packs de huevos")
                 start_time_noche = time.time()
                 generate_random_fox(2)  # Iniciar con un zorro
 
