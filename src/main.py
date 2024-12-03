@@ -364,12 +364,21 @@ def main():
                 if estado_actual in [ESTADOS["juego_noche"]]:
                     if event.key == pygame.K_a:
                         print("Presionando la tecla A")
+                        
+
                         # Verificar si ha colisionado con un huevo
                         for egg in eggs:
                             if player.rect.colliderect(egg.rect) and egg.is_taken_player == False:
                                 print("Huevo tomado")
                                 egg.is_taken_player = True
                                 egg.player = player
+                                # Hemos encontrado al huevo, verificamos si este huevo pertenece a un pack
+                                for (x_nido, y_nido), lista_egg in egg_packs.items():
+                                    if egg in lista_egg:
+                                        print(f"El huevo pertenece al pack en ({x_nido}, {y_nido})")
+                                        # Eliminamos el huevo del pack
+                                        lista_egg.remove(egg)
+                                        break
                                 break
                         
                     elif event.key == pygame.K_s:
@@ -379,6 +388,29 @@ def main():
                             if egg.is_taken_player:
                                 print("Huevo soltado")
                                 egg.stop_following_player()
+                                # Hemos encontrado al huevo, verificamos si la posicion del huevo esta en el radio del nido del algun pack
+                                for (x_nido, y_nido), lista_egg in egg_packs.items():
+                                    distancia = math.sqrt((egg.x - x_nido) ** 2 + (egg.y - y_nido) ** 2)
+                                    if distancia < 25:  # Si está dentro del radio del pack (ajustar el radio según sea necesario)
+                                        print(f"El huevo pertenece al pack en ({x_nido}, {y_nido})")
+                                        
+                                        # Agregamos el huevo al pack
+                                        lista_egg.append(egg)
+
+                                        # Calculamos la posición del huevo en el pack
+                                        radio = 25  # Ajusta este valor dependiendo de qué tan dispersos quieres los huevos
+                                        angulo_incremento = 2 * math.pi / max_egg_packs  # Para distribuir los huevos de manera equidistante
+                                        
+                                        # Calculamos el ángulo de la posición del huevo en el pack
+                                        index = len(lista_egg) # El índice del huevo que acaba de ser agregado
+                                        angulo = angulo_incremento * index  # Calculamos el ángulo correspondiente al huevo recién agregado
+                                        
+                                        x_nuevo = x_nido + math.cos(angulo) * radio
+                                        y_nuevo = y_nido + math.sin(angulo) * radio
+                                        egg.x = x_nuevo
+                                        egg.y = y_nuevo
+
+                                        break
                                 break
             
                 # Interacción con las tortugas cuando no estamos en la narrativa
