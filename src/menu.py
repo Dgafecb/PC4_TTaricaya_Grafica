@@ -1,75 +1,83 @@
 import pygame
-from asset_loader import AssetLoader
-from utils import Manager
+import pygame_menu
+import os
+import sys
 
-class Menu:
-    def __init__(self,screen):
-        self.screen = screen
-        pygame.display.set_caption("Menu")
-        self.play_button = Button(self.screen,250,229,300,150, "PlayButton", self.load_level)
-        self.language_button = Button(self.screen,650,450,128,128, "LanguageButton", self.change_language)
-        self.language_text = "ESPAÑOL" if Manager.get_language() == "es" else "ENGLISH"
-    
-    def load_level(self):
-        Manager.change_level(Level1(self.screen))
-    
-    def change_language(self):
-        Manager.set_language("en" if Manager.get_language() == "es" else "es")
-        self.language_text = "ESPAÑOL" if Manager.get_language() == "es" else "ENGLISH"
+# Añadir la ruta del proyecto al path de Python
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, project_root)
 
-    def handle_events(self):
-        for event in pygame.event.get():
+WIDTH = 800
+HEIGHT = 600
+
+# Inicializar Pygame
+pygame.init()
+surface = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('Taricaya')
+
+# Función para iniciar el juego
+def start_game():
+    os.system("python main.py")  # Ejecuta el archivo main.py
+
+# Crear el submenú de instrucciones
+def create_instructions_menu():
+    instructions_menu = pygame_menu.Menu('Instrucciones', WIDTH, HEIGHT, theme=pygame_menu.themes.THEME_DARK)
+    instructions_menu.add.label('Usa las flechas para moverte.')
+    instructions_menu.add.label('Presiona ESPACIO para disparar.')
+    instructions_menu.add.button('Volver', pygame_menu.events.BACK)
+    return instructions_menu
+
+# Cargar la imagen de fondo
+try:
+    # Ruta completa al archivo MapaDia.png desde el directorio raíz del proyecto
+    background_image = pygame.image.load(os.path.join(project_root, "MapaDia.png"))
+    background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
+except Exception as e:
+    print(f"Error cargando la imagen de fondo: {e}")
+    background_image = None
+
+# Crear un tema personalizado con fondo transparente
+theme = pygame_menu.themes.THEME_GREEN.copy()
+theme.background_color = (0, 0, 0, 0)  # Totalmente transparente
+
+# Crear el menú principal
+menu = pygame_menu.Menu('Taricaya', WIDTH, HEIGHT, theme=theme)
+menu.add.button('Empezar Juego', start_game)
+menu.add.button('Ver Instrucciones', lambda: instructions_menu.mainloop(surface))
+menu.add.button('Salir', pygame_menu.events.EXIT)
+
+# Generar el submenú de instrucciones
+instructions_menu = create_instructions_menu()
+
+# Bucle principal
+if __name__ == "__main__":
+    clock = pygame.time.Clock()
+
+    running = True
+    while running:
+        # Capturar eventos
+        events = pygame.event.get()
+        for event in events:
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
+                running = False
 
-    def draw(self):
-        self.screen.fill((153, 204, 255))
-        self.play_button.draw()
-        self.language_button.draw()
-        font = pygame.font.Font("easvhs.ttf", 50)
-        text = font.render(self.language_text, True, (0, 0, 0))
-        self.screen.blit(text, (22, 22))
-
-    def update(self,dt):
-        self.handle_events()
-        self.play_button.update()
-        self.language_button.update()
-
-
-class Button:
-    def __init__(self,screen,x,y,width,height, image_name, clicked_handle):
-        self.screen = screen
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.is_clicked = False
-        self.image = AssetLoader.load_image(f"{image_name}.png")
-        self.image_hover = AssetLoader.load_image(f"{image_name}Hover.png")
-        self.image = pygame.transform.scale(self.image,(self.width,self.height))
-        self.image_hover = pygame.transform.scale(self.image_hover,(self.width,self.height))
-        self.clicked_handle = clicked_handle
-
-    def on_click(self):
-        self.clicked_handle()
-
-    def draw(self):
-        mouse = pygame.mouse.get_pos()
-        if self.x < mouse[0] < self.x + self.width and self.y < mouse[1] < self.y + self.height:
-            self.screen.blit(self.image_hover,(self.x,self.y))
+        # Renderizar el fondo primero
+        if background_image:
+            surface.blit(background_image, (0, 0))
         else:
-            self.screen.blit(self.image,(self.x,self.y))
+            # Fondo de color si no hay imagen
+            surface.fill((50, 50, 50))  # Gris oscuro
 
-    def update(self):
-        mouse = pygame.mouse.get_pos()
-        click = pygame.mouse.get_pressed()
-        if not click[0]:
-            if self.is_clicked:
-                self.on_click()
-                self.is_clicked = False
-                return
-        self.is_clicked = False
-        if self.x < mouse[0] < self.x + self.width and self.y < mouse[1] < self.y + self.height:
-            if click[0]:
-                self.is_clicked = True
+        # Actualizar y dibujar el menú
+        menu.update(events)
+        menu.draw(surface)
+
+        # Actualizar la pantalla
+        pygame.display.flip()
+
+        # Controlar los FPS
+        clock.tick(60)
+
+    # Salir correctamente
+    pygame.quit()
+    sys.exit()
