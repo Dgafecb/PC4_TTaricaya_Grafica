@@ -190,3 +190,22 @@ def draw_image(screen, image_path, x, y, scale=None):
     
     # Dibujar la imagen en las coordenadas especificadas
     screen.blit(image, (x, y))
+
+
+# Funcion agregada para imprimir texto letra por letra
+def imprimir_letras(surface, texto, color, x, y, font, interval=30):
+    """
+    Función para mostrar texto letra por letra con un intervalo entre cada letra.
+    :param surface: superficie en la que se dibujará el texto.
+    :param texto: texto que se va a mostrar.
+    :param color: color del texto.
+    :param x: posición en x donde se dibuja el texto.
+    :param y: posición en y donde se dibuja el texto.
+    :param font: fuente del texto.
+    :param interval: intervalo entre cada letra en milisegundos.
+    """
+    for i in range(len(texto)):
+        text_surface = font.render(texto[:i+1], True, color)
+        surface.blit(text_surface, (x, y))
+        pygame.display.update()
+        pygame.time.wait(interval)
