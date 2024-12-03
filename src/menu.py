@@ -50,12 +50,14 @@ def fade_out():
         pygame.display.flip()
         pygame.time.delay(40)
 
+
 def start_game():
     pygame.mixer.music.stop()
     fade_out()
     pygame.quit()
     try:
-        subprocess.run(["python", "main.py"], check=True)
+        python_executable = sys.executable
+        subprocess.run([python_executable, "main.py"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error al intentar ejecutar main.py: {e}")
     sys.exit()
@@ -80,15 +82,7 @@ def create_instructions_menu():
     dialogue_boxes.append(DialogueBox(letters_path_night, (50, 250), text_speed, box_width, box_height, letter_size))
     dialogue_boxes[-1].set_text("b. De noche: Presiona los botones para ahuyentar depredadores.")
 
-    # Cambiando los fondos de los cuadros de diálogo
-    # Dibujar y actualizar cuadros de diálogo
-    dialogue_boxes[0].draw_menu(surface,color_fondo=lg_bg, color_letra=dg_bg)
-    dialogue_boxes.update()
-    dialogue_boxes[1].draw_menu(surface,color_fondo=lg_bg, color_letra=dg_bg)
-    dialogue_boxes.update()
-    dialogue_boxes[2].draw_menu(surface,color_fondo= dg_bg, color_letra=lg_bg)
-    dialogue_boxes.update()
-   
+ 
     # Botón para volver al menú principal
     back_button_rect = pygame.Rect(WIDTH // 2 - 50, HEIGHT - 100, 100, 40)
     back_button_color = (100, 200, 100)
