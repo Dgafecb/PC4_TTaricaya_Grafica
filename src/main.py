@@ -249,7 +249,7 @@ boton_perros = Button(200, 200,  '../assets/images/botones_assets/boton_B.png',
 player_assets_path = "../assets/images/player_assets"
 player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", turtles, crabs)
  # estados del juego
-ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4,"puntaje_noche":5,"puntaje_noche_transicion":6,"puntaje_noche_terminado":7}
+ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4,"puntaje_noche":5,"puntaje_noche_transicion":6,"puntaje_noche_terminado":7,"puntaje_final_transicion":8,"puntaje_final":9}
 # estado actual del juego
 estado_actual = ESTADOS["narrativa_inicio"]# 0 
 def main():
@@ -543,7 +543,7 @@ def main():
         
         # Dibujar todo
         screen.fill((0, 0, 0))
-        if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
+        if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"],ESTADOS["puntaje_final"],ESTADOS["puntaje_final_transicion"]]:
             draw_map_from_tmx(screen, tmx_map_dia) #Dibujamos el mapa de dia
         elif estado_actual in [ESTADOS["narrativa_inicio"],ESTADOS["narrativa_noche"],ESTADOS["juego_noche"],ESTADOS["puntaje_noche"],ESTADOS["puntaje_noche_transicion"]]:
             screen.blit(mapa_noche,(0,0)) # Dibujamos el mapa de noche
@@ -666,8 +666,13 @@ def main():
             dialogue_box.change_position((50,250))
             dialogue_box.set_text(f"Puntaje obtenido en nivel 1: {score}          Presiona Q para empezar el nivel 2")
             estado_actual = ESTADOS["puntaje_noche_transicion"]
-                     
-        if estado_actual not in [ESTADOS["puntaje_noche"],ESTADOS["puntaje_noche_transicion"]]:
+        elif estado_actual == ESTADOS["puntaje_final"]:
+            dialogue_box.change_position((50,250))
+            score_total = Egg.score+Turtle.score
+            dialogue_box.set_text(f"Puntaje total obtenido: {score_total}          Presiona Q para jugar de nuevo")
+            estado_actual = ESTADOS["puntaje_final_transicion"]
+        # Eliminamos el cuadro de score de la esquina superior cuando mostremos los puntajes finales de noche y final
+        if estado_actual not in [ESTADOS["puntaje_noche"],ESTADOS["puntaje_noche_transicion"],ESTADOS["puntaje_final"],ESTADOS["puntaje_final_transicion"]]:
             draw_score(screen, score, time_left)
         # Dibujamos el tiempo restante del powerup
         draw_powerup_info(screen, powerup_active, time_left_powerup)  # Información del poder activo
@@ -688,9 +693,11 @@ def main():
             
             dialogue_box.set_text(story_dia[current_story_index_dia])
             
-        if start_time_dia and start_time_noche and time_left<=0:
-            running= False
+        if start_time_dia and start_time_noche and time_left<=0 and estado_actual != ESTADOS["puntaje_final_transicion"]:
+            #running= False
             # MOSTRAR PUNTAJE FINAL AQUI
+            estado_actual = ESTADOS["puntaje_final"]
+            
         elif start_time_noche and time_left<=0 and estado_actual == ESTADOS["juego_noche"]:
             estado_actual = ESTADOS["puntaje_noche"]
         pygame.display.flip()
