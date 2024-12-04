@@ -52,16 +52,16 @@ import asyncio
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
 
-path_musica_dia = '../assets/sounds/platformer_level03_loop.ogg'
-path_musica_noche = '../assets/sounds/fantasy Dragon.ogg'
-path_musica_menu = '../assets/sounds/arcade.ogg'
+path_musica_dia = './assets/sounds/platformer_level03_loop.ogg'
+path_musica_noche = './assets/sounds/fantasy Dragon.ogg'
+path_musica_menu = './assets/sounds/arcade.ogg'
 
 # Cargar la música
 #pygame.mixer.music.load(path_musica_menu)  # Ruta a tu archivo de música
 
 #pygame.mixer.music.set_volume(0.5)  # Establece el volumen (opcional)
 
-path_nido ='../assets/images/ui/frames/nido.png'
+path_nido ='./assets/images/ui/frames/nido.png'
 
 # Inicialización
 pygame.init()
@@ -72,13 +72,13 @@ pygame.display.set_caption("PC4: Guardianes de las Taricayas")
 clock = pygame.time.Clock()
 
 # Cargar un mapa con Tiled
-tmx_map_dia = load_pygame("../MapaDia.tmx")
-mapa_noche = pygame.image.load("../MapaNoche.png").convert_alpha()
+tmx_map_dia = load_pygame("./MapaDia.tmx")
+mapa_noche = pygame.image.load("./MapaNoche.png").convert_alpha()
 # Escala la imagen al tamaño de la pantalla
 mapa_noche = pygame.transform.scale(mapa_noche, screen.get_size())
 
 # Instancia del narrador
-narrador_assets_path = "../assets/images/narrator_assets/Amazon.png"
+narrador_assets_path = "./assets/images/narrator_assets/Amazon.png"
 narrador_sprite = pygame.image.load(narrador_assets_path).convert_alpha()
 narrador_sprite = pygame.transform.scale(narrador_sprite,(200,200))
 
@@ -88,16 +88,16 @@ narrador_sprite_y = 450 - narrador_sprite.get_height() - 10  # 10 píxeles encim
 
 # Crear el cuadro de diálogo de narrativa inicial
 dialogue_box = DialogueBox(
-    letters_path="../assets/images/ui/ascii_noche/",
+    letters_path="./assets/images/ui/ascii_noche/",
     position=(50, 450),
     text_speed=0.5,
     box_width=700,
     box_height=120,
     letter_size=(16, 16)
 )
-story = load_story_from_json('../history.json')
-story_noche = load_story_from_json("../history.json", "story_noche")
-story_dia = load_story_from_json("../history.json", "story_dia")
+story = load_story_from_json('./history.json')
+story_noche = load_story_from_json("./history.json", "story_noche")
+story_dia = load_story_from_json("./history.json", "story_dia")
 
 # Inicialización de los objetos del juego
 turtles,powerups,foxes,eggs,enemies = init_objects()
@@ -105,7 +105,7 @@ turtles,powerups,foxes,eggs,enemies = init_objects()
 # Lista de cangrejos
 crabs = pygame.sprite.Group()
 for _ in range(4):  # Por ejemplo, 3 cangrejos
-    crab_asset_path = "../assets/images/crab_assets"
+    crab_asset_path = "./assets/images/crab_assets"
     crab = Crab(crab_asset_path, turtles)
     crabs.add(crab)
               
@@ -133,7 +133,7 @@ def generate_pack_egg(x, y, n):
         egg_y = y + math.sin(angulo) * radio
         
         # Crear el huevo en la nueva posición calculada
-        egg = Egg(egg_x, egg_y, "../assets/images/egg_assets",enemies)
+        egg = Egg(egg_x, egg_y, "./assets/images/egg_assets",enemies)
         eggs.add(egg)  # Agregar el huevo al grupo de sprites
         lista_egg.append(egg)  # Agregar el huevo a la lista de huevos
     # Agregamos la lista de huevos a la lista de packs
@@ -184,15 +184,15 @@ start_time_noche =None
 time_left = 60  # 60 segundos para completar la misión
 # Instancia de los botones
 #Botones
-boton_sirena = Button(100, 100, '../assets/images/botones_assets/boton_A.png',
-                       '../assets/images/botones_assets/boton_A_presionado.png',
-                       '../assets/sounds/effects/policia/police_2.wav')
-boton_perros = Button(200, 200,  '../assets/images/botones_assets/boton_B.png',
-                       '../assets/images/botones_assets/boton_B_presionado.png',
-                       '../assets/sounds/effects/perros/dog_barking.wav')
+boton_sirena = Button(100, 100, './assets/images/botones_assets/boton_A.png',
+                       './assets/images/botones_assets/boton_A_presionado.png',
+                       './assets/sounds/effects/policia/police_2.wav')
+boton_perros = Button(200, 200,  './assets/images/botones_assets/boton_B.png',
+                       './assets/images/botones_assets/boton_B_presionado.png',
+                       './assets/sounds/effects/perros/dog_barking.wav')
 # Instancia del jugador
-player_assets_path = "../assets/images/player_assets"
-player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", turtles, crabs)
+player_assets_path = "./assets/images/player_assets"
+player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "./MapaDia.tmx", turtles, crabs)
  # estados del juego
 ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4,"puntaje_noche":5,"puntaje_noche_transicion":6,"puntaje_noche_terminado":7,"puntaje_final_transicion":8,"puntaje_final":9,"menu":10}
 # estado actual del juego
@@ -201,7 +201,7 @@ ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa
 estado_actual = ESTADOS["menu"] # 10
 TEMP = {"estado_actual":10}
 
-gif_bg = GifBackground("../video.gif", (WIDTH, HEIGHT))
+gif_bg = GifBackground("./video.gif", (WIDTH, HEIGHT))
 
 
 
@@ -245,7 +245,7 @@ time_left_powerup = 0  # Tiempo restante del power-up activo
 
 color_fondo = '#071821'
 color_letra = '#e4fccc'
-dialogue_box.letters_path = "../assets/images/ui/ascii_noche/"
+dialogue_box.letters_path = "./assets/images/ui/ascii_noche/"
 # Añadir las tortugas al grupo al inicio
 generate_random_turtle(12,turtles)  # Iniciar con una tortuga
 
@@ -521,14 +521,14 @@ while running:
     # Lógica para power-ups 
     if current_time - last_powerup_spawn_time > power_interval and len(powerups) < 3:
         # Crear un nuevo power-up en una posición aleatoria
-        new_powerup = Power(random.randint(100, WIDTH-200), random.randint(100, HEIGHT), "../assets/images/power_upps")
+        new_powerup = Power(random.randint(100, WIDTH-200), random.randint(100, HEIGHT), "./assets/images/power_upps")
         powerups.add(new_powerup)
         last_powerup_spawn_time = current_time  # Actualizar el tiempo del ultimo power-up creado
 
     # Aparecer nuevas tortugas a intervalos regulares
     if current_time - last_turtle_spawn_time > turtle_spawn_interval and len(turtles) < max_turtles:
         # Crear una nueva tortuga en una posición aleatoria
-        new_turtle = Turtle(random.randint(-50, -10), random.randint(100, HEIGHT - 100), "../assets/images/turtle_assets")
+        new_turtle = Turtle(random.randint(-50, -10), random.randint(100, HEIGHT - 100), "./assets/images/turtle_assets")
         turtles.add(new_turtle)
         last_turtle_spawn_time = current_time  # Actualizar el tiempo de la última tortuga creada
 
@@ -675,7 +675,7 @@ while running:
         score = Turtle.score
 
     if estado_actual in [ESTADOS["juego_noche"],ESTADOS["narrativa_noche"],ESTADOS["narrativa_inicio"]]:
-        path_three = '../assets/images/ui/frames/arbol.png'
+        path_three = './assets/images/ui/frames/arbol.png'
         for j in range(690,711,20):
             for i in range(60, 390, 30):
                 draw_image(screen, path_three,j,i)
@@ -702,7 +702,7 @@ while running:
         estado_actual = ESTADOS["narrativa_dia"]
         color_fondo = '#e4fccc'
         color_letra = '#346c54'
-        dialogue_box.letters_path = "../assets/images/ui/ascii/"
+        dialogue_box.letters_path = "./assets/images/ui/ascii/"
 
         # Cambiar la música cuando se inicia el juego de día
         pygame.mixer.music.stop()  # Detener la música actual

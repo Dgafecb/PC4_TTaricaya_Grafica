@@ -257,7 +257,7 @@ def generate_random_turtle(n,turtles):
     for _ in range(n):
         x = random.randint(-50, -10)
         y = random.randint(100, HEIGHT - 100)
-        turtle = Turtle(x, y, "../assets/images/turtle_assets")
+        turtle = Turtle(x, y, "./assets/images/turtle_assets")
         turtles.add(turtle)
 
 
@@ -300,7 +300,7 @@ def generate_random_enemy(n,eggs):
 lg_bg = '#e4fccc'
 dg_bg = '#071821'
 
-gif_bg = GifBackground("../video.gif", (WIDTH, HEIGHT))
+gif_bg = GifBackground("./video.gif", (WIDTH, HEIGHT))
 
 def set_color(texto, color, font_size=30):
     font = pygame.font.Font(None, font_size)
