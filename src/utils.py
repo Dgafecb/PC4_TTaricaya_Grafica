@@ -247,14 +247,14 @@ def init_objects():
     enemies = pygame.sprite.Group()
     return turtles, powerups, foxes, eggs, enemies
 
-def generate_random_turtle(n):
-    turtles = pygame.sprite.Group()
+def generate_random_turtle(n,turtles):
+   
     for _ in range(n):
         x = random.randint(-50, -10)
         y = random.randint(100, HEIGHT - 100)
         turtle = Turtle(x, y, "../assets/images/turtle_assets")
         turtles.add(turtle)
-    return turtles
+
 
 # Función para generar power-ups aleatorios en posiciones válidas
 def generate_random_powerup(n):
@@ -307,7 +307,7 @@ def start_game(surface, dict_estado_actual):
     pygame.mixer.music.stop()
     
     dict_estado_actual["estado_actual"] = 0
-    print("El estado ha cambiado",dict_estado_actual)
+    #print("El estado ha cambiado",dict_estado_actual)
     
 
 def handle_events(event, back_button_rect):
@@ -340,7 +340,7 @@ def instructions_menu_loop(surface, dialogue_boxes, back_button_rect, back_butto
                 pygame.quit()
                 sys.exit()
             elif handle_events(event, back_button_rect):  # Usar la función de eventos separada
-                print("Botón 'Volver' presionado")
+                #print("Botón 'Volver' presionado")
                 running = False  # Salir del menú de instrucciones
 
         pygame.display.flip()

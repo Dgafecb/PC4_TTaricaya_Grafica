@@ -6,10 +6,12 @@ pygame.mixer.init()
 
 path_musica_dia = '../assets/sounds/platformer_level03_loop.ogg'
 path_musica_noche = '../assets/sounds/fantasy Dragon.ogg'
+path_musica_menu = '../assets/sounds/arcade.ogg'
 
 # Cargar la música
-pygame.mixer.music.load(path_musica_noche)  # Ruta a tu archivo de música
-pygame.mixer.music.set_volume(0.5)  # Establece el volumen (opcional)
+#pygame.mixer.music.load(path_musica_menu)  # Ruta a tu archivo de música
+
+#pygame.mixer.music.set_volume(0.5)  # Establece el volumen (opcional)
 
 path_nido ='../assets/images/ui/frames/nido.png'
 
@@ -158,8 +160,12 @@ def main():
     global following_turtle, score, time_left, start_time,start_time_dia,estado_actual, start_time_noche # Usamos la variable global para modificarla dentro del ciclo principal
     global foxes,enemies,eggs,crabs,egg_packs,player,boton_perros,boton_sirena,dialogue_box,turtles,powerups,tmx_map_dia,mapa_noche
     
-    # Reproducir música (en loop infinito)
-    pygame.mixer.music.play(loops=-1, start=0.0)  # loops=-1 para repetir la música infinitamente
+    if estado_actual == ESTADOS["menu"]:
+        # Reproducir música (en loop infinito)
+        pygame.mixer.music.load(path_musica_menu)
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+            
 
     running = True
     in_story = True  # Variable para controlar si estamos en la narrativa inicial
@@ -195,7 +201,7 @@ def main():
     color_letra = '#e4fccc'
     dialogue_box.letters_path = "../assets/images/ui/ascii_noche/"
     # Añadir las tortugas al grupo al inicio
-    turtles = generate_random_turtle(12)  # Iniciar con una tortuga
+    generate_random_turtle(12,turtles)  # Iniciar con una tortuga
 
     '''
     Integracion de menu
@@ -406,6 +412,7 @@ def main():
                     x_, y_ = event.pos
                     #print(f"Click en {x_}, {y_}")
                     create_or_remove_egg_pack(x_, y_)
+            '''
             if event.type == pygame.KEYDOWN: #SOLO
                 if event.key ==pygame.K_n:   # PARA
                     start_time = time.time()  # Inicia el cronómetro después de la historia
@@ -414,7 +421,7 @@ def main():
             if event.type == pygame.KEYDOWN: #SOLO
                 if event.key ==pygame.K_m:   # PARA
                     estado_actual = 3        # PRUEBAS
-
+            '''
 
         
            
@@ -501,6 +508,7 @@ def main():
                     crab.attack()
                 else:
                     crab.stop_attack()
+   
                 crab.move()
                 crab.update()
 
@@ -667,7 +675,7 @@ def main():
         
         if estado_actual in [ESTADOS["menu"]]:
             screen.blit(gif_bg.get_frame(), (0, 0))  # Renderizar el fondo GIF
-            
+        
             #menu.mainloop(screen)
             current_menu.update(events)
             current_menu.draw(screen)
@@ -675,7 +683,13 @@ def main():
             pygame.display.flip()
             clock.tick(60)
             estado_actual = TEMP["estado_actual"]
-            print("Estado actual",estado_actual)
+            #print("Estado actual",estado_actual)
+
+            if estado_actual == 0:
+                pygame.mixer.music.load(path_musica_noche)  # Ruta a tu archivo de música
+                pygame.mixer.music.set_volume(0.5)  # Establece el volumen (opcional)
+                pygame.mixer.music.play(loops=-1, start=0.0)
+                pass
         
         pygame.display.flip()
               
