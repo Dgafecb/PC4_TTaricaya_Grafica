@@ -326,11 +326,10 @@ def instructions_menu_loop(surface, dialogue_boxes, back_button_rect, back_butto
     running = True
 
     while running:
-        surface.fill((0, 0, 0))  # Limpia la pantalla con un fondo negro
-
+        surface.blit(gif_bg.get_frame(), (0, 0))
         # Dibujar cuadros de diálogo
         for box in dialogue_boxes:
-            box.draw_menu(surface, color_fondo=(50, 50, 50), color_letra=(200, 200, 200))
+            box.draw_image(surface, color_letra=(200, 200, 200))
             box.update()
 
         # Dibuja el botón "Volver"
@@ -363,15 +362,27 @@ def create_instructions_menu(surface):
     letters_path_night = "../assets/images/ui/ascii_noche"  # Cambia a la ruta de tus letras
 
     # Crear los cuadros de diálogo
-    dialogue_boxes.append(DialogueBox(letters_path_day, (50, 50), text_speed, box_width, box_height, letter_size))
+    dialogue_boxes.append(DialogueBox(letters_path_day, (50, 30), text_speed, box_width, box_height, letter_size))
     dialogue_boxes[-1].set_text('Usa las flechas del teclado para moverte por el mapa.')
+    dialogue_boxes[-1].set_color_fondo((224,248,207))
 
-    dialogue_boxes.append(DialogueBox(letters_path_day, (50, 150), text_speed, box_width, box_height, letter_size))
+    dialogue_boxes.append(DialogueBox(letters_path_day, (50, 130), text_speed, box_width, box_height, letter_size))
     dialogue_boxes[-1].set_text('a. De dia: Usa A para guiar a las tortugas y S para darles un empujon.')
+    dialogue_boxes[-1].set_color_fondo((224,248,207))
 
-    dialogue_boxes.append(DialogueBox(letters_path_night, (50, 250), text_speed, box_width, box_height, letter_size))
+    dialogue_boxes.append(DialogueBox(letters_path_day, (50, 230), text_speed, box_width, box_height, letter_size))
+    dialogue_boxes[-1].set_text('Recoge los potenciadores y descubre su efecto.')
+    dialogue_boxes[-1].set_color_fondo((224,248,207))
+
+    dialogue_boxes.append(DialogueBox(letters_path_night, (50, 330), text_speed, box_width, box_height, letter_size))
     dialogue_boxes[-1].set_text('b. De noche: Presiona los botones para ahuyentar depredadores.')
+    dialogue_boxes[-1].set_color_fondo((7,24,33))
+    
+    dialogue_boxes.append(DialogueBox(letters_path_night, (50, 430), text_speed, box_width, box_height, letter_size))
+    dialogue_boxes[-1].set_text('Presiona A para espantar cazadores, presiona B para espantar a los lobos.')
+    dialogue_boxes[-1].set_color_fondo((7,24,33))
 
+    
     # Botón para volver al menú principal
     back_button_rect = pygame.Rect(WIDTH // 2 - 50, HEIGHT - 100, 100, 40)
     back_button_color = (100, 200, 100)

@@ -1,7 +1,7 @@
 import pygame
 
 class DialogueBox:
-    def __init__(self, letters_path, position, text_speed=2, box_width=700, box_height=120, letter_size=(16, 16)):
+    def __init__(self, letters_path, position, text_speed=2, box_width=700, box_height=120, letter_size=(16, 16),color_fondo = '#071821'):
         """
         Inicializa el cuadro de diálogo.
         :param letters_path: Carpeta donde están las imágenes de letras.
@@ -22,6 +22,12 @@ class DialogueBox:
         self.current_index = 0
         self.is_visible = False
         self.font = pygame.font.SysFont("arial", 18)  # Fuente para el texto simple de las instrucciones
+        self.color_fondo = color_fondo
+        # Diccionario para caracteres especiales (botones específicos)
+        self.special_characters = {
+            'A': "../assets/images/botones_assets/boton_A.png",
+            'B': "../assets/images/botones_assets/boton_B.png"
+        }
     def change_position(self,new_position):
         self.position =  new_position
     def set_text(self, text):
@@ -32,6 +38,8 @@ class DialogueBox:
         self.visible_text = " " * len(text)  # Llena el cuadro con espacios al inicio
         self.current_index = 0
         self.is_visible = True
+    def set_color_fondo(self,color_fondo):
+        self.color_fondo = color_fondo
 
     def hide(self):
         """Oculta el cuadro de diálogo."""
@@ -232,4 +240,53 @@ class DialogueBox:
                     # Después de escribir la palabra, agregamos un espacio
                     x += self.letter_width  # Para dejar un espacio después de la palabra
                     line_width += self.letter_width  # Ajustar el ancho de la línea después del espacio
-                    
+
+    def draw_image(self, screen, color_letra='#e4fccc'):
+        if self.is_visible:
+            # Dibujar el fondo del cuadro
+            
+            pygame.draw.rect(
+                screen,
+                self.color_fondo,
+                (self.position[0], self.position[1], self.box_width, self.box_height)
+            )
+            pygame.draw.rect(
+                screen,
+                (200, 200, 200),
+                (self.position[0], self.position[1], self.box_width, self.box_height),
+                3
+            )
+
+            # Coordenadas iniciales
+            x, y = self.position[0] + 20, self.position[1] + 20
+            max_x = self.position[0] + self.box_width - 20  # Límite derecho del cuadro
+
+            for char in self.visible_text:
+                if x + self.letter_width > max_x:  # Comprobar si excede el límite
+                    x = self.position[0] + 20  # Reiniciar la posición x al inicio
+                    y += self.letter_height  # Mover hacia abajo
+
+                    # Si excede la altura del cuadro, detener (o manejar de otra forma)
+                    if y + self.letter_height > self.position[1] + self.box_height:
+                        print("Advertencia: Texto excede la altura del cuadro.")
+                        break
+
+                if char in self.special_characters:
+                    # Dibujar la imagen especial para 'A' o 'B'
+                    try:
+                        char_image = pygame.image.load(self.special_characters[char])
+                        char_image = pygame.transform.scale(char_image, (self.letter_width, self.letter_height))
+                        screen.blit(char_image, (x, y))
+                        x += self.letter_width
+                    except FileNotFoundError:
+                        print(f"Advertencia: Imagen no encontrada para '{char}'")
+                else:
+                    # Dibujar el texto normal
+                    try:
+                        char_image_path = f"{self.letters_path}/{ord(char)}.png"
+                        char_image = pygame.image.load(char_image_path)
+                        char_image = pygame.transform.scale(char_image, (self.letter_width, self.letter_height))
+                        screen.blit(char_image, (x, y))
+                        x += self.letter_width
+                    except FileNotFoundError:
+                        print(f"Advertencia: Imagen no encontrada para '{char}'")
