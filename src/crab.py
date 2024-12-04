@@ -54,6 +54,7 @@ class Crab(pygame.sprite.Sprite):
     def update(self):
         """Actualiza la animación y la lógica del cangrejo."""
         self.find_closest_turtle()
+        #print(self.target_turtle)
 
         
         # Control de cooldown de ataque
@@ -105,8 +106,9 @@ class Crab(pygame.sprite.Sprite):
 
     def move(self):
         """Mueve el cangrejo hacia la tortuga más cercana o camina por su cuenta."""
+ 
         if self.target_turtle:
-            print("atacando")
+            #print("atacando")
             if self.target_turtle.x > self.x:
                 
                 self.x += self.velocidad
@@ -139,12 +141,14 @@ class Crab(pygame.sprite.Sprite):
         """Encuentra la tortuga más cercana para atacar."""
         closest_turtle = None
         min_distance = float('inf')
-
+       
         for turtle in self.turtles_group:
+
             distance = pygame.math.Vector2(self.x - turtle.x, self.y - turtle.y).length()
+ 
             # Verificar si la tortuga es la más cercana y está a menos de 100 píxeles y sea visible
             if distance < min_distance and distance < 100 and turtle.is_visible:
-                print("Tortuga más cercana encontrada")
+
                 min_distance = distance
                 closest_turtle = turtle
 
