@@ -246,10 +246,10 @@ time_left = 60  # 60 segundos para completar la misión
 #Botones
 boton_sirena = Button(100, 100, 'assets/images/botones_assets/boton_A.png',
                        'assets/images/botones_assets/boton_A_presionado.png',
-                       'assets/sounds/effects/policia/police_2.wav')
+                       'assets/sounds/effects/policia/police_2.ogg')
 boton_perros = Button(200, 200,  'assets/images/botones_assets/boton_B.png',
                        'assets/images/botones_assets/boton_B_presionado.png',
-                       'assets/sounds/effects/perros/dog_barking.wav')
+                       'assets/sounds/effects/perros/dog_barking.ogg')
 # Instancia del jugador
 player_assets_path = "assets/images/player_assets"
 player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "MapaDia.tmx", turtles, crabs)
