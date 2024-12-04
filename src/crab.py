@@ -106,7 +106,9 @@ class Crab(pygame.sprite.Sprite):
     def move(self):
         """Mueve el cangrejo hacia la tortuga más cercana o camina por su cuenta."""
         if self.target_turtle:
+            print("atacando")
             if self.target_turtle.x > self.x:
+                
                 self.x += self.velocidad
             elif self.target_turtle.x < self.x:
                 self.x -= self.velocidad
@@ -115,7 +117,7 @@ class Crab(pygame.sprite.Sprite):
                 self.y += self.velocidad
             elif self.target_turtle.y < self.y:
                 self.y -= self.velocidad
-    
+
         else:
             if self.direccion == "walk":
                 self.y += self.velocidad
@@ -142,6 +144,7 @@ class Crab(pygame.sprite.Sprite):
             distance = pygame.math.Vector2(self.x - turtle.x, self.y - turtle.y).length()
             # Verificar si la tortuga es la más cercana y está a menos de 100 píxeles y sea visible
             if distance < min_distance and distance < 100 and turtle.is_visible:
+                print("Tortuga más cercana encontrada")
                 min_distance = distance
                 closest_turtle = turtle
 

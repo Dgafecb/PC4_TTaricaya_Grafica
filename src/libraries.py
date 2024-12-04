@@ -15,10 +15,16 @@ from utils import  draw_powerup_info
 from zorro import Fox
 from egg import Egg
 import math
+import json
 from utils import mostrar_letrero_personalizado
 from buttons import Button
 from enemy import Enemy
 from utils import draw_image, draw_map_from_tmx, check_collision,check_collision_power
 from utils import init_objects
-from utils import generate_random_turtle
+from utils import generate_random_turtle,generate_random_fox,generate_random_enemy
 from settings import WIDTH, HEIGHT, FPS
+import os
+import sys
+from gif import GifBackground
+import subprocess
+import pygame_menu

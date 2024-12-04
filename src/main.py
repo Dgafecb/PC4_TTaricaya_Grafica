@@ -1,5 +1,6 @@
 from libraries import *
-
+from utils import *
+from dialogue import DialogueBox
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
 
@@ -48,32 +49,9 @@ story = load_story_from_json('../history.json')
 story_noche = load_story_from_json("../history.json", "story_noche")
 story_dia = load_story_from_json("../history.json", "story_dia")
 
+# Inicialización de los objetos del juego
 turtles,powerups,foxes,eggs,enemies = init_objects()
 
-# Función para crear tortugas aleatorias
-
-
-
-
-# Función para generar zorros aleatorios
-def generate_random_fox(n):
-    for _ in range(n):
-        # A la derecha
-        x = WIDTH + 100
-
-        y = random.randint(100, HEIGHT - 100)
-        fox = Fox("../assets/images/fox_assets", eggs)
-        foxes.add(fox)
-
-def generate_random_enemy(n):
-    for _ in range(n):
-        x = WIDTH + 100
-        y = random.randint(100, HEIGHT - 100)
-        enemy = Enemy("../assets/images/hunter_assets",eggs)
-        enemies.add(enemy)
-
-# Lista para almacenar las posiciones de los huevos generados
-egg_positions_individual = []  # Almacena las posiciones de los huevos generados
 # Lista de cangrejos
 crabs = pygame.sprite.Group()
 for _ in range(4):  # Por ejemplo, 3 cangrejos
@@ -166,13 +144,19 @@ boton_perros = Button(200, 200,  '../assets/images/botones_assets/boton_B.png',
 player_assets_path = "../assets/images/player_assets"
 player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", turtles, crabs)
  # estados del juego
-ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4,"puntaje_noche":5,"puntaje_noche_transicion":6,"puntaje_noche_terminado":7,"puntaje_final_transicion":8,"puntaje_final":9}
+ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4,"puntaje_noche":5,"puntaje_noche_transicion":6,"puntaje_noche_terminado":7,"puntaje_final_transicion":8,"puntaje_final":9,"menu":10}
 # estado actual del juego
-estado_actual = ESTADOS["narrativa_inicio"]# 0 
+
+#estado_actual = ESTADOS["narrativa_inicio"]# 0 
+estado_actual = ESTADOS["menu"] # 10
+TEMP = {"estado_actual":10}
+
+gif_bg = GifBackground("../video.gif", (WIDTH, HEIGHT))
+
 
 def main():
     global following_turtle, score, time_left, start_time,start_time_dia,estado_actual, start_time_noche # Usamos la variable global para modificarla dentro del ciclo principal
-   
+    global foxes,enemies,eggs,crabs,egg_packs,player,boton_perros,boton_sirena,dialogue_box,turtles,powerups,tmx_map_dia,mapa_noche
     
     # Reproducir música (en loop infinito)
     pygame.mixer.music.play(loops=-1, start=0.0)  # loops=-1 para repetir la música infinitamente
@@ -210,9 +194,33 @@ def main():
     color_letra = '#e4fccc'
     # Añadir las tortugas al grupo al inicio
     turtles = generate_random_turtle(12)  # Iniciar con una tortuga
+
+    '''
+    Integracion de menu
+
+    '''
+    # Colores de dia
+    lg_bg = '#e4fccc'
+    dg_bg = '#071821'
+
+    lg_font = '#e4fccc'
+    theme = pygame_menu.themes.THEME_DARK.copy()
+    theme.background_color = (0, 0, 0, 0)
+    theme.button_font_color = lg_bg
+
+    menu = pygame_menu.Menu('         Taricaya: Guardian del Amazonas        ', WIDTH, HEIGHT, theme=theme)
+    # Ajustar la creación de botones
+    menu.add.button('Empezar Juego', lambda: start_game(screen,TEMP))
+    menu.add.button('Ver Instrucciones', lambda: create_instructions_menu(screen))
+    menu.add.button('Salir', pygame_menu.events.EXIT)
+    current_menu = menu
+
     while running:
+        
         clock.tick(FPS)
-        for event in pygame.event.get():
+        events = pygame.event.get()
+        for event in events:
+            
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
@@ -287,6 +295,7 @@ def main():
                     if event.key == pygame.K_q:
                         # REINICIAR TODAS LAS VARIABLES
                         
+
                         estado_actual = ESTADOS["narrativa_inicio"]
                         score = 0
                         start_time = None
@@ -403,7 +412,10 @@ def main():
             if event.type == pygame.KEYDOWN: #SOLO
                 if event.key ==pygame.K_m:   # PARA
                     estado_actual = 3        # PRUEBAS
-                    
+
+
+        
+           
         # Generamos power-ups aleatorios despues de la historia y una sola vez
         # Manejo de los power-ups y cooldowns
         current_time = pygame.time.get_ticks()
@@ -503,10 +515,10 @@ def main():
             if len(egg_packs.keys()) == max_egg_packs and not start_time_noche:
                 #print("Has alcanzado el máximo de packs de huevos")
                 start_time_noche = time.time()
-                generate_random_fox(2)  # Iniciar con un zorro
+                foxes = generate_random_fox(2,eggs)  # Iniciar con un zorro
 
                 # Generar enemigos
-                generate_random_enemy(2)
+                enemies = generate_random_enemy(2,eggs)
 
                 
             else:
@@ -587,8 +599,11 @@ def main():
             player.draw(screen)
 
         # Dibujar el cuadro de diálogo si está activo
+        
         dialogue_box.update()
         dialogue_box.draw(screen,color_fondo=color_fondo, color_letra=color_letra)
+        
+
         
         # Dibujar el score y el tiempo 
         if start_time_noche:
@@ -647,6 +662,19 @@ def main():
             
         elif start_time_noche and time_left<=0 and estado_actual == ESTADOS["juego_noche"]:
             estado_actual = ESTADOS["puntaje_noche"]
+        
+        if estado_actual in [ESTADOS["menu"]]:
+            screen.blit(gif_bg.get_frame(), (0, 0))  # Renderizar el fondo GIF
+            
+            #menu.mainloop(screen)
+            current_menu.update(events)
+            current_menu.draw(screen)
+            #current_menu.mainloop(surface=screen)
+            pygame.display.flip()
+            clock.tick(60)
+            estado_actual = TEMP["estado_actual"]
+            print("Estado actual",estado_actual)
+        
         pygame.display.flip()
               
 if __name__ == "__main__":

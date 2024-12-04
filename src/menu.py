@@ -1,12 +1,5 @@
-import pygame
-import pygame_menu
-import os
-import sys
-import subprocess
-from utils import imprimir_letras
-from gif import GifBackground
-from dialogue import DialogueBox  # Asegúrate de tener esta clase implementada
-from settings import WIDTH, HEIGHT
+from libraries import *
+from utils import *
 # Colores de dia
 lg_bg = '#e4fccc'
 dg_bg = '#071821'
@@ -17,10 +10,7 @@ lg_font = '#e4fccc'
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, project_root)
 
-def set_color(texto, color, font_size=30):
-    font = pygame.font.Font(None, font_size)
-    text_surface = font.render(texto, True, color)
-    return text_surface
+
 
 pygame.mixer.init()
 music_menu = "../assets/sounds/arcade.ogg"
@@ -52,8 +42,10 @@ def start_game():
     pygame.mixer.music.stop()
     fade_out()
     pygame.quit()
+    # Modifica el try para que ejecute el main.py
     try:
-        subprocess.run(["python", "main.py"], check=True)
+        python_executable = sys.executable
+        subprocess.run(["python3", "main.py"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error al intentar ejecutar main.py: {e}")
     sys.exit()
@@ -80,12 +72,7 @@ def create_instructions_menu():
 
     # Cambiando los fondos de los cuadros de diálogo
     # Dibujar y actualizar cuadros de diálogo
-    dialogue_boxes[0].draw_menu(surface,color_fondo=lg_bg, color_letra=dg_bg)
-    dialogue_boxes.update()
-    dialogue_boxes[1].draw_menu(surface,color_fondo=lg_bg, color_letra=dg_bg)
-    dialogue_boxes.update()
-    dialogue_boxes[2].draw_menu(surface,color_fondo= dg_bg, color_letra=lg_bg)
-    dialogue_boxes.update()
+    
    
     # Botón para volver al menú principal
     back_button_rect = pygame.Rect(WIDTH // 2 - 50, HEIGHT - 100, 100, 40)
@@ -104,6 +91,12 @@ def create_instructions_menu():
 
         while running:
             surface.fill((0, 0, 0))
+            dialogue_boxes[0].draw_menu(surface,color_fondo=lg_bg, color_letra=dg_bg)
+            dialogue_boxes[0].update()
+            dialogue_boxes[1].draw_menu(surface,color_fondo=lg_bg, color_letra=dg_bg)
+            dialogue_boxes[1].update()
+            dialogue_boxes[2].draw_menu(surface,color_fondo= dg_bg, color_letra=lg_bg)
+            dialogue_boxes[2].update()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -111,8 +104,6 @@ def create_instructions_menu():
                     sys.exit()
                 if handle_events(event):
                     running = False
-
-            
 
             # Dibujar botón "Volver"
             pygame.draw.rect(surface, back_button_color, back_button_rect)
@@ -129,6 +120,7 @@ def go_back_to_main_menu():
     global current_menu
     current_menu = menu
 
+
 theme = pygame_menu.themes.THEME_DARK.copy()
 theme.background_color = (0, 0, 0, 0)
 theme.button_font_color = lg_bg
@@ -140,9 +132,12 @@ menu.add.button('Salir', pygame_menu.events.EXIT)
 
 current_menu = menu
 
+
+
 def switch_menu(new_menu):
     global current_menu
     current_menu = new_menu
+
 
 if __name__ == "__main__":
     clock = pygame.time.Clock()
