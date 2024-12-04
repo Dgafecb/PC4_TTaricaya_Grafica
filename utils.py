@@ -106,9 +106,9 @@ def draw_powerup_info(screen, powerup_active, time_left_powerup):
     
     # Diccionario de imágenes y descripciones
     powerup_path = {
-        "speed": {"image": "../assets/images/power_upps/crystal_01.png", "desc": "Boosts speed"},
-        "invisible_turtle_follower": {"image": "../assets/images/power_upps/potion_01.png", "desc": "Invisible follower"},
-        "turtle_speed": {"image": "../assets/images/power_upps/herb_02.png", "desc": "Increases turtle speed"}
+        "speed": {"image": "./assets/images/power_upps/crystal_01.png", "desc": "Boosts speed"},
+        "invisible_turtle_follower": {"image": "./assets/images/power_upps/potion_01.png", "desc": "Invisible follower"},
+        "turtle_speed": {"image": "./assets/images/power_upps/herb_02.png", "desc": "Increases turtle speed"}
     }
     
     if powerup_active:
@@ -282,7 +282,7 @@ def generate_random_fox(n,eggs):
         x = WIDTH + 100
 
         y = random.randint(100, HEIGHT - 100)
-        fox = Fox("../assets/images/fox_assets", eggs)
+        fox = Fox("./assets/images/fox_assets", eggs)
         foxes.add(fox)
     return foxes
 
@@ -291,7 +291,7 @@ def generate_random_enemy(n,eggs):
     for _ in range(n):
         x = WIDTH + 100
         y = random.randint(100, HEIGHT - 100)
-        enemy = Enemy("../assets/images/hunter_assets",eggs)
+        enemy = Enemy("./assets/images/hunter_assets",eggs)
         enemies.add(enemy)
     return enemies
 
