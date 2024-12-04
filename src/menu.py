@@ -6,9 +6,7 @@ import subprocess
 from utils import imprimir_letras
 from gif import GifBackground
 from dialogue import DialogueBox  # Asegúrate de tener esta clase implementada
-
-WIDTH = 800
-HEIGHT = 600
+from settings import WIDTH, HEIGHT
 # Colores de dia
 lg_bg = '#e4fccc'
 dg_bg = '#071821'

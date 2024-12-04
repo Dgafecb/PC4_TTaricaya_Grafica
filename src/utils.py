@@ -1,6 +1,4 @@
-import pygame
-import json
-from settings import WIDTH, HEIGHT
+from libraries import *
 
 def load_image(path, scale=None):
     image = pygame.image.load(path).convert_alpha()
@@ -209,3 +207,55 @@ def imprimir_letras(surface, texto, color, x, y, font, interval=30):
         surface.blit(text_surface, (x, y))
         pygame.display.update()
         pygame.time.wait(interval)
+
+# Sustituye map_data y ajusta draw_map
+def draw_map_from_tmx(screen, tmx_data):
+    for layer in tmx_data.visible_layers:  # Iterar por las capas visibles del mapa
+        if hasattr(layer, "tiles"):  # Si la capa contiene tiles
+            for x, y, tile_surface in layer.tiles():  # tile_surface es la imagen del tile
+                if tile_surface is not None:  # Solo dibujar tiles válidos
+                    screen.blit(tile_surface, (x * tmx_data.tilewidth, y * tmx_data.tileheight))
+
+def check_collision(player, turtles):
+    """Verifica si el jugador está colisionando con alguna tortuga y retorna todas las que están colisionando."""
+    following_turtles = []  # Lista de tortugas que están colisionando con el jugador
+    for turtle in turtles:
+        if player.rect.colliderect(turtle.rect):  # Verificamos si el jugador está colisionando con la tortuga
+            following_turtles.append(turtle)
+    return following_turtles
+
+def check_collision_power(player, powerups):
+    """Verifica si el jugador está colisionando con algún power-up."""
+    for powerup in powerups:
+        if player.rect.colliderect(powerup.rect):
+            return powerup
+    return None
+
+def init_objects():
+    turtles = pygame.sprite.Group()
+    powerups = pygame.sprite.Group()
+    foxes = pygame.sprite.Group()
+    eggs = pygame.sprite.Group()
+    enemies = pygame.sprite.Group()
+    return turtles, powerups, foxes, eggs, enemies
+
+def generate_random_turtle(n):
+    turtles = pygame.sprite.Group()
+    for _ in range(n):
+        x = random.randint(-50, -10)
+        y = random.randint(100, HEIGHT - 100)
+        turtle = Turtle(x, y, "../assets/images/turtle_assets")
+        turtles.add(turtle)
+    return turtles
+
+# Función para generar power-ups aleatorios en posiciones válidas
+def generate_random_powerup(n):
+    powerups = pygame.sprite.Group()
+    for _ in range(n):
+        # Generar una posición aleatoria en el rango que no esté en el mar (a la izquierda)
+        x = random.randint(100, WIDTH-500)  # Evita las zonas del mar
+        y = random.randint(100, HEIGHT-200)
+        
+        powerup = Power(x, y, "../assets/images/power_upps")
+        powerups.add(powerup)
+    return powerups
