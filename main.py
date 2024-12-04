@@ -1,7 +1,6 @@
 # /// script
 # dependencies = [
 # "numpy",
-# "imageio",
 # "pillow",
 # "pygame",
 # "pygame-menu",
@@ -11,7 +10,7 @@
 # "typing_extensions",
 # ]
 # ///
-
+import asyncio
 import pygame
 import pytmx
 from settings import WIDTH, HEIGHT, FPS
@@ -40,7 +39,7 @@ from utils import generate_random_turtle,generate_random_fox,generate_random_ene
 from settings import WIDTH, HEIGHT, FPS
 import os
 import sys
-from gif import GifBackground
+#from gif import GifBackground
 import subprocess
 import pygame_menu
 
@@ -201,7 +200,7 @@ ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa
 estado_actual = ESTADOS["menu"] # 10
 TEMP = {"estado_actual":10}
 
-gif_bg = GifBackground("./video.gif", (WIDTH, HEIGHT))
+#gif_bg = GifBackground("./video.gif", (WIDTH, HEIGHT))
 
 
 
@@ -720,15 +719,16 @@ while running:
         estado_actual = ESTADOS["puntaje_noche"]
     
     if estado_actual in [ESTADOS["menu"]]:
-        screen.blit(gif_bg.get_frame(), (0, 0))  # Renderizar el fondo GIF
+        #screen.blit(gif_bg.get_frame(), (0, 0))  # Renderizar el fondo GIF
     
         #menu.mainloop(screen)
-        current_menu.update(events)
-        current_menu.draw(screen)
+        #current_menu.update(events)
+        #current_menu.draw(screen)
         #current_menu.mainloop(surface=screen)
-        pygame.display.flip()
-        clock.tick(60)
+        #pygame.display.flip()
+        #clock.tick(60)
         estado_actual = TEMP["estado_actual"]
+        estado_actual=0
         #print("Estado actual",estado_actual)
 
         if estado_actual == 0:
@@ -737,8 +737,4 @@ while running:
             pygame.mixer.music.play(loops=-1, start=0.0)
             pass
     
-    
     pygame.display.flip()
-
-            
-

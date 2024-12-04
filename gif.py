@@ -1,8 +1,8 @@
-import imageio
+#import imageio
 import pygame
 class GifBackground:
     def __init__(self, gif_path, screen_size):
-        self.reader = imageio.get_reader(gif_path)
+        #self.reader = imageio.get_reader(gif_path)
         self.screen_size = screen_size
         self.frame_count = len(self.reader)
         self.current_frame = 0

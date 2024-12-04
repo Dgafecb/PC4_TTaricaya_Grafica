@@ -5,7 +5,7 @@ from player import Player
 from turtles import Turtle
 from zorro import Fox
 from enemy import Enemy
-from gif import GifBackground
+#from gif import GifBackground
 from dialogue import DialogueBox
 import sys
 import pygame
@@ -300,7 +300,7 @@ def generate_random_enemy(n,eggs):
 lg_bg = '#e4fccc'
 dg_bg = '#071821'
 
-gif_bg = GifBackground("./video.gif", (WIDTH, HEIGHT))
+#gif_bg = GifBackground("./video.gif", (WIDTH, HEIGHT))
 
 def set_color(texto, color, font_size=30):
     font = pygame.font.Font(None, font_size)
@@ -326,7 +326,7 @@ def instructions_menu_loop(surface, dialogue_boxes, back_button_rect, back_butto
     running = True
 
     while running:
-        surface.blit(gif_bg.get_frame(), (0, 0))
+        #surface.blit(gif_bg.get_frame(), (0, 0))
         # Dibujar cuadros de diálogo
         for box in dialogue_boxes:
             box.draw_image(surface, color_letra=(200, 200, 200))
