@@ -1,22 +1,24 @@
 {
   "story": [
-    "Bienvenido, joven. Esta es la Reserva Pacaya-Samiria, la casa de las taricayas.",
-    "Yo he visto muchas generaciones de ellas. Son viejas amigas mias, si, pero bueno...",
-    "Ahora, las taricayas estan en peligro. Los humanos y los zorros las acechan",
-    "Tu mision es guiar a las crias de taricaya hacia el rio, donde estaran a salvo."
+    "Hola, joven. Soy un anciano de la Reserva Pacaya-Samiria, hogar de las taricayas.",
+    "He visto muchas generaciones de ellas, pero ahora estan en grave peligro.",
+    "Los cazadores y zorros nos acechan, pero tu seras su protector.",
+    "Tu mision es salvar los huevos y las crias de taricaya. ¡A trabajar!"
   ],
   "story_noche": [
-    "Ya es tarde, joven guardian. Los zorros y los lobos acechan.",
-    "Ubica a las crias en zonas seguras y evita que caigan en manos enemigas.",
-    "Veras dos botones en la pantalla, presionalos para ahuyentar a los depredadores.",
-    "Recuerda, cada tortuga que llega al rio es una victoria para ti y para la naturaleza."
+    "Es de noche, joven guardian. Los cazadores y zorros vienen por los huevos.",
+    "Debes elegir donde colocar los nidos. Recoge los huevos caidos y guardalos.",
+    "Usa la alarma tipo A para espantar a los cazadores con sirenas.",
+    "Usa la alarma tipo B para ahuyentar a los zorros con ladridos de perros.",
+    "Recoge los huevos antes de que los cazadores los lleven. ¡Rapido!",
+    "Asegurate de que los huevos esten en los nidos correspondientes."
   ],
   "story_dia": [
-    "Finalmente, el dia ha llegado, es hora de que las tortugas lleguen al rio",
-    "Tu mision es guiarlas hacia el agua, evitando los peligros del camino.",
-    "Puedes ayudarlas a evitar los depredadores con la tecla \"A\"",
-    "Ademas con la tecla \"S\" puedes empujar a las crias hacia adelante.",
-    "Ademas, en el mapa encontraras objetos que te ayudaran a cumplir tu mision.",
-    "Las crias de taricaya te necesitan, joven guardian. No les falles."
+    "El dia ha llegado, las crias de taricaya ya nacieron. ¡Es hora de cruzar el rio!",
+    "Los cangrejos intentaran atacar a las crias. ¡Protege a las pequenas tortugas!",
+    "Puedes darles velocidad con un poder especial. ¡Apresuralas antes de que los cangrejos lleguen!",
+    "Presiona A para hacer que las tortugas te sigan. Mantemelas a salvo.",
+    "Presiona A + S para empujar a las tortugas y hacer que avancen.",
+    "Si presionas A nuevamente, la tortuga dejara de seguirte. ¡Guialas bien!"
   ]
 }

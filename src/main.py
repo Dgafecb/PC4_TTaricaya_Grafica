@@ -190,8 +190,10 @@ def main():
     powerup_duration = 5000  # Duración de 5 segundos para cada power-up
     powerup_cooldowns = {'speed': 0, 'invisible_turtle_follower': 0, 'turtle_speed': 0}  # Cooldowns de los poderes
     time_left_powerup = 0  # Tiempo restante del power-up activo
+    
     color_fondo = '#071821'
     color_letra = '#e4fccc'
+    dialogue_box.letters_path = "../assets/images/ui/ascii_noche/"
     # Añadir las tortugas al grupo al inicio
     turtles = generate_random_turtle(12)  # Iniciar con una tortuga
 

@@ -38,6 +38,7 @@ def fade_out():
         pygame.display.flip()
         pygame.time.delay(40)
 
+
 def start_game():
     pygame.mixer.music.stop()
     fade_out()
@@ -148,7 +149,7 @@ if __name__ == "__main__":
         for event in events:
             if event.type == pygame.QUIT:
                 running = False
-
+    
         surface.blit(gif_bg.get_frame(), (0, 0))  # Renderizar el fondo GIF
         current_menu.update(events)
         current_menu.draw(surface)
