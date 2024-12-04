@@ -25,7 +25,7 @@ def load_and_save_tiles(image_path, tile_width, tile_height, output_folder, scal
             pygame.image.save(tile, tile_filename)
             tile_count += 1
 
-    print(f"Se han guardado {tile_count} tiles en '{output_folder}'.")
+    #print(f"Se han guardado {tile_count} tiles en '{output_folder}'.")
 
 # Ejemplo de uso:
 load_and_save_tiles("../assets/images/escenes/gentle forest v03.png", 32, 32, "../assets/images/ui/frames/", scale=(64, 64))

@@ -96,19 +96,19 @@ class Egg(pygame.sprite.Sprite):
 
     def take_egg(self, enemy):
         """El huevo es tomado por el jugador."""
-        print("Huevo tomado")
+        #print("Huevo tomado")
         self.is_visible = False  # Hacerlo invisible
         self.enemy = enemy
 
     def drop_egg(self):
         """Cuando el enemigo huye, hace caer los huevos desde su posición."""
-        print("Huevo soltado")
+        #print("Huevo soltado")
         if self.enemy:
             self.is_visible = True  # Hacer visible el huevo
             # Puedes establecer aquí la posición del enemigo
             self.x = self.enemy.x - random.randint(0, 50)
             self.y = self.enemy.y - random.randint(0, 50)
-            print(f"Posición del huevo: {self.x}, {self.y}")
+            #print(f"Posición del huevo: {self.x}, {self.y}")
     
     def follow_player(self,player):
         """Huevo sigue al jugador."""

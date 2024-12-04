@@ -97,7 +97,7 @@ class Enemy(pygame.sprite.Sprite):
                 if self.target_egg:
                     self.target_egg.take_egg(self)  # Pasar el objeto enemigo a la función take_egg
                     self.eggs_taken.append(self.target_egg)
-                    print(f"El enemigo ha tomado un huevo. Total: {len(self.eggs_taken)}")
+                    #print(f"El enemigo ha tomado un huevo. Total: {len(self.eggs_taken)}")
                     self.target_egg = None
 
                 self.attack_steps = 0

@@ -1,4 +1,4 @@
-from libraries import *
+
 import json
 import random
 from player import Player
@@ -8,6 +8,11 @@ from enemy import Enemy
 from gif import GifBackground
 from dialogue import DialogueBox
 import sys
+import pygame
+from settings import WIDTH, HEIGHT
+
+
+
 def load_image(path, scale=None):
     image = pygame.image.load(path).convert_alpha()
     if scale:
