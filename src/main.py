@@ -11,6 +11,7 @@
 # "typing_extensions",
 # ]
 # ///
+
 import asyncio
 import pygame
 from settings import WIDTH, HEIGHT, FPS
@@ -403,7 +404,7 @@ async def main():
                         Turtle.score = 0
 
                         
-                        main()
+                        await main()
                         
                     if event.key == pygame.K_SPACE:
                         # Termina el juego si apreta espacio
