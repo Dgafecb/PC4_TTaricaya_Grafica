@@ -1,3 +1,17 @@
+# /// script
+# dependencies = [
+# "numpy",
+# "imageio",
+# "pillow",
+# "pygame",
+# "pygame-menu",
+# "pygbag",
+# "pyperclip",
+# "PyTMX",
+# "typing_extensions",
+# ]
+# ///
+
 import pygame
 import pytmx
 from settings import WIDTH, HEIGHT, FPS
