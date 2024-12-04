@@ -1,7 +1,13 @@
-import pygame
+from libraries import *
 import json
-from settings import WIDTH, HEIGHT
-
+import random
+from player import Player
+from turtles import Turtle
+from zorro import Fox
+from enemy import Enemy
+from gif import GifBackground
+from dialogue import DialogueBox
+import sys
 def load_image(path, scale=None):
     image = pygame.image.load(path).convert_alpha()
     if scale:
@@ -209,3 +215,169 @@ def imprimir_letras(surface, texto, color, x, y, font, interval=30):
         surface.blit(text_surface, (x, y))
         pygame.display.update()
         pygame.time.wait(interval)
+
+# Sustituye map_data y ajusta draw_map
+def draw_map_from_tmx(screen, tmx_data):
+    for layer in tmx_data.visible_layers:  # Iterar por las capas visibles del mapa
+        if hasattr(layer, "tiles"):  # Si la capa contiene tiles
+            for x, y, tile_surface in layer.tiles():  # tile_surface es la imagen del tile
+                if tile_surface is not None:  # Solo dibujar tiles válidos
+                    screen.blit(tile_surface, (x * tmx_data.tilewidth, y * tmx_data.tileheight))
+
+def check_collision(player, turtles):
+    """Verifica si el jugador está colisionando con alguna tortuga y retorna todas las que están colisionando."""
+    following_turtles = []  # Lista de tortugas que están colisionando con el jugador
+    for turtle in turtles:
+        if player.rect.colliderect(turtle.rect):  # Verificamos si el jugador está colisionando con la tortuga
+            following_turtles.append(turtle)
+    return following_turtles
+
+def check_collision_power(player, powerups):
+    """Verifica si el jugador está colisionando con algún power-up."""
+    for powerup in powerups:
+        if player.rect.colliderect(powerup.rect):
+            return powerup
+    return None
+
+def init_objects():
+    turtles = pygame.sprite.Group()
+    powerups = pygame.sprite.Group()
+    foxes = pygame.sprite.Group()
+    eggs = pygame.sprite.Group()
+    enemies = pygame.sprite.Group()
+    return turtles, powerups, foxes, eggs, enemies
+
+def generate_random_turtle(n):
+    turtles = pygame.sprite.Group()
+    for _ in range(n):
+        x = random.randint(-50, -10)
+        y = random.randint(100, HEIGHT - 100)
+        turtle = Turtle(x, y, "../assets/images/turtle_assets")
+        turtles.add(turtle)
+    return turtles
+
+# Función para generar power-ups aleatorios en posiciones válidas
+def generate_random_powerup(n):
+    powerups = pygame.sprite.Group()
+    for _ in range(n):
+        # Generar una posición aleatoria en el rango que no esté en el mar (a la izquierda)
+        x = random.randint(100, WIDTH-500)  # Evita las zonas del mar
+        y = random.randint(100, HEIGHT-200)
+        
+        powerup = Power(x, y, "../assets/images/power_upps")
+        powerups.add(powerup)
+    return powerups
+
+
+# Función para generar zorros aleatorios
+def generate_random_fox(n,eggs):
+    foxes = pygame.sprite.Group()
+    for _ in range(n):
+        # A la derecha
+        x = WIDTH + 100
+
+        y = random.randint(100, HEIGHT - 100)
+        fox = Fox("../assets/images/fox_assets", eggs)
+        foxes.add(fox)
+    return foxes
+
+def generate_random_enemy(n,eggs):
+    enemies = pygame.sprite.Group()
+    for _ in range(n):
+        x = WIDTH + 100
+        y = random.randint(100, HEIGHT - 100)
+        enemy = Enemy("../assets/images/hunter_assets",eggs)
+        enemies.add(enemy)
+    return enemies
+
+# Codigo de menu
+
+lg_bg = '#e4fccc'
+dg_bg = '#071821'
+
+gif_bg = GifBackground("../video.gif", (WIDTH, HEIGHT))
+
+def set_color(texto, color, font_size=30):
+    font = pygame.font.Font(None, font_size)
+    text_surface = font.render(texto, True, color)
+    return text_surface
+
+
+def start_game(surface, dict_estado_actual):
+    pygame.mixer.music.stop()
+    
+    dict_estado_actual["estado_actual"] = 0
+    print("El estado ha cambiado",dict_estado_actual)
+    
+
+def handle_events(event, back_button_rect):
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        if back_button_rect.collidepoint(event.pos):
+            return True
+    return False
+
+def instructions_menu_loop(surface, dialogue_boxes, back_button_rect, back_button_color):
+    clock = pygame.time.Clock()
+    running = True
+
+    while running:
+        surface.fill((0, 0, 0))  # Limpia la pantalla con un fondo negro
+
+        # Dibujar cuadros de diálogo
+        for box in dialogue_boxes:
+            box.draw_menu(surface, color_fondo=(50, 50, 50), color_letra=(200, 200, 200))
+            box.update()
+
+        # Dibuja el botón "Volver"
+        pygame.draw.rect(surface, back_button_color, back_button_rect)
+        font = pygame.font.SysFont('arial', 24)
+        text = font.render("Volver", True, (0, 0, 0))
+        surface.blit(text, (back_button_rect.x + 10, back_button_rect.y + 5))
+
+        # Manejo de eventos
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif handle_events(event, back_button_rect):  # Usar la función de eventos separada
+                print("Botón 'Volver' presionado")
+                running = False  # Salir del menú de instrucciones
+
+        pygame.display.flip()
+        clock.tick(60)
+
+# Función para crear el menú de instrucciones
+def create_instructions_menu(surface):
+    # Crear cuadros de diálogo para las instrucciones
+    dialogue_boxes = []
+
+    box_width, box_height = 700, 100
+    text_speed = 2
+    letter_size = (16, 16)
+    letters_path_day = "../assets/images/ui/ascii"  # Cambia a la ruta de tus letras
+    letters_path_night = "../assets/images/ui/ascii_noche"  # Cambia a la ruta de tus letras
+
+    # Crear los cuadros de diálogo
+    dialogue_boxes.append(DialogueBox(letters_path_day, (50, 50), text_speed, box_width, box_height, letter_size))
+    dialogue_boxes[-1].set_text('Usa las flechas del teclado para moverte por el mapa.')
+
+    dialogue_boxes.append(DialogueBox(letters_path_day, (50, 150), text_speed, box_width, box_height, letter_size))
+    dialogue_boxes[-1].set_text('a. De dia: Usa A para guiar a las tortugas y S para darles un empujon.')
+
+    dialogue_boxes.append(DialogueBox(letters_path_night, (50, 250), text_speed, box_width, box_height, letter_size))
+    dialogue_boxes[-1].set_text('b. De noche: Presiona los botones para ahuyentar depredadores.')
+
+    # Botón para volver al menú principal
+    back_button_rect = pygame.Rect(WIDTH // 2 - 50, HEIGHT - 100, 100, 40)
+    back_button_color = (100, 200, 100)
+
+    # Llamamos al loop de instrucciones
+    instructions_menu_loop(surface, dialogue_boxes, back_button_rect, back_button_color)
+
+def go_back_to_main_menu(menu):
+    global current_menu
+    current_menu = menu
+
+def switch_menu(new_menu):
+    global current_menu
+    current_menu = new_menu

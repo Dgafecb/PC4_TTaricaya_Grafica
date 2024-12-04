@@ -1,29 +1,8 @@
-import pygame
-from settings import WIDTH, HEIGHT, FPS
-from player import Player
-from utils import load_tileset, draw_map
-from dialogue import DialogueBox  # Importa el cuadro de diálogo
-from pytmx import load_pygame
-from utils import load_story_from_json
-from turtles import Turtle
-import random
-from crab import Crab  # Importa la clase Crab
-from utils import  draw_score
-import time
-from power import Power  # Importa la clase Power
-from utils import  draw_powerup_info
-from zorro import Fox
-from egg import Egg
-import math
-from utils import mostrar_letrero_personalizado
-from buttons import Button
-from enemy import Enemy
-from utils import draw_image
-
-#MUSICA
+from libraries import *
+from utils import *
+from dialogue import DialogueBox
 # Inicializa el mixer de Pygame
 pygame.mixer.init()
-
 
 path_musica_dia = '../assets/sounds/platformer_level03_loop.ogg'
 path_musica_noche = '../assets/sounds/fantasy Dragon.ogg'
@@ -31,15 +10,6 @@ path_musica_noche = '../assets/sounds/fantasy Dragon.ogg'
 # Cargar la música
 pygame.mixer.music.load(path_musica_noche)  # Ruta a tu archivo de música
 pygame.mixer.music.set_volume(0.5)  # Establece el volumen (opcional)
-
-# Sustituye map_data y ajusta draw_map
-def draw_map_from_tmx(screen, tmx_data):
-    for layer in tmx_data.visible_layers:  # Iterar por las capas visibles del mapa
-        if hasattr(layer, "tiles"):  # Si la capa contiene tiles
-            for x, y, tile_surface in layer.tiles():  # tile_surface es la imagen del tile
-                if tile_surface is not None:  # Solo dibujar tiles válidos
-                    screen.blit(tile_surface, (x * tmx_data.tilewidth, y * tmx_data.tileheight))
-
 
 path_nido ='../assets/images/ui/frames/nido.png'
 
@@ -79,58 +49,9 @@ story = load_story_from_json('../history.json')
 story_noche = load_story_from_json("../history.json", "story_noche")
 story_dia = load_story_from_json("../history.json", "story_dia")
 
-# Tortugas: generadas aleatoriamente
-turtles = pygame.sprite.Group()
+# Inicialización de los objetos del juego
+turtles,powerups,foxes,eggs,enemies = init_objects()
 
-# En el ciclo principal:
-powerups = pygame.sprite.Group()  # Grupo de power-ups
-
-# Zorros: generados aleatoriamente
-foxes = pygame.sprite.Group()
-
-# Huevos: generados aleatoriamente
-eggs = pygame.sprite.Group()
-
-# Enemigo: generados aleatoriamente
-enemies = pygame.sprite.Group()
-
-# Función para crear tortugas aleatorias
-def generate_random_turtle(n):
-    for _ in range(n):
-        x = random.randint(-50, -10)
-        y = random.randint(100, HEIGHT - 100)
-        turtle = Turtle(x, y, "../assets/images/turtle_assets")
-        turtles.add(turtle)
-
-# Función para generar power-ups aleatorios en posiciones válidas
-def generate_random_powerup(n):
-    for _ in range(n):
-        # Generar una posición aleatoria en el rango que no esté en el mar (a la izquierda)
-        x = random.randint(100, WIDTH-500)  # Evita las zonas del mar
-        y = random.randint(100, HEIGHT-200)
-        
-        powerup = Power(x, y, "../assets/images/power_upps")
-        powerups.add(powerup)
-
-# Función para generar zorros aleatorios
-def generate_random_fox(n):
-    for _ in range(n):
-        # A la derecha
-        x = WIDTH + 100
-
-        y = random.randint(100, HEIGHT - 100)
-        fox = Fox("../assets/images/fox_assets", eggs)
-        foxes.add(fox)
-
-def generate_random_enemy(n):
-    for _ in range(n):
-        x = WIDTH + 100
-        y = random.randint(100, HEIGHT - 100)
-        enemy = Enemy("../assets/images/hunter_assets",eggs)
-        enemies.add(enemy)
-
-# Lista para almacenar las posiciones de los huevos generados
-egg_positions_individual = []  # Almacena las posiciones de los huevos generados
 # Lista de cangrejos
 crabs = pygame.sprite.Group()
 for _ in range(4):  # Por ejemplo, 3 cangrejos
@@ -142,22 +63,6 @@ for _ in range(4):  # Por ejemplo, 3 cangrejos
 # Agrega una variable para saber si el jugador está siguiendo una tortuga
 following_turtle = None
 
-def check_collision(player, turtles):
-    """Verifica si el jugador está colisionando con alguna tortuga y retorna todas las que están colisionando."""
-    following_turtles = []  # Lista de tortugas que están colisionando con el jugador
-    for turtle in turtles:
-        if player.rect.colliderect(turtle.rect):  # Verificamos si el jugador está colisionando con la tortuga
-            following_turtles.append(turtle)
-    return following_turtles
-
-
-def check_collision_power(player, powerups):
-    """Verifica si el jugador está colisionando con algún power-up."""
-    for powerup in powerups:
-        if player.rect.colliderect(powerup.rect):
-            return powerup
-    return None
-
 # Creamos una lista de packs
 egg_packs = {}
 
@@ -168,7 +73,7 @@ def generate_pack_egg(x, y, n):
     angulo_incremento = 2 * math.pi / n  # Para distribuir los huevos de manera equidistante
     
     # Lista de los objetos egg
-    lista_egg = []
+    lista_egg = []  
    
     for i in range(n):
         # Calcular el ángulo para cada huevo
@@ -239,13 +144,19 @@ boton_perros = Button(200, 200,  '../assets/images/botones_assets/boton_B.png',
 player_assets_path = "../assets/images/player_assets"
 player = Player(WIDTH // 2, HEIGHT // 2, player_assets_path, "../MapaDia.tmx", turtles, crabs)
  # estados del juego
-ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4,"puntaje_noche":5,"puntaje_noche_transicion":6,"puntaje_noche_terminado":7,"puntaje_final_transicion":8,"puntaje_final":9}
+ESTADOS = {"narrativa_inicio":0,"narrativa_noche":1, "juego_noche":2, "narrativa_dia":3, "juego_dia":4,"puntaje_noche":5,"puntaje_noche_transicion":6,"puntaje_noche_terminado":7,"puntaje_final_transicion":8,"puntaje_final":9,"menu":10}
 # estado actual del juego
-estado_actual = ESTADOS["narrativa_inicio"]# 0 
+
+#estado_actual = ESTADOS["narrativa_inicio"]# 0 
+estado_actual = ESTADOS["menu"] # 10
+TEMP = {"estado_actual":10}
+
+gif_bg = GifBackground("../video.gif", (WIDTH, HEIGHT))
+
 
 def main():
     global following_turtle, score, time_left, start_time,start_time_dia,estado_actual, start_time_noche # Usamos la variable global para modificarla dentro del ciclo principal
-   
+    global foxes,enemies,eggs,crabs,egg_packs,player,boton_perros,boton_sirena,dialogue_box,turtles,powerups,tmx_map_dia,mapa_noche
     
     # Reproducir música (en loop infinito)
     pygame.mixer.music.play(loops=-1, start=0.0)  # loops=-1 para repetir la música infinitamente
@@ -284,10 +195,34 @@ def main():
     color_letra = '#e4fccc'
     dialogue_box.letters_path = "../assets/images/ui/ascii_noche/"
     # Añadir las tortugas al grupo al inicio
-    generate_random_turtle(12)  # Iniciar con una tortuga
+    turtles = generate_random_turtle(12)  # Iniciar con una tortuga
+
+    '''
+    Integracion de menu
+
+    '''
+    # Colores de dia
+    lg_bg = '#e4fccc'
+    dg_bg = '#071821'
+
+    lg_font = '#e4fccc'
+    theme = pygame_menu.themes.THEME_DARK.copy()
+    theme.background_color = (0, 0, 0, 0)
+    theme.button_font_color = lg_bg
+
+    menu = pygame_menu.Menu('         Taricaya: Guardian del Amazonas        ', WIDTH, HEIGHT, theme=theme)
+    # Ajustar la creación de botones
+    menu.add.button('Empezar Juego', lambda: start_game(screen,TEMP))
+    menu.add.button('Ver Instrucciones', lambda: create_instructions_menu(screen))
+    menu.add.button('Salir', pygame_menu.events.EXIT)
+    current_menu = menu
+
     while running:
+        
         clock.tick(FPS)
-        for event in pygame.event.get():
+        events = pygame.event.get()
+        for event in events:
+            
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
@@ -362,6 +297,7 @@ def main():
                     if event.key == pygame.K_q:
                         # REINICIAR TODAS LAS VARIABLES
                         
+
                         estado_actual = ESTADOS["narrativa_inicio"]
                         score = 0
                         start_time = None
@@ -470,8 +406,6 @@ def main():
                     x_, y_ = event.pos
                     #print(f"Click en {x_}, {y_}")
                     create_or_remove_egg_pack(x_, y_)
-                
-
             if event.type == pygame.KEYDOWN: #SOLO
                 if event.key ==pygame.K_n:   # PARA
                     start_time = time.time()  # Inicia el cronómetro después de la historia
@@ -480,9 +414,10 @@ def main():
             if event.type == pygame.KEYDOWN: #SOLO
                 if event.key ==pygame.K_m:   # PARA
                     estado_actual = 3        # PRUEBAS
-                    
-      
-      
+
+
+        
+           
         # Generamos power-ups aleatorios despues de la historia y una sola vez
         # Manejo de los power-ups y cooldowns
         current_time = pygame.time.get_ticks()
@@ -514,7 +449,6 @@ def main():
                 
                 powerup.apply_ability(player)
 
-
         # Mostrar el tiempo del power-up activo
         if powerup_active:
             time_left_powerup = max(0, powerup_duration - (current_time - powerup_start_time))  # Asegurarse de que el tiempo no sea negativo
@@ -530,9 +464,7 @@ def main():
                 powerup_cooldowns['speed'] = 0
                 powerup_cooldowns['invisible_turtle_follower'] = 0
                 powerup_cooldowns['turtle_speed'] = 0
-                    
-
-
+        
         # Lógica para power-ups 
         if current_time - last_powerup_spawn_time > power_interval and len(powerups) < 3:
             # Crear un nuevo power-up en una posición aleatoria
@@ -572,8 +504,6 @@ def main():
                 crab.move()
                 crab.update()
 
-        
-        
         # Dibujar todo
         screen.fill((0, 0, 0))
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"],ESTADOS["puntaje_final"],ESTADOS["puntaje_final_transicion"]]:
@@ -587,10 +517,10 @@ def main():
             if len(egg_packs.keys()) == max_egg_packs and not start_time_noche:
                 #print("Has alcanzado el máximo de packs de huevos")
                 start_time_noche = time.time()
-                generate_random_fox(2)  # Iniciar con un zorro
+                foxes = generate_random_fox(2,eggs)  # Iniciar con un zorro
 
                 # Generar enemigos
-                generate_random_enemy(2)
+                enemies = generate_random_enemy(2,eggs)
 
                 
             else:
@@ -653,8 +583,6 @@ def main():
                 enemy.update()
                 enemy.draw(screen)
 
-
-
         if estado_actual in [ESTADOS["narrativa_dia"],ESTADOS["juego_dia"]]:
             # Dibujar tortugas
             for turtle in turtles:
@@ -673,11 +601,13 @@ def main():
             player.draw(screen)
 
         # Dibujar el cuadro de diálogo si está activo
+        
         dialogue_box.update()
         dialogue_box.draw(screen,color_fondo=color_fondo, color_letra=color_letra)
         
-        # Dibujar el score y el tiempo
+
         
+        # Dibujar el score y el tiempo 
         if start_time_noche:
             time_left = max(0, game_duration - int(time.time() - start_time_noche))
             if estado_actual == ESTADOS["narrativa_dia"]:
@@ -734,6 +664,19 @@ def main():
             
         elif start_time_noche and time_left<=0 and estado_actual == ESTADOS["juego_noche"]:
             estado_actual = ESTADOS["puntaje_noche"]
+        
+        if estado_actual in [ESTADOS["menu"]]:
+            screen.blit(gif_bg.get_frame(), (0, 0))  # Renderizar el fondo GIF
+            
+            #menu.mainloop(screen)
+            current_menu.update(events)
+            current_menu.draw(screen)
+            #current_menu.mainloop(surface=screen)
+            pygame.display.flip()
+            clock.tick(60)
+            estado_actual = TEMP["estado_actual"]
+            print("Estado actual",estado_actual)
+        
         pygame.display.flip()
               
 if __name__ == "__main__":
