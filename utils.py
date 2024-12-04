@@ -1,4 +1,3 @@
-
 import json
 import random
 from player import Player
@@ -34,7 +33,6 @@ def load_tileset(image_path, tile_width, tile_height, scale=None):
 
     return tiles
 
-
 # Función para dibujar el mapa
 def draw_map(screen, map_data, tiles, tile_width, tile_height):
     """Dibuja el mapa en la pantalla directamente con índices."""
@@ -44,7 +42,6 @@ def draw_map(screen, map_data, tiles, tile_width, tile_height):
                 x = col_index * tile_width
                 y = row_index * tile_height
                 screen.blit(tiles[tile_index], (x, y))
-
 
 def load_story_from_json(filename, story_type="story"):
     with open(filename, "r") as file:

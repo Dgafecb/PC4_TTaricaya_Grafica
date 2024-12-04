@@ -720,15 +720,17 @@ while running:
     
     if estado_actual in [ESTADOS["menu"]]:
         #screen.blit(gif_bg.get_frame(), (0, 0))  # Renderizar el fondo GIF
-    
+        #fondo_menu_path = './assets/images/fondo.png'
+        #image = pygame.image.load(fondo_menu_path)
+        # Dibujamos el fondo
+        #screen.blit(image, (0,0))
         #menu.mainloop(screen)
-        #current_menu.update(events)
-        #current_menu.draw(screen)
+        current_menu.update(events)
+        current_menu.draw(screen)
         #current_menu.mainloop(surface=screen)
-        #pygame.display.flip()
-        #clock.tick(60)
+        pygame.display.flip()
+        clock.tick(60)
         estado_actual = TEMP["estado_actual"]
-        estado_actual=0
         #print("Estado actual",estado_actual)
 
         if estado_actual == 0:
