@@ -14,11 +14,11 @@ class Fox(pygame.sprite.Sprite):
 
         # Cargar las animaciones
         self.animaciones = {
-            "idle_left": self.cargar_sprites("GandalfHardcore doggy sheet 2.png", 0),
-            "idle_right": self.cargar_sprites_inv("GandalfHardcore doggy sheet 2.png", 0),
-            "walk_right": self.cargar_sprites("GandalfHardcore doggy sheet 2.png", 1),
-            "walk_left": self.cargar_sprites_inv("GandalfHardcore doggy sheet 2.png", 1),
-            "attack": self.cargar_sprites("GandalfHardcore doggy sheet 2.png", 1),
+            "idle_left": self.cargar_sprites("GandalfHardcore fox.png", 0),
+            "idle_right": self.cargar_sprites_inv("GandalfHardcore fox.png", 0),
+            "walk_right": self.cargar_sprites("GandalfHardcore fox.png", 1),
+            "walk_left": self.cargar_sprites_inv("GandalfHardcore fox.png", 1),
+            "attack": self.cargar_sprites("GandalfHardcore fox.png", 1),
         }
 
         self.current_sprite = 0

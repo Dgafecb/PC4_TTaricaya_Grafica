@@ -1,22 +1,22 @@
 {
   "story": [
-    "Hola, joven. Soy un anciano de la Reserva Pacaya-Samiria, hogar de las taricayas.",
-    "He visto muchas generaciones de ellas, pero ahora estan en grave peligro.",
-    "Los cazadores y zorros nos acechan, pero tu seras su protector.",
-    "Tu mision es salvar los huevos y las crias de taricaya. ¡A trabajar!"
+    "Hola, joven. Soy un anciano de la Reserva Pacaya-Samiria",
+    "Hogar de las tortugas taricaya.",
+    "He visto muchas generaciones de ellas, pero ahora estan en grave peligro."
   ],
   "story_noche": [
-    "Es de noche, joven guardian. Los cazadores y zorros vienen por los huevos.",
+    "Es de noche, joven guardian.",
+    "Los cazadores y zorros vienen por los huevos.",
     "Debes elegir donde colocar los nidos. Recoge los huevos caidos y guardalos.",
-    "Usa la alarma tipo A para espantar a los cazadores con sirenas.",
-    "Usa la alarma tipo B para ahuyentar a los zorros con ladridos de perros.",
-    "Recoge los huevos antes de que los cazadores los lleven. ¡Rapido!",
-    "Asegurate de que los huevos esten en los nidos correspondientes."
+    "Usa la alarma tipo A para espantar a los cazadores",
+    "Usa la alarma tipo B para ahuyentar a los zorros",
+    "Recoge los huevos antes de que los cazadores los lleven. Rapido!",
+    "Asegurate de que los huevos esten en los nidos."
   ],
   "story_dia": [
-    "El dia ha llegado, las crias de taricaya ya nacieron. ¡Es hora de cruzar el rio!",
-    "Los cangrejos intentaran atacar a las crias. ¡Protege a las pequenas tortugas!",
-    "Puedes darles velocidad con un poder especial. ¡Apresuralas antes de que los cangrejos lleguen!",
+    "El dia ha llegado, las crias de taricaya ya nacieron. Es hora de cruzar el rio!",
+    "Los cangrejos intentaran atacar a las crias. Protege a las pequenas tortugas!",
+    "Puedes darles velocidad con un poder especial. Apresuralas antes de que los cangrejos lleguen!",
     "Presiona A para hacer que las tortugas te sigan. Mantemelas a salvo.",
     "Presiona A + S para empujar a las tortugas y hacer que avancen.",
     "Si presionas A nuevamente, la tortuga dejara de seguirte. ¡Guialas bien!"

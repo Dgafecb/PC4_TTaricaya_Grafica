@@ -54,9 +54,10 @@ import asyncio
 
 
 import asyncio
-
+story = load_story_from_json('./history.json')
+story_noche = load_story_from_json("./history.json", "story_noche")
 async def main():
-
+    global story, story_noche
     # Inicializa el mixer de Pygame
     pygame.mixer.init()
 
@@ -103,8 +104,7 @@ async def main():
         box_height=120,
         letter_size=(16, 16)
     )
-    story = load_story_from_json('./history.json')
-    story_noche = load_story_from_json("./history.json", "story_noche")
+    
     story_dia = load_story_from_json("./history.json", "story_dia")
 
     # Inicialización de los objetos del juego
@@ -374,6 +374,7 @@ async def main():
 
                         Egg.score = 25
                         Turtle.score = 0
+                        await main()
 
                         
                         
