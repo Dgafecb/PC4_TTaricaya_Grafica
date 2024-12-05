@@ -294,6 +294,7 @@ def generate_random_enemy(n,eggs):
 
 # Codigo de menu
 
+
 lg_bg = '#e4fccc'
 dg_bg = '#071821'
 
@@ -322,8 +323,10 @@ def instructions_menu_loop(surface, dialogue_boxes, back_button_rect, back_butto
     clock = pygame.time.Clock()
     running = True
 
+    path_image = "./assets/images/fondo.png"
+    image = pygame.image.load(path_image).convert_alpha()
     while running:
-        #surface.blit(gif_bg.get_frame(), (0, 0))
+        surface.blit(image, (0, 0))
         # Dibujar cuadros de diálogo
         for box in dialogue_boxes:
             box.draw_image(surface, color_letra=(200, 200, 200))
@@ -394,3 +397,127 @@ def go_back_to_main_menu(menu):
 def switch_menu(new_menu):
     global current_menu
     current_menu = new_menu
+
+
+import sys
+
+# Configuración global
+WIDTH, HEIGHT = 800, 600
+lg_bg = '#e4fccc'  # Color claro para los botones
+dg_bg = '#071821'  # Color oscuro para los botones
+button_hover = '#5a6e70'  # Color al pasar el ratón sobre el botón
+
+# Instrucciones del juego
+instrucciones_texto = [
+    "Nivel 1 : ",
+    "Elige los nidos de las tortugas a tu cargo. (CLICK)",
+    "  (A) : Agarrar un huevo.",
+    "  (S) : Soltar el huevo.",
+    "Nivel 2 : ",
+    "Ayuda a las tortugas a cruzar el río",
+    "  (A) : Atraes la tortuga que chocas.",
+    "  (A + S) : Empujas la tortuga que esta cerca",
+    "Puedes recoger habilidades que te ayudarán en el juego",
+]
+
+instruction = False
+dic_i = {'intruction':False}
+# Función para dibujar el menú
+def dibujar_menu(surface, TEMP, clock,events):
+    # Cargar la imagen de fondo
+    global instruction
+
+    fondo_menu_path = './assets/images/fondo.png'
+    image = pygame.image.load(fondo_menu_path)
+    image = pygame.transform.scale(image, (WIDTH, HEIGHT))  # Ajustar tamaño de la imagen al tamaño de la pantalla
+    surface.blit(image, (0, 0))  # Dibujar fondo en la superficie
+
+    # Dimensiones de los botones
+    button_width, button_height = 300, 50
+    start_game_rect = pygame.Rect((WIDTH // 2 - button_width // 2, HEIGHT // 2 - 100, button_width, button_height))
+    instructions_rect = pygame.Rect((WIDTH // 2 - button_width // 2, HEIGHT // 2, button_width, button_height))
+    exit_rect = pygame.Rect((WIDTH // 2 - button_width // 2, HEIGHT // 2 + 100, button_width, button_height))
+
+    # Dibujar botones
+    pygame.draw.rect(surface, dg_bg, start_game_rect)
+    pygame.draw.rect(surface, dg_bg, instructions_rect)
+    pygame.draw.rect(surface, dg_bg, exit_rect)
+
+    font = pygame.font.SysFont('arial', 30)
+    start_text = font.render('Empezar Juego', True, lg_bg)
+    instructions_text = font.render('Ver Instrucciones', True, lg_bg)
+    exit_text = font.render('Salir', True, lg_bg)
+
+    surface.blit(start_text, (start_game_rect.x + (button_width - start_text.get_width()) // 2, start_game_rect.y + (button_height - start_text.get_height()) // 2))
+    surface.blit(instructions_text, (instructions_rect.x + (button_width - instructions_text.get_width()) // 2, instructions_rect.y + (button_height - instructions_text.get_height()) // 2))
+    surface.blit(exit_text, (exit_rect.x + (button_width - exit_text.get_width()) // 2, exit_rect.y + (button_height - exit_text.get_height()) // 2))
+
+    
+
+    # Manejar los eventos de clic
+    for event in events:
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+        # Clic en el botón "Empezar Juego"
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if start_game_rect.collidepoint(event.pos):
+                TEMP["estado_actual"] = 0  # Cambiar el estado a "juego"
+                
+        # Clic en el botón "Ver Instrucciones"
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if instructions_rect.collidepoint(event.pos):
+                instruction = True
+                dic_i["intruction"] = True
+
+        # Clic en el botón "Salir"
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if exit_rect.collidepoint(event.pos):
+                pygame.quit()
+                sys.exit()
+    
+    if instruction:
+        mostrar_instrucciones(surface, clock,dic_i,events)
+        instruction = dic_i["intruction"]
+
+    # Actualizar pantalla
+    pygame.display.flip()
+    clock.tick(60)
+
+# Función para mostrar el cuadro de instrucciones
+def mostrar_instrucciones(surface, clock, dict_inst,events):
+    # Rectángulo para el cuadro de instrucciones
+    instructions_box_rect = pygame.Rect(100, 100, WIDTH - 200, HEIGHT - 200)
+    pygame.draw.rect(surface, (0, 0, 0, 150), instructions_box_rect)  # Fondo semitransparente
+
+    # Dibujar el texto de instrucciones
+    font = pygame.font.SysFont('arial', 24)
+    y_offset = 120
+    for line in instrucciones_texto:
+        line_text = font.render(line, True, lg_bg)
+        surface.blit(line_text, (instructions_box_rect.x + 20, y_offset))
+        y_offset += 40
+
+    # Botón de cierre (X)
+    close_button_rect = pygame.Rect(instructions_box_rect.x + instructions_box_rect.width - 50, instructions_box_rect.y - 30, 30, 30)
+    pygame.draw.rect(surface, (255, 0, 0), close_button_rect)  # Botón de cierre rojo
+    close_text = font.render('X', True, (255, 255, 255))
+    surface.blit(close_text, (close_button_rect.x + 8, close_button_rect.y + 5))  # Posicionar la "X"
+
+    # Manejar eventos del botón de cierre
+    for event in events :
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if close_button_rect.collidepoint(event.pos):
+                #print("Cerrar")
+                #print(dict_inst)
+                dict_inst["intruction"] = False
+                return  # Cerrar el cuadro de instrucciones
+
+    # Actualizar pantalla
+    pygame.display.flip()
+    clock.tick(60)
